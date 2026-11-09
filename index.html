@@ -61,6 +61,13 @@ body.freeon #wrap,body.freeon .tray{touch-action:none}
 body.freeon .tray{outline:2px dashed #c9892b}
 .ghost{position:fixed;width:58px;height:58px;transform:translate(-50%,-50%);z-index:30;pointer-events:none;opacity:.92}
 .ghost .piece{width:100%;height:100%}
+.colors{display:flex;gap:8px;align-items:center}
+.colors span{font-weight:700;color:#cfe8d2;white-space:nowrap}
+.colors button{padding:10px 6px;background:#3b5e41}
+.colors button.on{background:#c9892b}
+.gb{position:absolute;top:1px;right:1px;min-width:19px;height:19px;padding:0 3px;border-radius:10px;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#fff;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none}
+.gb.g-ok{border:2px solid #fff;min-width:17px;height:17px;padding:0}
+.gb.g-inacc{color:#3a2f00}
 </style>
 </head>
 <body>
@@ -78,6 +85,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
 </div>
 <div id="menu"><div class="box">
   <h1>얼굴 체스</h1>
+  <div class="colors" id="colors"><span>내 색</span><button data-p="w">⚪ 백</button><button data-p="b">⚫ 흑</button><button data-p="r">🎲 랜덤</button></div>
   <button id="mAi">🤖 혼자 하기 (컴퓨터와 대결)</button>
   <div class="sub" id="lvls"><button data-l="1">쉬움</button><button data-l="2">보통</button><button data-l="3">어려움</button></div>
   <button id="mLab">🎓 연습실 (스톡피쉬 힌트)</button>
@@ -93,6 +101,11 @@ const $=s=>document.querySelector(s);
 let S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
 let free=false, fsel=null, justDragged=false;
+let pick="w", me="w", lastGrade=null, gradeToken=0;
+try{pick=localStorage.getItem("fc_pick")||"w";}catch(e){}
+const flip=()=>me==="b";
+const GR={best:{t:"!!",l:"최고의 수",c:"#26c0f0"},good:{t:"!",l:"좋은 수",c:"#2f6fe0"},ok:{t:"",l:"괜찮은 수",c:"#3aa655"},
+  inacc:{t:"?",l:"부정확한 수",c:"#e8c21a"},mistake:{t:"?!",l:"실수",c:"#f08a1c"},blunder:{t:"??",l:"큰 실수",c:"#e03a3a"}};
 
 function newState(){
   const b=Array.from({length:8},()=>Array(8).fill(null));
@@ -178,7 +191,8 @@ function pieceEl(p,small){
 function render(){
   const bd=$("#board");bd.innerHTML="";
   const chk=(!free&&inCheck(S,S.turn))?findKing(S.b,S.turn):null;
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+  for(let vr=0;vr<8;vr++)for(let vc=0;vc<8;vc++){
+    const r=flip()?7-vr:vr,c=flip()?7-vc:vc;
     const q=document.createElement("div");
     q.className="sq "+((r+c)%2?"d":"l");
     if(lastMove&&((lastMove.fr===r&&lastMove.fc===c)||(lastMove.tr===r&&lastMove.tc===c)))q.classList.add("last");
@@ -188,6 +202,7 @@ function render(){
     const hm=legalCache.find(m=>m.tr===r&&m.tc===c);
     if(hm){q.classList.add("hint");if(S.b[r][c]||hm.ep)q.classList.add("cap");}
     if(S.b[r][c])q.appendChild(pieceEl(S.b[r][c]));
+    if(lastGrade&&!free&&lastMove&&lastMove.tr===r&&lastMove.tc===c){const g=document.createElement("span");g.className="gb g-"+lastGrade;g.textContent=GR[lastGrade].t;g.style.background=GR[lastGrade].c;q.appendChild(g);}
     q.dataset.r=r;q.dataset.c=c;q.onclick=()=>click(r,c);
     bd.appendChild(q);
   }
@@ -204,7 +219,8 @@ function render(){
 function drawArrow(){
   const a=$("#arrow");
   if(!arrow){a.innerHTML="";return;}
-  const x1=arrow.fc+.5,y1=arrow.fr+.5,x2=arrow.tc+.5,y2=arrow.tr+.5;
+  const X=c=>(flip()?7-c:c)+.5,Y=r=>(flip()?7-r:r)+.5;
+  const x1=X(arrow.fc),y1=Y(arrow.fr),x2=X(arrow.tc),y2=Y(arrow.tr);
   const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy,py=ux;
   const bx=x2-ux*.42,by=y2-uy*.42; // arrowhead base
   const w=.11,hw=.27;
@@ -214,7 +230,7 @@ function drawArrow(){
 function click(r,c){
   if(free){freeClick(r,c);return;}
   if(over||busy)return;
-  if(mode==="ai"&&S.turn!=="w")return;
+  if(mode==="ai"&&S.turn!==me)return;
   const m=legalCache.find(m=>m.tr===r&&m.tc===c);
   if(sel&&m){
     const p=S.b[sel[0]][sel[1]];
@@ -228,12 +244,17 @@ function click(r,c){
   render();
 }
 function doMove(m,promo){
-  hist.push({S:clone(S),last:lastMove});
-  S=apply(S,m,promo);lastMove=m;sel=null;legalCache=[];arrow=null;hintToken++;
+  const before=clone(S);
+  hist.push({S:before,last:lastMove});
+  S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
   $("#info").textContent="";
   over=!anyLegal(S);
   render();
-  if(mode==="ai"&&!over&&S.turn==="b"){busy=true;$("#status").textContent="🤔 컴퓨터 생각 중…";setTimeout(aiMove,60);}
+  if(mode==="lab")gradeMove(before,m,clone(S),over,++gradeToken);
+  maybeAI();
+}
+function maybeAI(){
+  if(mode==="ai"&&!over&&S.turn!==me&&!busy){busy=true;$("#status").textContent="🤔 컴퓨터 생각 중…";setTimeout(aiMove,350);}
 }
 
 /* ---------- 간단 AI (혼자 하기) ---------- */
@@ -312,18 +333,27 @@ function toFen(s){
   const ep=s.ep?"abcdefgh"[s.ep.c]+(8-s.ep.r):"-";
   return `${f} ${s.turn} ${ca||"-"} ${ep} 0 1`;
 }
+const anCache=new Map();let anQ=Promise.resolve();
 function analyze(s){
-  return sfInit().then(()=>new Promise(res=>{
+  const fen=toFen(s);
+  if(anCache.has(fen))return Promise.resolve(anCache.get(fen));
+  const job=anQ.then(()=>anCache.has(fen)?anCache.get(fen):sfInit().then(()=>new Promise(res=>{
     let cp=null,mate=null;
     sfLine=l=>{
       if(l.startsWith("info")&&/ score /.test(l)){
         const m1=l.match(/score cp (-?\d+)/),m2=l.match(/score mate (-?\d+)/);
         if(m1){cp=+m1[1];mate=null;}else if(m2){mate=+m2[1];cp=null;}
-      }else if(l.startsWith("bestmove")){sfLine=null;res({best:l.split(" ")[1],cp,mate});}
+      }else if(l.startsWith("bestmove")){
+        sfLine=null;const r={best:l.split(" ")[1],cp,mate};
+        if(anCache.size>400)anCache.clear();
+        anCache.set(fen,r);res(r);
+      }
     };
-    sf.postMessage("position fen "+toFen(s));
-    sf.postMessage("go movetime 1200");
-  }));
+    sf.postMessage("position fen "+fen);
+    sf.postMessage("go movetime 1000");
+  })));
+  anQ=job.catch(()=>{});
+  return job;
 }
 const KN={P:"폰",N:"나이트",B:"비숍",R:"룩",Q:"퀸",K:"킹"};
 function evalText(res,turn){
@@ -353,13 +383,49 @@ async function hint(){
     $("#info").textContent="스톡피쉬를 불러오지 못했어요 (웹 주소로 열어야 해요)";
   }finally{if(tok===hintToken)busy=false;}
 }
+/* ---------- 둔 수 평가 (연습실) ---------- */
+const wpct=cp=>50+50*(2/(1+Math.exp(-0.00368208*cp))-1);
+const cpOf=r=>r.mate!==null?(r.mate>0?1:-1)*(10000-Math.abs(r.mate)*10):r.cp;
+const sqn=(r,c)=>"abcdefgh"[c]+(8-r);
+async function gradeMove(before,m,after,ended,tok){
+  try{
+    const r0=await analyze(before);
+    let w1,r1=null;
+    if(ended){w1=inCheck(after,after.turn)?100:50;}
+    else{r1=await analyze(after);w1=wpct(-cpOf(r1));}
+    const w0=wpct(cpOf(r0));
+    const loss=Math.max(0,w0-w1);
+    const uci=sqn(m.fr,m.fc)+sqn(m.tr,m.tc);
+    let g;
+    if((r0.best||"").slice(0,4)===uci||loss<0.5)g="best";
+    else if(loss<3)g="good";
+    else if(loss<8)g="ok";
+    else if(loss<15)g="inacc";
+    else if(loss<25)g="mistake";
+    else g="blunder";
+    if(tok!==gradeToken)return;
+    lastGrade=g;
+    if(!arrow){
+      const G=GR[g];
+      let h=`방금 ${KN[typ(before.b[m.fr][m.fc])]} ${uci.slice(0,2)}→${uci.slice(2)}: <b style="color:${G.c}">${G.t||"●"} ${G.l}</b>`;
+      if((g==="inacc"||g==="mistake"||g==="blunder")&&r0.best&&r0.best!=="(none)"){
+        const bf=8-+r0.best[1],bc=r0.best.charCodeAt(0)-97,bp=before.b[bf][bc];
+        if(bp)h+=` · 더 좋은 수: ${KN[typ(bp)]} ${r0.best.slice(0,2)}→${r0.best.slice(2,4)}`;
+      }
+      if(r1)h+=` | ${evalText(r1,after.turn)}`;
+      $("#info").innerHTML=h;
+    }
+    render();
+  }catch(e){}
+}
+
 /* ---------- 잡힌 기물 칸 + 자유 이동 (연습실) ---------- */
 const PV={P:1,N:3,B:3,R:5,Q:9,K:0};
 function renderTrays(){
   const sum=a=>a.reduce((s,p)=>s+PV[typ(p)],0);
   const wl=sum(S.tray.b)-sum(S.tray.w); // 백이 잡은 점수 - 흑이 잡은 점수
-  for(const [id,c] of [["#trayT","w"],["#trayB","b"]]){
-    const el=$(id);el.innerHTML="";
+  for(const [id,c] of (flip()?[["#trayT","b"],["#trayB","w"]]:[["#trayT","w"],["#trayB","b"]])){
+    const el=$(id);el.innerHTML="";el.dataset.ph=c==="w"?"흑이 잡은 백 기물":"백이 잡은 흑 기물";
     const arr=S.tray[c].map((p,i)=>({p,i})).sort((a,b)=>PV[typ(b.p)]-PV[typ(a.p)]);
     for(const {p,i} of arr){
       const d=document.createElement("div");d.className="tp";d.dataset.c=c;d.dataset.i=i;
@@ -396,12 +462,13 @@ function setFree(on){
     if(err){$("#info").textContent="⚠ "+err;return;}
     S=s2;free=false;over=!anyLegal(S);
   }
-  fsel=null;sel=null;legalCache=[];arrow=null;hintToken++;
+  fsel=null;sel=null;legalCache=[];arrow=null;lastGrade=null;gradeToken++;hintToken++;
   document.body.classList.toggle("freeon",free);
   $("#free").classList.toggle("on",free);
   $("#free").textContent=free?"✋ 자유 이동 끝내기":"✋ 자유 이동";
   $("#info").textContent=free?"기물을 끌거나 눌러서 옮겨요. 판 밖으로 빼면 잡혀요":"";
   render();
+  if(!free&&mode==="lab")analyze(S).catch(()=>{});
 }
 function freeMove(src,dst){
   if(src.t==="sq"&&dst.t==="sq"&&src.r===dst.r&&src.c===dst.c)return;
@@ -412,7 +479,7 @@ function freeMove(src,dst){
   else p=S.tray[src.c].splice(src.i,1)[0];
   if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;}
   else S.tray[col(p)].push(p);
-  fsel=null;arrow=null;lastMove=null;hintToken++;$("#info").textContent="";
+  fsel=null;arrow=null;lastMove=null;lastGrade=null;gradeToken++;hintToken++;$("#info").textContent="";
   render();
 }
 const fselColor=()=>fsel.t==="sq"?col(S.b[fsel.r][fsel.c]):fsel.c;
@@ -486,12 +553,21 @@ function askPromo(color,cb){
   }
   $("#promo").style.display="flex";
 }
-function reset(){free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="✋ 자유 이동";S=newState();hist=[];sel=null;legalCache=[];lastMove=null;over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();}
+function reset(){
+  free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="✋ 자유 이동";
+  me=pick==="r"?(Math.random()<.5?"w":"b"):pick;
+  S=newState();hist=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
+  $("#info").textContent=pick==="r"?"🎲 랜덤 결과: 내 색은 "+(me==="w"?"백":"흑"):"";
+  render();
+  if(mode==="lab")analyze(S).catch(()=>{});
+  maybeAI();
+}
 $("#undo").onclick=()=>{
   if(busy&&mode==="ai")return;
   let h=hist.pop();if(!h)return;
-  if(mode==="ai"){while(h.S.turn!=="w"&&hist.length)h=hist.pop();}
-  S=h.S;lastMove=h.last;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
+  if(mode==="ai"){while(h.S.turn!==me&&hist.length)h=hist.pop();}
+  S=h.S;lastMove=h.last;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
+  maybeAI();
 };
 $("#new").onclick=()=>{if(busy&&mode==="ai")return;reset();};
 $("#hint").onclick=hint;
@@ -507,6 +583,12 @@ $("#mAi").onclick=()=>$("#lvls").classList.toggle("on");
 document.querySelectorAll("#lvls button").forEach(b=>b.onclick=()=>start("ai",+b.dataset.l));
 $("#mLab").onclick=()=>start("lab");
 $("#m2p").onclick=()=>start("2p");
+function setPick(x){
+  pick=x;try{localStorage.setItem("fc_pick",x);}catch(e){}
+  document.querySelectorAll("#colors button").forEach(b=>b.classList.toggle("on",b.dataset.p===x));
+}
+document.querySelectorAll("#colors button").forEach(b=>b.onclick=()=>setPick(b.dataset.p));
+setPick(pick);
 S=newState();render();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
