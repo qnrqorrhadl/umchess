@@ -1,9 +1,10 @@
-const CACHE = "face-chess-v9";
+const CACHE = "face-chess-v10";
 const FILES = ["./", "index.html", "manifest.json",
   "pawn.png", "bishop.png", "knight.png",
   "rook.png", "queen.png", "king.png",
   "wP.png","wN.png","wB.png","wR.png","wQ.png","wK.png",
   "bP.png","bN.png","bB.png","bR.png","bQ.png","bK.png",
+  "bg1.jpg","bg2.jpg","bg3.jpg",
   "icon-192.png", "icon-512.png",
   "stockfish-19-lite-single.js", "stockfish-19-lite-single.wasm"];
 self.addEventListener("install", e => {
