@@ -37,7 +37,7 @@ button:active{background:#479455}
 #wrap{position:relative;width:100%}
 #arrow{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);pointer-events:none}
 #info{min-height:22px;text-align:center;font-size:16px;color:#2b5a35;font-weight:600}
-#menu{position:fixed;inset:0;background:rgba(255,255,255,.28);z-index:9;display:flex;align-items:center;justify-content:center}
+#menu{position:fixed;inset:0;background:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:9;display:flex;align-items:center;justify-content:center}
 #menu .box{background:rgba(255,255,255,.8);padding:18px;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.18);width:min(92vw,420px);display:flex;flex-direction:column;gap:12px;text-align:center}
 #menu h1{margin:0 0 6px;font-size:30px}
 #menu .sub{display:none;gap:8px}
@@ -146,6 +146,27 @@ body.freeon .tray{outline:2px dashed #c9892b}
 @keyframes flashx{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.6)}}
 #board.shake{animation:shk .4s}
 @keyframes shk{0%,100%{transform:translate(0)}20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,2px)}}
+
+#pgMain{gap:10px}
+#menu .logo{position:relative;height:160px;display:flex;align-items:center;justify-content:center}
+#menu .lf{position:absolute;width:68px;height:68px;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.3);animation:lfl 3s ease-in-out infinite}
+#menu .l1{left:-6px;top:-8px;z-index:2}#menu .l2{right:-6px;bottom:-6px;z-index:2;animation-delay:-1.5s}
+@keyframes lfl{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+#menu .lt{width:100%;max-width:340px;height:auto;position:relative;z-index:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+#menu .sm{font-size:13px;font-weight:900;letter-spacing:2px;color:#fff;background:#2f7d5b;padding:3px 10px 3px 18px;border-radius:20px;margin-bottom:4px}
+#menu .lg{font-size:42px;font-weight:900;color:#fff;background:linear-gradient(180deg,#fff 0,#e9fff3 45%,#7fe0b0 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:0;filter:drop-shadow(0 0 0 #1f5a40) drop-shadow(2px 0 0 #1f5a40) drop-shadow(-2px 0 0 #1f5a40) drop-shadow(0 2px 0 #1f5a40) drop-shadow(0 -2px 0 #1f5a40) drop-shadow(0 5px 3px rgba(0,0,0,.3));animation:lgp 2.4s ease-in-out infinite}
+@keyframes lgp{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+#menu .vs{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:2px}
+#menu .vs img{width:46px;height:46px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#menu .vs b{font-size:18px;color:#c0392b;letter-spacing:2px}
+#menu .mb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px;border-radius:14px;border:2px solid #1f5a40;background:linear-gradient(180deg,#4fc08a,#2f7d5b);color:#fff;box-shadow:0 4px 0 #1f5a40}
+#menu .mb i{font-style:normal;font-size:19px;font-weight:900}
+#menu .mb small{color:#e6fff2;font-size:11px}
+#menu .mb.alt{background:linear-gradient(180deg,#8d9fb5,#5f748c);border-color:#41536a;box-shadow:0 4px 0 #41536a}
+#menu .mb.alt2{background:linear-gradient(180deg,#b9a58a,#8c7656);border-color:#65543a;box-shadow:0 4px 0 #65543a}
+#menu .mb.off{background:#c9cfca;border-color:#a3aaa5;box-shadow:0 4px 0 #a3aaa5}
+#menu .mb:active{transform:translateY(3px);box-shadow:0 1px 0 #1f5a40}
+#menu .mrow{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
 </style>
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
 </head>
@@ -166,15 +187,21 @@ body.freeon .tray{outline:2px dashed #c9892b}
   <div id="skbar"><button id="skBtn"></button><button id="gbBtn" style="display:none"></button></div>
   <div id="skinfo"></div>
   <div id="bar2"><button id="free">자유 이동</button><button id="turnBtn" disabled>차례: 백</button></div>
-  <div id="bar"><button id="home">메뉴</button><button id="hint" style="display:none">힌트</button><button id="undo">되돌리기</button><button id="new">새 게임</button><button id="snd">소리 켬</button></div>
+  <div id="bar"><button id="home">메뉴</button><button id="hint" style="display:none">힌트</button><button id="undo">되돌리기</button><button id="new">새 게임</button></div>
   </div>
 </div>
 <div id="menu"><div class="box">
   <div class="pg" id="pgMain">
-    <h1>얼굴 체스</h1>
-    <button id="mRace">종족전 (요정 vs 마녀)</button>
-    <button id="mClassic">클래식 모드</button>
-    <button class="off" disabled>같이 하기 (준비 중)</button>
+    <div class="logo"><img class="lt" src="logo.png" alt="트릭컬 체스"></div>
+    <div class="vs"><img src="wK.png" alt=""><b>VS</b><img src="bK.png" alt=""></div>
+    <button class="mb" id="mRace"><i>종족전</i><small>요정 vs 마녀</small></button>
+    <button class="mb alt" id="mClassic"><i>클래식 모드</i><small>기본 규칙 그대로</small></button>
+    <div class="mrow"><button class="mb off" disabled><i>같이 하기</i><small>준비 중</small></button><button class="mb alt2" id="mSet"><i>설정</i></button></div>
+  </div>
+  <div class="pg" id="pgSet" hidden>
+    <h1>설정</h1>
+    <button id="snd">효과음 켬</button>
+    <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
   <div class="pg" id="pgRace" hidden>
     <h1>종족전</h1>
@@ -398,6 +425,7 @@ function doMove(m,promo){
   }
   render();
   if(S.bl)breakFx(S.bl.r,S.bl.c);
+  else sfx((before.b[m.tr][m.tc]||m.ep)?"cap":"move");
   if(mode==="lab"){
     if(bk){gradeToken++;analyze(clone(S)).catch(()=>{});}
     else gradeMove(before,m,clone(S),over,++gradeToken,prev);
@@ -424,9 +452,12 @@ function sfx(k){if(!sndOn)return;
   if(k==="cut"){tone(200,0,.5,"sawtooth",.1,900);tone(660,.35,.4,"triangle",.12);}
   else if(k==="chime"){tone(880,0,.35,"sine",.12);tone(1320,.06,.3,"sine",.08);}
   else if(k==="break"){noise(0,.35,.3);tone(180,0,.3,"square",.12,50);tone(1400,0,.15,"sine",.06,300);}
+  else if(k==="move"){tone(300,0,.07,"triangle",.12,200);noise(0,.03,.06);}
+  else if(k==="cap"){tone(160,0,.16,"square",.18,60);noise(0,.09,.16);tone(520,.02,.08,"triangle",.08);}
   else if(k==="hit"){tone(120,0,.18,"square",.2,45);noise(0,.1,.15);}
 }
-function sndBtn(){$("#snd").textContent=sndOn?"소리 켬":"소리 끔";}
+function sndBtn(){$("#snd").textContent=sndOn?"효과음 켬":"효과음 끔";}
+$("#mSet").onclick=()=>showPg("pgSet");
 $("#snd").onclick=()=>{sndOn=!sndOn;localStorage.setItem("fc_snd",sndOn?"1":"0");sndBtn();if(sndOn){actx();sfx("chime");}};
 sndBtn();
 function sqEl(r,c){return document.querySelector(`#board .sq[data-r="${r}"][data-c="${c}"]`);}
@@ -484,7 +515,7 @@ function useSkill2(){
   let info;
   if(st===1)info="폰 "+give(t=>t==="P",2)+"개에 방어막!";
   else if(st===2)info="룩·나이트·비숍 "+give(t=>t==="R"||t==="N"||t==="B",3)+"개에 방어막!";
-  else{const[kr,kc]=findKing(n.b,"w");k.sh[kr][kc]=2;k.qk=1;info="킹: 방어막 2회 + 퀸처럼 이동! 다구리 능력 해금";}
+  else{const[kr,kc]=findKing(n.b,"w");k.sh[kr][kc]=2;k.qk=1;info="킹: 방어막 2회 + 퀸처럼 이동!";}
   commitSkill(n,st+"단계",ST2[st-1],info,"skill2_"+st+".png","c"+st);
 }
 function attackersOf(s,r,c,by){
@@ -507,7 +538,7 @@ function gangTargets(){
     const l=attackersOf(S,r,c,"w");if(l.length>=3)out.push({r,c,l,v:VAL[typ(p)]});}
   return out;
 }
-function canGang(){return canSkill()&&fsk===2&&S.sk.st>=3&&S.sk.cdG===0;}
+function canGang(){return canSkill()&&S.sk.cdG===0;}
 function gangTarget(r,c){
   const g=gangTargets().find(x=>x.r===r&&x.c===c);
   if(!g){gbT=false;render();return;}
@@ -526,11 +557,11 @@ function gangTarget(r,c){
   },1950);
 }
 const skIcon=st=>fsk===1?"skill1.png":"skill2_"+st+".png";
-const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 해금"];
-const GDESC="다구리: 3기물이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
+const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동"];
+const GDESC="요정 패시브 다구리: 3기물이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
 function skDesc(){const k=S.sk;
   if(fsk===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴";
-  if(k.st>=3)return "에르피엔 전통 해결법: 진화 완료 (다구리 사용 가능)";
+  if(k.st>=3)return "에르피엔 전통 해결법: 진화 완료";
   return "에르피엔 "+(k.st+1)+"단계: "+STD[k.st]+" · 쿨 8턴";}
 function cardHTML(img,name,base,cd){
   return (skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
@@ -546,10 +577,10 @@ function skUI(){
   const off=done||cd>0||!canSkill();
   b.className="skcard"+(off?" off":"")+(cd>0?" cd":"")+(skT?" tgt":"");
   b.innerHTML=cardHTML(img,name,base,cd);
-  const showG=fsk===2;gb.style.display=showG?"":"none";
+  const showG=true;gb.style.display=showG?"":"none";
   const parts=[];
   if(showG){
-    const open=k.st>=3,has=open&&gangTargets().length>0,goff=!open||k.cdG>0||!canGang()||!has;
+    const open=true,has=open&&gangTargets().length>0,goff=!open||k.cdG>0||!canGang()||!has;
     gb.className="skcard"+(goff?" off":"")+(!open?" lock":"")+(k.cdG>0?" cd":"")+(gbT?" tgt":"");
     gb.innerHTML=cardHTML("skill_dagu.png","다구리",5,k.cdG);
     if(open&&k.cdG===0&&canSkill()&&!has&&!gbT)parts.push("3기물이 노리는 상대 기물이 없어요");
@@ -571,7 +602,7 @@ $("#skBtn").onclick=e=>{
   else useSkill2();
 };
 $("#gbBtn").onclick=e=>{
-  if(e.target.closest(".cinfo")){toast(S.sk.st>=3?GDESC:"다구리: 에르피엔 전통 해결법 3단계에서 해금돼요");return;}
+  if(e.target.closest(".cinfo")){toast(GDESC);return;}
   if(gbT){gbT=false;render();return;}
   skT=false;
   if(!canGang()||!gangTargets().length)return;
