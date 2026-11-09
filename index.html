@@ -67,6 +67,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
 .ghost{position:fixed;width:58px;height:58px;transform:translate(-50%,-50%);z-index:30;pointer-events:none;opacity:.92}
 .ghost .piece{width:100%;height:100%}
 .colors,.skrow{display:flex;gap:8px;align-items:center}
+.skrow{flex-wrap:wrap}.skrow span{flex:0 0 100%}.skrow button{white-space:nowrap;font-size:13px;padding:8px 4px}
 .colors span,.skrow span{font-weight:700;color:#2b5a35;white-space:nowrap}
 .colors button,.skrow button{padding:10px 6px;background:#8fc99a}
 .colors button.on,.skrow button.on{background:#c9892b}
@@ -76,17 +77,18 @@ body.freeon .tray{outline:2px dashed #c9892b}
 #bg{position:fixed;left:0;top:0;width:100%;height:100vh;height:100lvh;z-index:-1;pointer-events:none;will-change:transform;transform:translateZ(0);background:linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.12)),var(--bg) center/cover no-repeat,#cfe8f5}
 
 #skbar{display:none;justify-content:center;align-items:flex-end;gap:0;padding:6px 0 2px}
-#skbar button.skcard,#skbar button.skcard:active{position:relative;flex:none;width:96px;height:128px;padding:0;border:3px solid #f0a020;border-radius:14px;background:linear-gradient(#ffd966,#f7a620);box-shadow:0 4px 10px rgba(0,0,0,.3);overflow:visible;transform:rotate(var(--rot,0deg));transition:transform .15s,filter .15s;color:#6b3d00}
+#skbar button.skcard,#skbar button.skcard:active{position:relative;flex:none;width:112px;height:142px;padding:0;border:3px solid #f0a020;border-radius:14px;background:linear-gradient(#ffd966,#f7a620);box-shadow:0 4px 10px rgba(0,0,0,.3);overflow:visible;transform:rotate(var(--rot,0deg));transition:transform .15s,filter .15s;color:#6b3d00}
 #skbar button.skcard:nth-child(1){--rot:-4deg}
 #skbar button.skcard:nth-child(2){--rot:4deg;margin-left:-6px}
 #skbar button.skcard:only-child,#skbar button.skcard[style*="display: none"]+*{--rot:0deg}
 .skcard .cimg{position:absolute;left:4px;top:4px;width:calc(100% - 8px);height:calc(100% - 34px);object-fit:cover;border-radius:9px;background:#fff3c8}
-.skcard .cname{position:absolute;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;justify-content:center;background:#fff6d8;color:#6b3d00;font-weight:900;font-size:11px;line-height:1.1;text-align:center;padding:0 3px;border-radius:0 0 10px 10px}
+.skcard .cname{position:absolute;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;justify-content:center;background:#fff6d8;color:#6b3d00;font-weight:900;font-size:10px;line-height:1.1;text-align:center;padding:0 2px;border-radius:0 0 10px 10px;white-space:nowrap;overflow:hidden}
 .skcard .cbadge{position:absolute;left:-7px;top:-7px;min-width:28px;height:28px;padding:0 4px;box-sizing:border-box;border-radius:14px;background:#f7931e;border:3px solid #fff;color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 2px 4px rgba(0,0,0,.3)}
 .skcard .cinfo{position:absolute;right:-6px;top:-6px;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #f0a020;color:#c9780a;font-weight:900;font-size:13px;font-style:italic;display:flex;align-items:center;justify-content:center;z-index:3}
 .skcard .cov{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:11px;background:rgba(30,30,45,.62);color:#fff;font-weight:900;font-size:38px;display:none;align-items:center;justify-content:center;z-index:2;text-shadow:0 2px 4px #000}
 .skcard.cd .cov{display:flex}
 .skcard.off:not(.cd){filter:grayscale(.75) brightness(.9)}
+.skcard.lock{filter:brightness(.6) saturate(.8)!important}
 #skbar button.skcard.tgt{transform:translateY(-10px) rotate(var(--rot,0deg)) scale(1.05);border-color:#ff5a2a;box-shadow:0 0 0 3px rgba(255,90,42,.55),0 8px 14px rgba(0,0,0,.35)}
 #skbar button.skcard:not(.off):not(.tgt){animation:rdy 1.6s ease-in-out infinite}
 @keyframes rdy{0%,100%{box-shadow:0 4px 10px rgba(0,0,0,.3)}50%{box-shadow:0 4px 10px rgba(0,0,0,.3),0 0 14px 4px rgba(255,214,90,.9)}}
@@ -156,7 +158,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
   <div class="pg" id="pgRace" hidden>
     <h1>종족전</h1>
     <div class="colors" id="races"><span>내 종족</span><button data-p="w">요정</button><button data-p="b">마녀</button><button data-p="r">랜덤</button></div>
-    <div class="skrow" id="fsks"><span>요정 스킬</span><button data-s="1"><img class="skimg" src="skill1.png" onerror="this.remove()">빠아아아앙!!!</button><button data-s="2"><img class="skimg" src="skill2_1.png" onerror="this.remove()">에르피엔 유구한 전통</button></div>
+    <div class="skrow" id="fsks"><span>요정 스킬</span><button data-s="1"><img class="skimg" src="skill1.png" onerror="this.remove()">빠아아아앙!!!</button><button data-s="2"><img class="skimg" src="skill2_1.png" onerror="this.remove()">에르피엔 전통 해결법</button></div>
     <small id="fskDesc"></small>
     <button id="rStart">한 폰으로 둘이서 시작</button>
     <small>요정은 백, 마녀는 흑이에요 · 마녀 스킬은 곧 추가돼요</small>
@@ -415,7 +417,7 @@ function useSkill2(){
   let info;
   if(st===1)info="폰 "+give(t=>t==="P",2)+"개에 방어막!";
   else if(st===2)info="룩·나이트·비숍 "+give(t=>t==="R"||t==="N"||t==="B",3)+"개에 방어막!";
-  else{const[kr,kc]=findKing(n.b,"w");k.sh[kr][kc]=2;k.qk=1;info="킹: 방어막 2회 + 퀸처럼 이동! 협공 능력 해금";}
+  else{const[kr,kc]=findKing(n.b,"w");k.sh[kr][kc]=2;k.qk=1;info="킹: 방어막 2회 + 퀸처럼 이동! 다구리 능력 해금";}
   commitSkill(n,st+"단계: "+ST2[st-1],info,"skill2_"+st+".png");
 }
 function attackersOf(s,r,c,by){
@@ -446,22 +448,22 @@ function gangTarget(r,c){
   gbT=false;busy=true;sel=null;legalCache=[];
   const shielded=S.sk.sh[g.r][g.c]>0;
   bonk={tr:g.r,tc:g.c,list:g.l.slice(0,3),kill:!shielded};
-  toast("협공!");render();
+  toast("다구리!");render();
   setTimeout(()=>{
     const n=clone(S),kk=n.sk;let msg;
-    if(shielded){kk.sh[g.r][g.c]--;msg="협공을 방어막이 막았어요! (방어막 소모)";}
-    else{const cp=n.b[g.r][g.c];n.tray[col(cp)].push(cp);n.b[g.r][g.c]=null;msg="협공 성공! 기물을 잡았어요";}
+    if(shielded){kk.sh[g.r][g.c]--;msg="다구리을 방어막이 막았어요! (방어막 소모)";}
+    else{const cp=n.b[g.r][g.c];n.tray[col(cp)].push(cp);n.b[g.r][g.c]=null;msg="다구리 성공! 기물을 잡았어요";}
     kk.cdG=5;n.ep=null;n.turn="b";tick(n);
     S=n;lastMove={fr:g.r,fc:g.c,tr:g.r,tc:g.c};bonk=null;busy=false;
     over=!anyLegal(S)||dead(S);$("#info").textContent=msg;render();
   },1950);
 }
 const skIcon=st=>fsk===1?"skill1.png":"skill2_"+st+".png";
-const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 협공 해금"];
-const GDESC="협공: 3기물이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
+const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 해금"];
+const GDESC="다구리: 3기물이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
 function skDesc(){const k=S.sk;
   if(fsk===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴";
-  if(k.st>=3)return "에르피엔 유구한 전통: 진화 완료 (협공 사용 가능)";
+  if(k.st>=3)return "에르피엔 전통 해결법: 진화 완료 (다구리 사용 가능)";
   return "에르피엔 "+(k.st+1)+"단계: "+STD[k.st]+" · 쿨 8턴";}
 function cardHTML(img,name,base,cd){
   return (skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
@@ -472,18 +474,18 @@ function skUI(){
   const k=S.sk;
   let name,base,cd,img,done=false;
   if(fsk===1){name="빠아아아앙!!!";base=10;cd=k.cd1;img="skill1.png";}
-  else if(k.st>=3){name="에르피엔 유구한 전통";base="MAX";cd=0;img="skill2_3.png";done=true;}
-  else{name="에르피엔 유구한 전통";base=8;cd=k.cd2;img=skIcon(k.st+1);}
+  else if(k.st>=3){name="에르피엔 전통 해결법";base="MAX";cd=0;img="skill2_3.png";done=true;}
+  else{name="에르피엔 전통 해결법";base=8;cd=k.cd2;img=skIcon(k.st+1);}
   const off=done||cd>0||!canSkill();
   b.className="skcard"+(off?" off":"")+(cd>0?" cd":"")+(skT?" tgt":"");
   b.innerHTML=cardHTML(img,name,base,cd);
-  const showG=fsk===2&&k.st>=3;gb.style.display=showG?"":"none";
+  const showG=fsk===2;gb.style.display=showG?"":"none";
   const parts=[];
   if(showG){
-    const has=gangTargets().length>0,goff=k.cdG>0||!canGang()||!has;
-    gb.className="skcard"+(goff?" off":"")+(k.cdG>0?" cd":"")+(gbT?" tgt":"");
-    gb.innerHTML=cardHTML("skill2_3.png","협공",5,k.cdG);
-    if(k.cdG===0&&canSkill()&&!has&&!gbT)parts.push("3기물이 노리는 상대 기물이 없어요");
+    const open=k.st>=3,has=open&&gangTargets().length>0,goff=!open||k.cdG>0||!canGang()||!has;
+    gb.className="skcard"+(goff?" off":"")+(!open?" lock":"")+(k.cdG>0?" cd":"")+(gbT?" tgt":"");
+    gb.innerHTML=cardHTML("skill_dagu.png","다구리",5,k.cdG);
+    if(open&&k.cdG===0&&canSkill()&&!has&&!gbT)parts.push("3기물이 노리는 상대 기물이 없어요");
   }
   if(skT)parts.push("방어막을 줄 내 기물을 고르세요 (카드를 다시 누르면 취소)");
   else if(gbT)parts.push("3기물이 노리는 상대 기물을 고르세요 (카드를 다시 누르면 취소)");
@@ -502,7 +504,7 @@ $("#skBtn").onclick=e=>{
   else useSkill2();
 };
 $("#gbBtn").onclick=e=>{
-  if(e.target.closest(".cinfo")){toast(GDESC);return;}
+  if(e.target.closest(".cinfo")){toast(S.sk.st>=3?GDESC:"다구리: 에르피엔 전통 해결법 3단계에서 해금돼요");return;}
   if(gbT){gbT=false;render();return;}
   skT=false;
   if(!canGang()||!gangTargets().length)return;
@@ -891,7 +893,7 @@ function setPick(x){
 }
 document.querySelectorAll(".colors button").forEach(b=>b.onclick=()=>setPick(b.dataset.p));
 setPick(pick);
-const FDESC={1:"기물 1개에 방어막 1회 (10턴마다) + 다음 턴 킹이 1칸 더 이동",2:"쓸 때마다 3단계까지 진화 (8턴마다). 3단계에는 킹 강화와 협공 능력!"};
+const FDESC={1:"기물 1개에 방어막 1회 (10턴마다) + 다음 턴 킹이 1칸 더 이동",2:"쓸 때마다 3단계까지 진화 (8턴마다). 3단계에는 킹 강화와 다구리 능력!"};
 function setFsk(x){fsk=x;try{localStorage.setItem("fc_fsk",x);}catch(e){}
   document.querySelectorAll("#fsks button").forEach(b=>b.classList.toggle("on",+b.dataset.s===x));$("#fskDesc").textContent=FDESC[x];}
 document.querySelectorAll("#fsks button").forEach(b=>b.onclick=()=>setFsk(+b.dataset.s));
