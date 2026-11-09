@@ -80,7 +80,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
 #skbar button:disabled{background:#c9cfca;color:#fff}
 #skbar button.tgt{background:#e08a1e}
 #skinfo{min-height:18px;text-align:center;font-size:14px;font-weight:600;color:#5b3fb0}
-.skimg{height:26px;width:26px;border-radius:6px;vertical-align:middle;margin-right:6px;object-fit:cover}
+.skimg{height:32px;width:32px;border-radius:6px;vertical-align:middle;margin-right:6px;object-fit:cover}
 .shd{position:absolute;inset:3%;border-radius:50%;border:3px solid rgba(70,190,255,.95);box-shadow:0 0 8px 2px rgba(70,190,255,.85),inset 0 0 8px rgba(120,220,255,.7);pointer-events:none;z-index:2;display:flex;align-items:flex-start;justify-content:flex-start;color:#fff;font-weight:900;font-size:12px;text-shadow:0 0 3px #06a}
 .shd.s2{border-color:#ffd24a;box-shadow:0 0 8px 2px rgba(255,210,70,.9),inset 0 0 8px rgba(255,230,120,.7);text-shadow:0 0 3px #a60}
 .sq.skt{box-shadow:inset 0 0 0 3px rgba(70,190,255,.95)}
@@ -101,6 +101,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
 .fx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(30px,10vw,60px);pointer-events:none;z-index:8;animation:pop .6s ease-out var(--fd) both}
 @keyframes pop{0%{opacity:0;transform:scale(.2)}30%{opacity:1;transform:scale(1.5)}100%{opacity:0;transform:scale(2)}}
 .sq.gt{box-shadow:inset 0 0 0 4px rgba(230,50,50,.95);background:#ffd9d9!important}
+#toast .tsimg{height:44px;width:44px;border-radius:10px;object-fit:cover;vertical-align:middle;margin-right:8px}
 #toast{position:fixed;left:50%;top:9%;white-space:nowrap;transform:translateX(-50%) scale(.9);max-width:90vw;padding:12px 18px;border-radius:14px;background:rgba(60,30,120,.92);color:#fff;font-weight:900;font-size:17px;text-align:center;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
 #toast.show{opacity:1;transform:translateX(-50%) scale(1)}
 #left,#right{display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -144,7 +145,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
   <div class="pg" id="pgRace" hidden>
     <h1>🧚 종족전</h1>
     <div class="colors" id="races"><span>내 종족</span><button data-p="w">🧚 요정</button><button data-p="b">🧙 마녀</button><button data-p="r">🎲 랜덤</button></div>
-    <div class="skrow" id="fsks"><span>요정 스킬</span><button data-s="1">🛡 빠아아앙</button><button data-s="2">🔥 에르피엔</button></div>
+    <div class="skrow" id="fsks"><span>요정 스킬</span><button data-s="1"><img class="skimg" src="skill1.png" onerror="this.remove()">빠아아아앙!!!</button><button data-s="2"><img class="skimg" src="skill2_1.png" onerror="this.remove()">에르피엔 유구한 전통</button></div>
     <small id="fskDesc"></small>
     <button id="rStart">👥 한 폰으로 둘이서 시작</button>
     <small>요정은 백, 마녀는 흑이에요 · 마녀 스킬은 곧 추가돼요</small>
@@ -377,21 +378,21 @@ function maybeAI(){
 const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
 const nm=c=>mode==="race"?(c==="w"?"요정":"마녀"):(c==="w"?"백":"흑");
 let toastT=null;
-function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),1800);}
+function toast(t,img){const e=$("#toast");e.innerHTML=(img?`<img class="tsimg" src="${img}" onerror="this.remove()">`:"")+`<span></span>`;e.lastChild.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),1800);}
 function canSkill(){return mode==="race"&&S.sk&&!over&&!busy&&!free&&S.turn==="w"&&!inCheck(S,"w");}
-function commitSkill(n,tt,info){
+function commitSkill(n,tt,info,img){
   hist.push({S:clone(S),last:lastMove,line:line});
   n.ep=null;n.turn="b";tick(n);
   S=n;sel=null;legalCache=[];skT=false;arrow=null;
   over=!anyLegal(S)||dead(S);
   $("#info").textContent=info||"";
-  toast(tt);render();
+  toast(tt,img);render();
 }
 function skillTarget(r,c){
   const p=S.b[r][c];
   if(p&&col(p)==="w"&&typ(p)!=="K"&&!S.sk.sh[r][c]){
     const n=clone(S);n.sk.sh[r][c]=1;n.sk.cd1=10;n.sk.kb=2;
-    commitSkill(n,"빠아아아앙!!!","🛡 방어막 완료! 다음 턴에 킹이 한 칸 더 움직일 수 있어요");
+    commitSkill(n,"빠아아아앙!!!","🛡 방어막 완료! 다음 턴에 킹이 한 칸 더 움직일 수 있어요","skill1.png");
   }else{skT=false;render();}
 }
 function useSkill2(){
@@ -404,7 +405,7 @@ function useSkill2(){
   if(st===1)info="🛡 폰 "+give(t=>t==="P",2)+"개에 방어막!";
   else if(st===2)info="🛡 룩·나이트·비숍 "+give(t=>t==="R"||t==="N"||t==="B",3)+"개에 방어막!";
   else{const[kr,kc]=findKing(n.b,"w");k.sh[kr][kc]=2;k.qk=1;info="👑 킹: 방어막 2회 + 퀸처럼 이동! 👊 협공 능력 해금";}
-  commitSkill(n,st+"단계: "+ST2[st-1],info);
+  commitSkill(n,st+"단계: "+ST2[st-1],info,"skill2_"+st+".png");
 }
 function attackersOf(s,r,c,by){
   const b=s.b,out=[],pd=by==="w"?1:-1;
@@ -444,19 +445,20 @@ function gangTarget(r,c){
     over=!anyLegal(S)||dead(S);$("#info").textContent=msg;render();
   },1950);
 }
+const skIcon=st=>fsk===1?"skill1.png":"skill2_"+st+".png";
 function skUI(){
   const bar=$("#skbar"),inf=$("#skinfo"),gb=$("#gbBtn");
   bar.style.display=mode==="race"?"flex":"none";
   if(mode!=="race"||!S.sk){inf.textContent="";return;}
   const k=S.sk,b=$("#skBtn");
   let txt,dis;
-  if(fsk===1){txt="🛡 빠아아앙"+(k.cd1>0?" · "+k.cd1+"턴":"");dis=k.cd1>0;}
-  else if(k.st>=3){txt="🔥 에르피엔 · 완료";dis=true;}
-  else{txt="🔥 에르피엔"+(k.cd2>0?" · "+k.cd2+"턴":"");dis=k.cd2>0;}
+  if(fsk===1){txt="🛡 빠아아아앙!!!"+(k.cd1>0?" · "+k.cd1+"턴":"");dis=k.cd1>0;}
+  else if(k.st>=3){txt="🔥 에르피엔 유구한 전통 · 완료";dis=true;}
+  else{txt="🔥 에르피엔 유구한 전통"+(k.cd2>0?" · "+k.cd2+"턴":"");dis=k.cd2>0;}
   dis=dis||!canSkill();
   if(skT){txt="✖ 취소";dis=false;}
   b.classList.toggle("tgt",skT);b.disabled=dis;
-  b.innerHTML=(skImgOk?`<img class="skimg" src="skill${fsk}.png" onerror="skImgOk=false;this.remove()">`:"")+txt;
+  b.innerHTML=(skImgOk?`<img class="skimg" src="${skIcon(Math.min(k.st+1,3))}" onerror="skImgOk=false;this.remove()">`:"")+txt;
   const showG=fsk===2&&k.st>=3;gb.style.display=showG?"":"none";
   const parts=[];
   if(showG){
