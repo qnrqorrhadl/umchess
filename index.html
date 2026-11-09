@@ -46,16 +46,34 @@ button:active{background:#3b5e41}
 #promo .box{background:#263228;padding:16px;border-radius:14px;text-align:center}
 #promo .row{display:flex;gap:10px;margin-top:10px}
 #promo .piece{width:64px;height:64px;pointer-events:auto;cursor:pointer}
+body{-webkit-user-select:none;user-select:none}
+.tray{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-height:50px;padding:4px 8px;background:#1b241d;border-radius:10px}
+.tray:empty::before{content:attr(data-ph);color:#6f8573;font-size:13px}
+.tray .tp{position:relative;width:38px;height:38px;cursor:pointer}
+.tray .tp .piece{width:100%;height:100%}
+.tray .tp.sel .piece{outline:3px solid #f6e05e}
+.tray .sc{margin-left:auto;font-weight:900;color:#f6e05e;font-size:18px}
+#bar2{display:none;gap:8px}
+#bar2.on{display:flex}
+#bar2 button.on{background:#c9892b}
+#bar2 button:disabled{background:#555;color:#aaa}
+body.freeon #wrap,body.freeon .tray{touch-action:none}
+body.freeon .tray{outline:2px dashed #c9892b}
+.ghost{position:fixed;width:58px;height:58px;transform:translate(-50%,-50%);z-index:30;pointer-events:none;opacity:.92}
+.ghost .piece{width:100%;height:100%}
 </style>
 </head>
 <body>
 <div id="app">
   <div id="status"></div>
+  <div id="trayT" class="tray" data-ph="흑이 잡은 백 기물"></div>
   <div id="wrap">
     <div id="board"></div>
     <svg id="arrow" viewBox="0 0 8 8"></svg>
   </div>
+  <div id="trayB" class="tray" data-ph="백이 잡은 흑 기물"></div>
   <div id="info"></div>
+  <div id="bar2"><button id="free">✋ 자유 이동</button><button id="turnBtn" disabled>차례: 백</button></div>
   <div id="bar"><button id="home">메뉴</button><button id="hint" style="display:none">💡 힌트</button><button id="undo">되돌리기</button><button id="new">새 게임</button></div>
 </div>
 <div id="menu"><div class="box">
@@ -74,14 +92,15 @@ const SYM={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 const $=s=>document.querySelector(s);
 let S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
+let free=false, fsel=null, justDragged=false;
 
 function newState(){
   const b=Array.from({length:8},()=>Array(8).fill(null));
   const back="RNBQKBNR";
   for(let c=0;c<8;c++){b[0][c]="b"+back[c];b[1][c]="bP";b[6][c]="wP";b[7][c]="w"+back[c];}
-  return {b,turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null};
+  return {b,turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]}};
 }
-const clone=s=>({b:s.b.map(r=>r.slice()),turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null});
+const clone=s=>({b:s.b.map(r=>r.slice()),turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()}});
 const inb=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
 const col=p=>p[0], typ=p=>p[1], opp=c=>c==="w"?"b":"w";
 
@@ -130,6 +149,8 @@ function pseudo(s,r,c){
 }
 function apply(s,m,promo){
   const n=clone(s),p=n.b[m.fr][m.fc],me=col(p);
+  const capd=m.ep?n.b[m.fr][m.tc]:n.b[m.tr][m.tc];
+  if(capd)n.tray[col(capd)].push(capd);
   n.b[m.fr][m.fc]=null;
   if(m.ep)n.b[m.fr][m.tc]=null;
   n.b[m.tr][m.tc]=p;
@@ -156,25 +177,28 @@ function pieceEl(p,small){
 }
 function render(){
   const bd=$("#board");bd.innerHTML="";
-  const chk=inCheck(S,S.turn)?findKing(S.b,S.turn):null;
+  const chk=(!free&&inCheck(S,S.turn))?findKing(S.b,S.turn):null;
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){
     const q=document.createElement("div");
     q.className="sq "+((r+c)%2?"d":"l");
     if(lastMove&&((lastMove.fr===r&&lastMove.fc===c)||(lastMove.tr===r&&lastMove.tc===c)))q.classList.add("last");
     if(sel&&sel[0]===r&&sel[1]===c)q.classList.add("sel");
+    if(free&&fsel&&fsel.t==="sq"&&fsel.r===r&&fsel.c===c)q.classList.add("sel");
     if(chk&&chk[0]===r&&chk[1]===c)q.classList.add("chk");
     const hm=legalCache.find(m=>m.tr===r&&m.tc===c);
     if(hm){q.classList.add("hint");if(S.b[r][c]||hm.ep)q.classList.add("cap");}
     if(S.b[r][c])q.appendChild(pieceEl(S.b[r][c]));
-    q.onclick=()=>click(r,c);
+    q.dataset.r=r;q.dataset.c=c;q.onclick=()=>click(r,c);
     bd.appendChild(q);
   }
   let t=S.turn==="w"?"⚪ 백 차례":"⚫ 흑 차례";
-  if(over){
+  if(free)t="✋ 자유 이동 · "+t;
+  else if(over){
     if(inCheck(S,S.turn))t="체크메이트! "+(S.turn==="w"?"흑":"백")+" 승리 🎉";
     else t="스테일메이트 — 무승부";
   }else if(chk)t+=" (체크!)";
   $("#status").textContent=t;
+  renderTrays();
   drawArrow();
 }
 function drawArrow(){
@@ -188,6 +212,7 @@ function drawArrow(){
   a.innerHTML=`<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="rgba(255,150,0,.85)" stroke="#fff" stroke-width=".04"/>`;
 }
 function click(r,c){
+  if(free){freeClick(r,c);return;}
   if(over||busy)return;
   if(mode==="ai"&&S.turn!=="w")return;
   const m=legalCache.find(m=>m.tr===r&&m.tc===c);
@@ -310,10 +335,12 @@ function evalText(res,turn){
 }
 async function hint(){
   if(over||busy)return;
+  const P=free?normalize(S):S;
+  if(free){const er=validate(P);if(er){$("#info").textContent="⚠ "+er;return;}}
   const tok=++hintToken;busy=true;
   $("#info").textContent="💡 스톡피쉬가 계산 중…";
   try{
-    const res=await analyze(S);
+    const res=await analyze(P);
     if(tok!==hintToken)return;
     const m=res.best;
     if(!m||m==="(none)"){$("#info").textContent="둘 수가 없어요";return;}
@@ -326,6 +353,131 @@ async function hint(){
     $("#info").textContent="스톡피쉬를 불러오지 못했어요 (웹 주소로 열어야 해요)";
   }finally{if(tok===hintToken)busy=false;}
 }
+/* ---------- 잡힌 기물 칸 + 자유 이동 (연습실) ---------- */
+const PV={P:1,N:3,B:3,R:5,Q:9,K:0};
+function renderTrays(){
+  const sum=a=>a.reduce((s,p)=>s+PV[typ(p)],0);
+  const wl=sum(S.tray.b)-sum(S.tray.w); // 백이 잡은 점수 - 흑이 잡은 점수
+  for(const [id,c] of [["#trayT","w"],["#trayB","b"]]){
+    const el=$(id);el.innerHTML="";
+    const arr=S.tray[c].map((p,i)=>({p,i})).sort((a,b)=>PV[typ(b.p)]-PV[typ(a.p)]);
+    for(const {p,i} of arr){
+      const d=document.createElement("div");d.className="tp";d.dataset.c=c;d.dataset.i=i;
+      if(free&&fsel&&fsel.t==="tray"&&fsel.c===c&&fsel.i===i)d.classList.add("sel");
+      d.appendChild(pieceEl(p));el.appendChild(d);
+    }
+    const lead=c==="w"?-wl:wl;
+    if(lead>0){const s=document.createElement("span");s.className="sc";s.textContent="+"+lead;el.appendChild(s);}
+  }
+  $("#turnBtn").textContent="차례: "+(S.turn==="w"?"백":"흑");
+  $("#turnBtn").disabled=!free;
+}
+function normalize(s){
+  const n=clone(s);
+  n.cast={wK:+(n.b[7][4]==="wK"&&n.b[7][7]==="wR"),wQ:+(n.b[7][4]==="wK"&&n.b[7][0]==="wR"),
+          bK:+(n.b[0][4]==="bK"&&n.b[0][7]==="bR"),bQ:+(n.b[0][4]==="bK"&&n.b[0][0]==="bR")};
+  n.ep=null;return n;
+}
+function validate(s){
+  let wk=0,bk=0;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=s.b[r][c];if(!p)continue;
+    if(p==="wK")wk++;if(p==="bK")bk++;
+    if(typ(p)==="P"&&(r===0||r===7))return "폰이 맨 윗줄이나 맨 아랫줄에 있어요";
+  }
+  if(wk!==1||bk!==1)return "킹이 백·흑 하나씩 있어야 해요";
+  if(inCheck(s,opp(s.turn)))return "차례가 아닌 쪽 킹이 체크 상태예요. 차례를 바꾸거나 기물을 옮겨주세요";
+  return null;
+}
+function setFree(on){
+  if(on)free=true;
+  else{
+    const s2=normalize(S),err=validate(s2);
+    if(err){$("#info").textContent="⚠ "+err;return;}
+    S=s2;free=false;over=!anyLegal(S);
+  }
+  fsel=null;sel=null;legalCache=[];arrow=null;hintToken++;
+  document.body.classList.toggle("freeon",free);
+  $("#free").classList.toggle("on",free);
+  $("#free").textContent=free?"✋ 자유 이동 끝내기":"✋ 자유 이동";
+  $("#info").textContent=free?"기물을 끌거나 눌러서 옮겨요. 판 밖으로 빼면 잡혀요":"";
+  render();
+}
+function freeMove(src,dst){
+  if(src.t==="sq"&&dst.t==="sq"&&src.r===dst.r&&src.c===dst.c)return;
+  if(src.t==="tray"&&dst.t==="tray")return;
+  hist.push({S:clone(S),last:lastMove});
+  let p;
+  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;}
+  else p=S.tray[src.c].splice(src.i,1)[0];
+  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;}
+  else S.tray[col(p)].push(p);
+  fsel=null;arrow=null;lastMove=null;hintToken++;$("#info").textContent="";
+  render();
+}
+const fselColor=()=>fsel.t==="sq"?col(S.b[fsel.r][fsel.c]):fsel.c;
+function freeClick(r,c){
+  if(justDragged||busy)return;
+  const p=S.b[r][c];
+  if(!fsel){if(p){fsel={t:"sq",r,c};render();}return;}
+  if(fsel.t==="sq"&&fsel.r===r&&fsel.c===c){fsel=null;render();return;}
+  if(p&&col(p)===fselColor()){fsel={t:"sq",r,c};render();return;} // 같은 편이면 선택 바꾸기
+  freeMove(fsel,{t:"sq",r,c});
+}
+document.querySelectorAll(".tray").forEach(el=>el.onclick=e=>{
+  if(!free||justDragged||busy)return;
+  if(fsel&&fsel.t==="sq"){freeMove(fsel,{t:"tray"});return;}
+  const tp=e.target.closest(".tp");
+  if(tp){
+    const c=tp.dataset.c,i=+tp.dataset.i;
+    fsel=(fsel&&fsel.t==="tray"&&fsel.c===c&&fsel.i===i)?null:{t:"tray",c,i};
+    render();
+  }
+});
+let drag=null,ghost=null;
+document.addEventListener("pointerdown",e=>{
+  if(!free||busy||e.button>0)return;
+  let src=null;
+  const sq=e.target.closest(".sq"),tp=e.target.closest(".tp");
+  if(sq&&S.b[+sq.dataset.r][+sq.dataset.c])src={t:"sq",r:+sq.dataset.r,c:+sq.dataset.c};
+  else if(tp)src={t:"tray",c:tp.dataset.c,i:+tp.dataset.i};
+  if(src)drag={src,x:e.clientX,y:e.clientY,moved:false};
+});
+document.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  if(!drag.moved){
+    if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<10)return;
+    drag.moved=true;
+    const p=drag.src.t==="sq"?S.b[drag.src.r][drag.src.c]:S.tray[drag.src.c][drag.src.i];
+    ghost=document.createElement("div");ghost.className="ghost";ghost.appendChild(pieceEl(p));document.body.appendChild(ghost);
+  }
+  ghost.style.left=e.clientX+"px";ghost.style.top=(e.clientY-36)+"px"; // 손가락보다 약간 위
+  e.preventDefault();
+},{passive:false});
+function endDrag(e,cancel){
+  if(!drag)return;
+  const d=drag;drag=null;
+  if(!d.moved)return;
+  if(ghost){ghost.remove();ghost=null;}
+  justDragged=true;setTimeout(()=>justDragged=false,80);
+  if(cancel)return;
+  const el=document.elementFromPoint(e.clientX,e.clientY-36);
+  if(!el)return;
+  const sq=el.closest(".sq");
+  if(sq){
+    const r=+sq.dataset.r,c=+sq.dataset.c,o=S.b[r][c];
+    const pc=d.src.t==="sq"?col(S.b[d.src.r][d.src.c]):d.src.c;
+    if(o&&col(o)===pc&&!(d.src.t==="sq"&&d.src.r===r&&d.src.c===c))return; // 같은 편 기물 위에는 못 놓아요
+    freeMove(d.src,{t:"sq",r,c});
+  }else if(!el.closest("#wrap")){
+    freeMove(d.src,{t:"tray"}); // 판 밖 = 잡힘
+  }
+}
+document.addEventListener("pointerup",e=>endDrag(e,false));
+document.addEventListener("pointercancel",e=>endDrag(e,true));
+$("#free").onclick=()=>setFree(!free);
+$("#turnBtn").onclick=()=>{if(!free)return;S.turn=opp(S.turn);arrow=null;hintToken++;render();};
+
 function askPromo(color,cb){
   const row=$("#promoRow");row.innerHTML="";
   for(const t of["Q","R","B","N"]){
@@ -334,12 +486,12 @@ function askPromo(color,cb){
   }
   $("#promo").style.display="flex";
 }
-function reset(){S=newState();hist=[];sel=null;legalCache=[];lastMove=null;over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();}
+function reset(){free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="✋ 자유 이동";S=newState();hist=[];sel=null;legalCache=[];lastMove=null;over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();}
 $("#undo").onclick=()=>{
   if(busy&&mode==="ai")return;
   let h=hist.pop();if(!h)return;
   if(mode==="ai"){while(h.S.turn!=="w"&&hist.length)h=hist.pop();}
-  S=h.S;lastMove=h.last;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
+  S=h.S;lastMove=h.last;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
 };
 $("#new").onclick=()=>{if(busy&&mode==="ai")return;reset();};
 $("#hint").onclick=hint;
@@ -347,6 +499,7 @@ $("#home").onclick=()=>{if(busy&&mode==="ai")return;hintToken++;busy=false;$("#m
 function start(m,l){
   mode=m;if(l)level=l;
   $("#hint").style.display=m==="lab"?"":"none";
+  $("#bar2").classList.toggle("on",m==="lab");
   $("#menu").style.display="none";$("#lvls").classList.remove("on");
   reset();
 }
