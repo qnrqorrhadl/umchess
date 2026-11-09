@@ -8,7 +8,7 @@
 <meta name="supported-color-schemes" content="light">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
-<title>트릭컬 체스</title>
+<title>얼굴 체스</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{color-scheme:only light;background:#cfe8f5}
@@ -168,6 +168,8 @@ body.freeon .tray{outline:2px dashed #c9892b}
 #menu .mb.off small{color:#f0f2f0}
 #menu .mb:active{background:#479455}
 #menu .mrow{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+
+.piece.evo{filter:drop-shadow(0 0 5px #ffd24a)}
 </style>
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
 </head>
@@ -359,6 +361,7 @@ function render(){
     if(skT&&S.b[r][c]&&col(S.b[r][c])==="w"&&typ(S.b[r][c])!=="K"&&!S.sk.sh[r][c])q.classList.add("skt");
     if(gbT&&gangTargets().some(g=>g.r===r&&g.c===c))q.classList.add("gt");
     if(S.b[r][c]){const pe=pieceEl(S.b[r][c]);
+      if(S.sk&&S.sk.st>=3&&S.b[r][c]==="wK"){pe.classList.add("evo");pe.firstChild.onerror=null;pe.firstChild.src="wK_evo.png";}
       if(bonk){const vc=x=>flip()?7-x:x;
         const bi=bonk.list.findIndex(a=>a[0]===r&&a[1]===c);
         if(bi>=0){pe.classList.add("bonk");pe.style.setProperty("--dx",vc(bonk.tc)-vc(c));pe.style.setProperty("--dy",vc(bonk.tr)-vc(r));pe.style.setProperty("--dl",(bi*.4)+"s");}
@@ -533,10 +536,11 @@ function attackersOf(s,r,c,by){
   }
   return out;
 }
+const gangNeed=()=>S.sk&&S.sk.st>=3?2:3;
 function gangTargets(){
   const out=[];if(!S.sk)return out;
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(!p||col(p)!=="b"||typ(p)==="K")continue;
-    const l=attackersOf(S,r,c,"w");if(l.length>=3)out.push({r,c,l,v:VAL[typ(p)]});}
+    const l=attackersOf(S,r,c,"w");if(l.length>=gangNeed())out.push({r,c,l,v:VAL[typ(p)]});}
   return out;
 }
 function canGang(){return canSkill()&&S.sk.cdG===0;}
@@ -546,7 +550,7 @@ function gangTarget(r,c){
   hist.push({S:clone(S),last:lastMove,line:line});
   gbT=false;busy=true;sel=null;legalCache=[];
   const shielded=S.sk.sh[g.r][g.c]>0;
-  bonk={tr:g.r,tc:g.c,list:g.l.slice(0,3),kill:!shielded};
+  bonk={tr:g.r,tc:g.c,list:g.l.slice(0,gangNeed()),kill:!shielded};
   toast("다구리!");render();[340,740,1140].forEach(t=>setTimeout(()=>sfx("hit"),t));
   setTimeout(()=>{
     const n=clone(S),kk=n.sk;let msg;
@@ -558,8 +562,8 @@ function gangTarget(r,c){
   },1950);
 }
 const skIcon=st=>fsk===1?"skill1.png":"skill2_"+st+".png";
-const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동"];
-const GDESC="요정 패시브 다구리: 3기물이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
+const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 조건 2기물로 완화"];
+const GDESC="요정 패시브 다구리: 3기물(3단계 후 2기물)이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
 function skDesc(){const k=S.sk;
   if(fsk===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴";
   if(k.st>=3)return "에르피엔 전통 해결법: 진화 완료";
@@ -584,10 +588,10 @@ function skUI(){
     const open=true,has=open&&gangTargets().length>0,goff=!open||k.cdG>0||!canGang()||!has;
     gb.className="skcard"+(goff?" off":"")+(!open?" lock":"")+(k.cdG>0?" cd":"")+(gbT?" tgt":"");
     gb.innerHTML=cardHTML("skill_dagu.png","다구리",5,k.cdG);
-    if(open&&k.cdG===0&&canSkill()&&!has&&!gbT)parts.push("3기물이 노리는 상대 기물이 없어요");
+    if(open&&k.cdG===0&&canSkill()&&!has&&!gbT)parts.push(gangNeed()+"기물이 노리는 상대 기물이 없어요");
   }
   if(skT)parts.push("방어막을 줄 내 기물을 고르세요 (카드를 다시 누르면 취소)");
-  else if(gbT)parts.push("3기물이 노리는 상대 기물을 고르세요 (카드를 다시 누르면 취소)");
+  else if(gbT)parts.push(gangNeed()+"기물이 노리는 상대 기물을 고르세요 (카드를 다시 누르면 취소)");
   else{
     if(k.kb===1)parts.push("이번 턴 킹이 1칸 더 움직여요");
     if(S.turn==="b")parts.push("마녀 스킬은 준비 중");

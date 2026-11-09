@@ -1,8 +1,8 @@
-const CACHE = "face-chess-v26";
+const CACHE = "face-chess-v29";
 const FILES = ["./", "index.html", "manifest.json",
   "pawn.png", "bishop.png", "knight.png",
   "rook.png", "queen.png", "king.png",
-  "wP.png","wN.png","wB.png","wR.png","wQ.png","wK.png",
+  "wK_evo.png","wP.png","wN.png","wB.png","wR.png","wQ.png","wK.png",
   "bP.png","bN.png","bB.png","bR.png","bQ.png","bK.png",
   "bg1.jpg","bg2.jpg","bg3.jpg",
   "logo.png","skill1.png","skill2_1.png","skill2_2.png","skill2_3.png","skill_dagu.png",
