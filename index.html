@@ -4,11 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <meta name="theme-color" content="#263228">
+<meta name="color-scheme" content="only light">
+<meta name="supported-color-schemes" content="light">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <title>얼굴 체스</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:only light}
 html,body{margin:0;height:100%;background:#263228;color:#eee;font-family:system-ui,"Noto Sans KR",sans-serif}
 #app{max-width:560px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:10px;min-height:100%}
 #status{text-align:center;font-size:20px;font-weight:700;padding:8px;background:#1b241d;border-radius:10px}
@@ -24,8 +27,8 @@ html,body{margin:0;height:100%;background:#263228;color:#eee;font-family:system-
 .piece img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
 .piece.w{box-shadow:0 0 0 3px #fff,0 2px 6px rgba(0,0,0,.6)}
 .piece.b{box-shadow:0 0 0 3px #111,0 2px 6px rgba(0,0,0,.6)}
-.piece.w img{filter:brightness(1.12) saturate(1.05)}
-.piece.b img{filter:brightness(.55) contrast(1.15)}
+.piece.w.old img{filter:brightness(1.12) saturate(1.05)}
+.piece.b.old img{filter:brightness(.55) contrast(1.15)}
 .badge{position:absolute;right:-4%;bottom:-4%;width:36%;height:36%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(10px,3.6vw,18px);line-height:1;font-weight:900}
 .w .badge{background:#fff;color:#111}.b .badge{background:#111;color:#fff}
 #bar{display:flex;gap:8px}
@@ -104,7 +107,7 @@ let free=false, fsel=null, justDragged=false;
 let pick="w", me="w", lastGrade=null, gradeToken=0, line=[];
 try{pick=localStorage.getItem("fc_pick")||"w";}catch(e){}
 const flip=()=>me==="b";
-const GR={best:{t:"!!",l:"최고의 수",c:"#26c0f0"},good:{t:"!",l:"좋은 수",c:"#2f6fe0"},ok:{t:"",l:"괜찮은 수",c:"#3aa655"},
+const GR={best:{t:"!!",l:"탁월한 수",c:"#26c0f0"},good:{t:"!",l:"좋은 수",c:"#2f6fe0"},ok:{t:"",l:"괜찮은 수",c:"#3aa655"},
   book:{t:"📖",l:"정석",c:"#c9a26b"},
   inacc:{t:"?",l:"부정확한 수",c:"#e8c21a"},mistake:{t:"?!",l:"실수",c:"#f08a1c"},blunder:{t:"??",l:"큰 실수",c:"#e03a3a"}};
 
@@ -186,7 +189,8 @@ function anyLegal(s){for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(legal(s,r,c).len
 
 function pieceEl(p,small){
   const d=document.createElement("div");d.className="piece "+col(p);
-  d.innerHTML=`<img src="${NAME[typ(p)]}.png" alt=""><span class="badge">${SYM[typ(p)]}</span>`;
+  d.innerHTML=`<img src="${col(p)}${typ(p)}.png" alt=""><span class="badge">${SYM[typ(p)]}</span>`;
+  const im=d.firstChild;im.onerror=()=>{im.onerror=null;d.classList.add("old");im.src=NAME[typ(p)]+".png";};
   return d;
 }
 function render(){
@@ -245,7 +249,7 @@ function click(r,c){
   render();
 }
 function doMove(m,promo){
-  const before=clone(S);
+  const before=clone(S),prev=lastMove;
   hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
   $("#info").textContent="";
@@ -259,7 +263,7 @@ function doMove(m,promo){
   render();
   if(mode==="lab"){
     if(bk){gradeToken++;analyze(clone(S)).catch(()=>{});}
-    else gradeMove(before,m,clone(S),over,++gradeToken);
+    else gradeMove(before,m,clone(S),over,++gradeToken,prev);
   }
   maybeAI();
 }
@@ -323,7 +327,7 @@ function sfInit(){
     sf.onerror=e=>rej(e);
     sf.onmessage=e=>{
       const l=String(e.data);
-      if(l==="uciok")sf.postMessage("isready");
+      if(l==="uciok"){sf.postMessage("setoption name MultiPV value 2");sf.postMessage("isready");}
       else if(l==="readyok")res();
       else if(sfLine)sfLine(l);
     };
@@ -348,13 +352,15 @@ function analyze(s){
   const fen=toFen(s);
   if(anCache.has(fen))return Promise.resolve(anCache.get(fen));
   const job=anQ.then(()=>anCache.has(fen)?anCache.get(fen):sfInit().then(()=>new Promise(res=>{
-    let cp=null,mate=null;
+    let cp=null,mate=null,cp2=null,mate2=null;
     sfLine=l=>{
       if(l.startsWith("info")&&/ score /.test(l)){
+        const mp=l.match(/multipv (\d+)/),k=mp?+mp[1]:1;
         const m1=l.match(/score cp (-?\d+)/),m2=l.match(/score mate (-?\d+)/);
-        if(m1){cp=+m1[1];mate=null;}else if(m2){mate=+m2[1];cp=null;}
+        if(k===1){if(m1){cp=+m1[1];mate=null;}else if(m2){mate=+m2[1];cp=null;}}
+        else if(k===2){if(m1){cp2=+m1[1];mate2=null;}else if(m2){mate2=+m2[1];cp2=null;}}
       }else if(l.startsWith("bestmove")){
-        sfLine=null;const r={best:l.split(" ")[1],cp,mate};
+        sfLine=null;const r={best:l.split(" ")[1],cp,mate,cp2,mate2};
         if(anCache.size>400)anCache.clear();
         anCache.set(fen,r);res(r);
       }
@@ -415,18 +421,42 @@ function bookInfo(ln){
 const wpct=cp=>50+50*(2/(1+Math.exp(-0.00368208*cp))-1);
 const cpOf=r=>r.mate!==null?(r.mate>0?1:-1)*(10000-Math.abs(r.mate)*10):r.cp;
 const sqn=(r,c)=>"abcdefgh"[c]+(8-r);
-async function gradeMove(before,m,after,ended,tok){
+const matOf=(s,c)=>{let v=0;for(let r=0;r<8;r++)for(let k=0;k<8;k++){const p=s.b[r][k];if(p&&col(p)===c)v+=PV[typ(p)];}return v;};
+const matDiff=(s,c)=>matOf(s,c)-matOf(s,opp(c));
+function replyOf(s,u4){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=s.b[r][c];if(p&&col(p)===s.turn)for(const mm of legal(s,r,c))if(uciOf(mm)===u4)return mm;}
+  return null;
+}
+async function gradeMove(before,m,after,ended,tok,prev){
   try{
+    const mover=before.turn;
     const r0=await analyze(before);
     let w1,r1=null;
     if(ended){w1=inCheck(after,after.turn)?100:50;}
     else{r1=await analyze(after);w1=wpct(-cpOf(r1));}
     const w0=wpct(cpOf(r0));
     const loss=Math.max(0,w0-w1);
-    const uci=sqn(m.fr,m.fc)+sqn(m.tr,m.tc);
+    const uci=uciOf(m);
+    const isBest=(r0.best||"").slice(0,4)===uci||loss<0.5;
+    // 희생 판정: 최선에 가까운 수 + 상대 최선 응수 후 기물 점수가 2점 이상 줄고 + 결과가 크게 유리(+2.0 이상 또는 메이트) + 이미 크게 이기던 판은 제외
+    let sac=false;
+    if(!ended&&r1&&r1.best&&r1.best!=="(none)"&&(isBest||loss<1.5)&&(r0.mate!==null||r0.cp<=400)){
+      const rep=replyOf(after,r1.best.slice(0,4));
+      if(rep){
+        const a2=apply(after,rep);
+        const drop=matDiff(before,mover)-matDiff(a2,mover);
+        const gain=(r1.mate!==null&&r1.mate<0)||(r1.mate===null&&-r1.cp>=200);
+        if(drop>=2&&gain)sac=true;
+      }
+    }
+    // 유일하게 좋은 수: 1순위와 같고, 2순위와 승률 차이가 12%p 이상 (단순 재잡기는 제외)
+    let gap=0;
+    if(r0.cp2!==null||r0.mate2!==null)gap=w0-wpct(cpOf({cp:r0.cp2,mate:r0.mate2}));
+    const recap=!!(prev&&prev.tr===m.tr&&prev.tc===m.tc&&before.b[m.tr][m.tc]);
     let g;
-    if((r0.best||"").slice(0,4)===uci||loss<0.5)g="best";
-    else if(loss<3)g="good";
+    if(sac)g="best";
+    else if(ended)g="good";
+    else if(isBest&&gap>=12&&!recap)g="good";
     else if(loss<8)g="ok";
     else if(loss<15)g="inacc";
     else if(loss<25)g="mistake";
@@ -436,6 +466,7 @@ async function gradeMove(before,m,after,ended,tok){
     if(!arrow){
       const G=GR[g];
       let h=`방금 ${KN[typ(before.b[m.fr][m.fc])]} ${uci.slice(0,2)}→${uci.slice(2)}: <b style="color:${G.c}">${G.t||"●"} ${G.l}</b>`;
+      if(sac)h+=" · 기물을 희생하고 크게 유리해졌어요";
       if((g==="inacc"||g==="mistake"||g==="blunder")&&r0.best&&r0.best!=="(none)"){
         const bf=8-+r0.best[1],bc=r0.best.charCodeAt(0)-97,bp=before.b[bf][bc];
         if(bp)h+=` · 더 좋은 수: ${KN[typ(bp)]} ${r0.best.slice(0,2)}→${r0.best.slice(2,4)}`;
