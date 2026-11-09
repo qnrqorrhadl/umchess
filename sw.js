@@ -9,7 +9,7 @@ const FILES = ["./", "index.html", "manifest.json",
   "icon-192.png", "icon-512.png",
   "stockfish-19-lite-single.js", "stockfish-19-lite-single.wasm"];
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(FILES.map(f => fetch(f, {cache: "reload"}).then(r => r.ok ? c.put(f, r) : null).catch(() => null)))));
   self.skipWaiting();
 });
 self.addEventListener("activate", e => {
