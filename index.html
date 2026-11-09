@@ -59,7 +59,10 @@ body{-webkit-user-select:none;user-select:none}
 .tray .tp.sel .piece{outline:3px solid #f6e05e}
 .tray .sc{margin-left:auto;font-weight:900;color:#f6e05e;font-size:18px}
 #bar2{display:none;gap:8px}
-#bar2.on{display:flex}
+#bar2.on{display:flex;flex-wrap:wrap}
+#bar2 button{flex:1 1 30%}
+#bar2 .rl{display:none}
+body.rlab #bar2 .rl{display:block}
 #bar2 button.on{background:#c9892b}
 #bar2 button:disabled{background:#c9cfca;color:#fff}
 body.freeon #wrap,body.freeon .tray{touch-action:none}
@@ -189,7 +192,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
   <div id="info"></div>
   <div id="skbar"><button id="skBtn"></button><button id="gbBtn" style="display:none"></button></div>
   <div id="skinfo"></div>
-  <div id="bar2"><button id="free">자유 이동</button><button id="turnBtn" disabled>차례: 백</button></div>
+  <div id="bar2"><button id="free">자유 이동</button><button id="turnBtn" disabled>차례: 백</button><button class="rl" id="rlReset">스킬 초기화</button><button class="rl" id="rlSwap">스킬 바꾸기</button><button class="rl" id="rlSh">방어막 편집</button></div>
   <div id="bar"><button id="home">메뉴</button><button id="hint" style="display:none">힌트</button><button id="undo">되돌리기</button><button id="new">새 게임</button></div>
   </div>
 </div>
@@ -212,6 +215,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
     <div class="skrow" id="fsks"><span>요정 스킬</span><button data-s="1"><img class="skimg" src="skill1.png" onerror="this.remove()">빠아아아앙!!!</button><button data-s="2"><img class="skimg" src="skill2_1.png" onerror="this.remove()">에르피엔 전통 해결법</button></div>
     <small id="fskDesc"></small>
     <button id="rStart">한 폰으로 둘이서 시작</button>
+    <button id="rPrac">연습실 (스킬 마음껏 써보기)</button>
     <small>요정은 백, 마녀는 흑이에요 · 마녀 스킬은 곧 추가돼요</small>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
@@ -233,6 +237,8 @@ const NAME={P:"pawn",N:"knight",B:"bishop",R:"rook",Q:"queen",K:"king"};
 const SYM={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 const $=s=>document.querySelector(s);
 let S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
+const isRace=()=>mode==="race"||mode==="rlab";
+let shEdit=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
 let free=false, fsel=null, justDragged=false;
 let fsk=1, skT=false, gbT=false, bonk=null, skImgOk=true;
@@ -374,7 +380,7 @@ function render(){
     q.dataset.r=r;q.dataset.c=c;q.onclick=()=>click(r,c);
     bd.appendChild(q);
   }
-  let t=mode==="race"?(S.turn==="w"?"요정 차례":"마녀 차례"):(S.turn==="w"?"백 차례":"흑 차례");
+  let t=isRace()?(S.turn==="w"?"요정 차례":"마녀 차례"):(S.turn==="w"?"백 차례":"흑 차례");
   if(free)t="자유 이동 · "+t;
   else if(over){
     if(dead(S))t="기물 부족 — 무승부";
@@ -398,6 +404,7 @@ function drawArrow(){
   a.innerHTML=`<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="rgba(255,150,0,.85)" stroke="#fff" stroke-width=".04"/>`;
 }
 function click(r,c){
+  if(free&&shEdit){shToggle(r,c);return;}
   if(free){freeClick(r,c);return;}
   if(over||busy)return;
   if(skT){skillTarget(r,c);return;}
@@ -443,10 +450,10 @@ function maybeAI(){
 
 /* ---------- 종족전 스킬 (요정) ---------- */
 const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
-const nm=c=>mode==="race"?(c==="w"?"요정":"마녀"):(c==="w"?"백":"흑");
+const nm=c=>isRace()?(c==="w"?"요정":"마녀"):(c==="w"?"백":"흑");
 let toastT=null;
 function toast(t,img){const e=$("#toast");e.innerHTML=(img?`<img class="tsimg" src="${img}" onerror="this.remove()">`:"")+`<span></span>`;e.lastChild.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),1800);}
-function canSkill(){return mode==="race"&&S.sk&&!over&&!busy&&!free&&S.turn==="w"&&!inCheck(S,"w");}
+function canSkill(){return isRace()&&S.sk&&!over&&!busy&&!free&&S.turn==="w"&&!inCheck(S,"w");}
 /* ===== 효과 ===== */
 let AC=null,sndOn=localStorage.getItem("fc_snd")!=="0";
 function actx(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();}catch(e){}return AC;}
@@ -495,7 +502,7 @@ function commitSkill(n,title,ln,info,img,cls){
     hist.push({S:clone(S),last:lastMove,line:line});
     const old=S;
     n.ep=null;n.turn="b";tick(n);
-    S=n;
+    S=n;if(mode==="rlab"){S.sk.cd1=0;S.sk.cd2=0;S.sk.cdG=0;}
     const nl=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if((S.sk.sh[r][c]||0)>(old.sk.sh[r][c]||0))nl.push([r,c]);
     over=!anyLegal(S)||dead(S);
     $("#info").textContent=info||"";
@@ -556,7 +563,7 @@ function gangTarget(r,c){
     const n=clone(S),kk=n.sk;let msg;
     if(shielded){kk.sh[g.r][g.c]--;msg="다구리을 방어막이 막았어요! (방어막 소모)";}
     else{const cp=n.b[g.r][g.c];n.tray[col(cp)].push(cp);n.b[g.r][g.c]=null;msg="다구리 성공! 기물을 잡았어요";}
-    kk.cdG=5;n.ep=null;n.turn="b";tick(n);
+    kk.cdG=5;n.ep=null;n.turn="b";tick(n);if(mode==="rlab")kk.cdG=0;
     S=n;lastMove={fr:g.r,fc:g.c,tr:g.r,tc:g.c};bonk=null;busy=false;
     over=!anyLegal(S)||dead(S);$("#info").textContent=msg;render();if(shielded)breakFx(g.r,g.c);
   },1950);
@@ -572,8 +579,8 @@ function cardHTML(img,name,base,cd){
   return (skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
 function skUI(){
   const bar=$("#skbar"),inf=$("#skinfo"),gb=$("#gbBtn"),b=$("#skBtn");
-  bar.style.display=mode==="race"?"flex":"none";
-  if(mode!=="race"||!S.sk){inf.textContent="";return;}
+  bar.style.display=isRace()?"flex":"none";
+  if(!isRace()||!S.sk){inf.textContent="";return;}
   const k=S.sk;
   let name,base,cd,img,done=false;
   if(fsk===1){name="빠아아아앙!!!";base=10;cd=k.cd1;img="skill1.png";}
@@ -864,6 +871,7 @@ function setFree(on){
     if(err){$("#info").textContent=""+err;return;}
     S=s2;free=false;over=!anyLegal(S)||dead(S);
   }
+  if(!free){shEdit=false;$("#rlSh").classList.remove("on");$("#rlSh").textContent="방어막 편집";}
   fsel=null;sel=null;legalCache=[];arrow=null;lastGrade=null;gradeToken++;hintToken++;
   document.body.classList.toggle("freeon",free);
   $("#free").classList.toggle("on",free);
@@ -878,9 +886,10 @@ function freeMove(src,dst){
   hist.push({S:clone(S),last:lastMove,line:line});
   line=null;
   let p;
-  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;}
+  let shv=0;
+  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;if(S.sk){shv=S.sk.sh[src.r][src.c];S.sk.sh[src.r][src.c]=0;}}
   else p=S.tray[src.c].splice(src.i,1)[0];
-  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;}
+  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;if(S.sk)S.sk.sh[dst.r][dst.c]=shv;}
   else S.tray[col(p)].push(p);
   fsel=null;arrow=null;lastMove=null;lastGrade=null;gradeToken++;hintToken++;$("#info").textContent="";
   render();
@@ -959,27 +968,47 @@ function askPromo(color,cb){
 function reset(){
   free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="자유 이동";
   me=pick==="r"?(Math.random()<.5?"w":"b"):pick;
-  S=newState(mode==="race");skT=false;gbT=false;bonk=null;hist=[];line=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
-  $("#info").textContent=pick==="r"?"랜덤 결과: 내 "+(mode==="race"?"종족은 "+(me==="w"?"요정":"마녀"):"색은 "+(me==="w"?"백":"흑")):(mode==="race"?"요정(백) vs 마녀(흑)":"");
+  shEdit=false;$("#rlSh").classList.remove("on");$("#rlSh").textContent="방어막 편집";
+  S=newState(isRace());skT=false;gbT=false;bonk=null;hist=[];line=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
+  $("#info").textContent=pick==="r"?"랜덤 결과: 내 "+(isRace()?"종족은 "+(me==="w"?"요정":"마녀"):"색은 "+(me==="w"?"백":"흑")):(isRace()?"요정(백) vs 마녀(흑)":"");
+  if(mode==="rlab")$("#info").textContent="연습실: 쿨타임 없이 스킬을 써볼 수 있어요. 자유 이동으로 상황을 만들어 보세요";
   render();
   if(mode==="lab")analyze(S).catch(()=>{});
   maybeAI();
 }
 $("#undo").onclick=()=>{
-  if(busy&&(mode==="ai"||mode==="race"))return;
+  if(busy&&(mode==="ai"||isRace()))return;
   let h=hist.pop();if(!h)return;
   if(mode==="ai"){while(h.S.turn!==me&&hist.length)h=hist.pop();}
   S=h.S;skT=false;gbT=false;lastMove=h.last;line=h.line===undefined?null:h.line;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
   maybeAI();
 };
-$("#new").onclick=()=>{if(busy&&(mode==="ai"||mode==="race"))return;reset();};
+$("#new").onclick=()=>{if(busy&&(mode==="ai"||isRace()))return;reset();};
 $("#hint").onclick=hint;
 function showPg(id){document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
-$("#home").onclick=()=>{if(busy&&(mode==="ai"||mode==="race"))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";};
+$("#home").onclick=()=>{if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";};
+function shToggle(r,c){
+  const p=S.b[r][c];if(!p||col(p)!=="w"||!S.sk)return;
+  hist.push({S:clone(S),last:lastMove,line:line});
+  S.sk.sh[r][c]=S.sk.sh[r][c]?0:(typ(p)==="K"?2:1);
+  render();
+}
+$("#rlSh").onclick=()=>{
+  if(!free)setFree(true);
+  shEdit=!shEdit;$("#rlSh").classList.toggle("on",shEdit);$("#rlSh").textContent=shEdit?"방어막 편집 끝":"방어막 편집";
+  $("#info").textContent=shEdit?"요정 기물을 누르면 방어막이 켜지고 꺼져요 (킹은 2회)":"기물을 끌거나 눌러서 옮겨요";
+};
+$("#rlReset").onclick=()=>{
+  if(!S.sk)return;
+  hist.push({S:clone(S),last:lastMove,line:line});
+  S.sk=newState(true).sk;skT=false;gbT=false;
+  $("#info").textContent="스킬 상태를 처음으로 되돌렸어요 (기물 위치는 그대로)";render();
+};
+$("#rlSwap").onclick=()=>{setFsk(fsk===1?2:1);skT=false;gbT=false;$("#info").textContent="요정 스킬을 바꿨어요";render();};
 function start(m,l){
   mode=m;if(l)level=l;
   $("#hint").style.display=m==="lab"?"":"none";
-  $("#bar2").classList.toggle("on",m==="lab");
+  $("#bar2").classList.toggle("on",m==="lab"||m==="rlab");document.body.classList.toggle("rlab",m==="rlab");
   $("#menu").style.display="none";$("#lvls").classList.remove("on");
   reset();
 }
@@ -989,6 +1018,7 @@ $("#mLab").onclick=()=>start("lab");
 $("#m2p").onclick=()=>start("2p");
 $("#mRace").onclick=()=>showPg("pgRace");$("#mClassic").onclick=()=>showPg("pgClassic");
 $("#rStart").onclick=()=>start("race");
+$("#rPrac").onclick=()=>start("rlab");
 document.querySelectorAll("#menu .back").forEach(b=>b.onclick=()=>showPg(b.dataset.to));
 function setPick(x){
   pick=x;try{localStorage.setItem("fc_pick",x);}catch(e){}
