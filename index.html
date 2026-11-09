@@ -101,10 +101,11 @@ const $=s=>document.querySelector(s);
 let S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
 let free=false, fsel=null, justDragged=false;
-let pick="w", me="w", lastGrade=null, gradeToken=0;
+let pick="w", me="w", lastGrade=null, gradeToken=0, line=[];
 try{pick=localStorage.getItem("fc_pick")||"w";}catch(e){}
 const flip=()=>me==="b";
 const GR={best:{t:"!!",l:"최고의 수",c:"#26c0f0"},good:{t:"!",l:"좋은 수",c:"#2f6fe0"},ok:{t:"",l:"괜찮은 수",c:"#3aa655"},
+  book:{t:"📖",l:"정석",c:"#c9a26b"},
   inacc:{t:"?",l:"부정확한 수",c:"#e8c21a"},mistake:{t:"?!",l:"실수",c:"#f08a1c"},blunder:{t:"??",l:"큰 실수",c:"#e03a3a"}};
 
 function newState(){
@@ -245,12 +246,21 @@ function click(r,c){
 }
 function doMove(m,promo){
   const before=clone(S);
-  hist.push({S:before,last:lastMove});
+  hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
   $("#info").textContent="";
   over=!anyLegal(S);
+  let bk=null;
+  if(mode==="lab"){line=line?line.concat(uciOf(m)):null;bk=line?bookInfo(line):null;}
+  if(bk){
+    lastGrade="book";const u=uciOf(m);
+    $("#info").innerHTML=`방금 ${KN[typ(before.b[m.fr][m.fc])]} ${u.slice(0,2)}→${u.slice(2)}: <b style="color:${GR.book.c}">📖 정석</b> · ${bk}`;
+  }
   render();
-  if(mode==="lab")gradeMove(before,m,clone(S),over,++gradeToken);
+  if(mode==="lab"){
+    if(bk){gradeToken++;analyze(clone(S)).catch(()=>{});}
+    else gradeMove(before,m,clone(S),over,++gradeToken);
+  }
   maybeAI();
 }
 function maybeAI(){
@@ -383,6 +393,24 @@ async function hint(){
     $("#info").textContent="스톡피쉬를 불러오지 못했어요 (웹 주소로 열어야 해요)";
   }finally{if(tok===hintToken)busy=false;}
 }
+/* ---------- 오프닝 정석 (연습실) : 백 기준 100개 + 수비 100개 ---------- */
+const BOOK=[["킹스 폰 게임","e2e4"],["퀸스 폰 게임","d2d4"],["이탈리아 게임: 주오코 피아노","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5"],["이탈리아 게임: 주오코 피아니시모","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 d2d3"],["이탈리아 게임: 에반스 갬빗","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 b2b4"],["이탈리아 게임: 클래식 변형","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 c2c3"],["이탈리아 게임: 헝가리 수비","e2e4 e7e5 g1f3 b8c6 f1c4 f8e7"],["루이 로페즈: 교환 변형","e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5c6"],["루이 로페즈: 클로즈드","e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1 f8e7"],["루이 로페즈: 오픈","e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1 f6e4"],["루이 로페즈: 클래식 변형","e2e4 e7e5 g1f3 b8c6 f1b5 f8c5"],["루이 로페즈: 버드 변형","e2e4 e7e5 g1f3 b8c6 f1b5 c6d4"],["퀸스 갬빗","d2d4 d7d5 c2c4"],["잉글리시 오프닝","c2c4"],["잉글리시 오프닝: 대칭 변형","c2c4 c7c5"],["잉글리시 오프닝: 킹스 잉글리시 변형","c2c4 e7e5"],["런던 시스템","d2d4 g8f6 g1f3 g7g6 c1f4"],["킹스 갬빗","e2e4 e7e5 f2f4"],["킹스 갬빗 수락","e2e4 e7e5 f2f4 e5f4"],["킹스 갬빗 거절: 클래식 변형","e2e4 e7e5 f2f4 f8c5"],["스코치 게임","e2e4 e7e5 g1f3 b8c6 d2d4"],["스코치 게임: 스코치 갬빗","e2e4 e7e5 g1f3 b8c6 d2d4 e5d4 f1c4"],["스코치 게임: 클래식 변형","e2e4 e7e5 g1f3 b8c6 d2d4 e5d4 f3d4 f8c5"],["스코치 게임: 괴링 갬빗","e2e4 e7e5 g1f3 b8c6 d2d4 e5d4 c2c3"],["비엔나 게임","e2e4 e7e5 b1c3"],["비엔나 게임: 비엔나 갬빗","e2e4 e7e5 b1c3 g8f6 f2f4"],["비엔나 게임: 팔크비어 변형","e2e4 e7e5 b1c3 g8f6"],["레티 오프닝","g1f3 d7d5 c2c4"],["레티 오프닝: 전진 변형","g1f3 d7d5 c2c4 d5d4"],["카탈루냐 오프닝","d2d4 g8f6 c2c4 e7e6 g2g3"],["카탈루냐 오프닝: 클로즈드","d2d4 g8f6 c2c4 e7e6 g2g3 d7d5 f1g2 f8e7 g1f3"],["포 나이츠 게임","e2e4 e7e5 g1f3 b8c6 b1c3 g8f6"],["포 나이츠 게임: 스페인 변형","e2e4 e7e5 g1f3 b8c6 b1c3 g8f6 f1b5"],["포 나이츠 게임: 스코치 변형","e2e4 e7e5 g1f3 b8c6 b1c3 g8f6 d2d4"],["포 나이츠 게임: 이탈리아 변형","e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 b1c3"],["비숍 오프닝","e2e4 e7e5 f1c4"],["비숍 오프닝: 비엔나 Hybrid","e2e4 e7e5 f1c4 g8f6 d2d3 b8c6 b1c3"],["주커토르트 오프닝","g1f3"],["트롬포프스키 공격","d2d4 g8f6 c1g5"],["콜레 시스템: Rhamphorhynchus 변형","g1f3 c7c5 e2e3 g7g6 d2d4 f8g7 d4c5 d8a5"],["토레 공격: 클래식 수비","d2d4 g8f6 g1f3 e7e6 c1g5"],["버드 오프닝","f2f4"],["님조-라르센 공격","b2b3"],["덴마크 갬빗","e2e4 e7e5 d2d4 e5d4 c2c3"],["센터 게임","e2e4 e7e5 d2d4"],["폰지아니 오프닝","e2e4 e7e5 g1f3 b8c6 c2c3"],["블랙마-디머 갬빗","d2d4 d7d5 e2e4"],["헝가리 오프닝","g2g3"],["벵코 갬빗","d2d4 g8f6 c2c4 c7c5 d4d5 b7b5"],["퀸스 폰 게임: 스톤월 공격","d2d4 d7d5 e2e3 g8f6 f1d3"],["퀸스 폰 게임: Torre 공격","d2d4 d7d5 g1f3 g8f6 c1g5"],["퀸스 폰 게임: Colle 시스템","d2d4 d7d5 g1f3 g8f6 e2e3"],["퀸스 폰 게임: London 시스템","d2d4 d7d5 g1f3 g8f6 c1f4"],["퀸스 폰 게임: 가속 London 시스템","d2d4 d7d5 c1f4"],["킹스 인디언 공격","g1f3 d7d5 g2g3"],["리히터-베레소프 공격","d2d4 g8f6 b1c3 d7d5 c1g5"],["사라고사 오프닝","c2c3"],["그롭 오프닝","g2g4"],["폴란드 오프닝","b2b4"],["킹스 폰 게임: 알라핀 오프닝","e2e4 e7e5 g1e2"],["킹스 폰 게임: Tayler 오프닝, Inverted 하냄","e2e4 e7e5 g1f3 b8c6 f1e2 g8f6 d2d3 d7d5 b1d2"],["킹스 폰 게임: King's Head 오프닝","e2e4 e7e5 f2f3"],["킹스 폰 게임: Leonardis 변형","e2e4 e7e5 d2d3"],["킹스 폰 게임: MacLeod 공격","e2e4 e7e5 c2c3"],["킹스 폰 게임: Mengarini's 오프닝","e2e4 e7e5 a2a3"],["킹스 폰 게임: Napoleon 공격","e2e4 e7e5 d1f3"],["킹스 폰 게임: Tortoise 오프닝","e2e4 e7e5 f1d3"],["킹스 폰 게임: Wayward Queen 공격","e2e4 e7e5 d1h5"],["퀸스 폰 게임: 가속 London 시스템, 슈타이니츠 역갬빗","d2d4 d7d5 c1f4 c7c5"],["퀸스 폰 게임: 가속 London 시스템, 슈타이니츠 역갬빗, Morris 역갬빗","d2d4 d7d5 c1f4 c7c5 e2e4"],["퀸스 폰 게임: Chigorin 변형","d2d4 d7d5 b1c3"],["퀸스 폰 게임: Levitsky 공격","d2d4 d7d5 c1g5"],["퀸스 폰 게임: Mason 공격","d2d4 d7d5 f2f4"],["퀸스 폰 게임: Zurich 갬빗","d2d4 d7d5 g2g4"],["퀸스 폰 게임: Zukertort 변형","d2d4 d7d5 g1f3"],["이탈리아 게임","e2e4 e7e5 g1f3 b8c6 f1c4"],["이탈리아 게임: 주오코 피아니시모, Lucchini 갬빗","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 d2d3 f7f5"],["이탈리아 게임: 주오코 피아니시모, 기본","e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5"],["이탈리아 게임: 에반스 갬빗, Fontaine 역갬빗","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 b2b4 b7b5"],["이탈리아 게임: 에반스 갬빗, Hein 역갬빗","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 b2b4 d7d5"],["이탈리아 게임: 클래식 변형, 클로즈드 변형","e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 c2c3 d8e7"],["루이 로페즈","e2e4 e7e5 g1f3 b8c6 f1b5"],["루이 로페즈: 클래식 변형, 센터 변형","e2e4 e7e5 g1f3 b8c6 f1b5 f8c5 c2c3"],["루이 로페즈: 클래식 변형, 스페인 윙 갬빗","e2e4 e7e5 g1f3 b8c6 f1b5 f8c5 b2b4"],["루이 로페즈: 클래식 변형, Charousek 변형","e2e4 e7e5 g1f3 b8c6 f1b5 f8c5 c2c3 c5b6"],["루이 로페즈: 클래식 변형, Cordel 갬빗","e2e4 e7e5 g1f3 b8c6 f1b5 f8c5 c2c3 f7f5"],["루이 로페즈: 클래식 변형, Konikowski 갬빗","e2e4 e7e5 g1f3 b8c6 f1b5 f8c5 c2c3 d7d5"],["루이 로페즈: 교환 변형, Lutikov 변형","e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5c6 b7c6"],["루이 로페즈: 클래식 변형, Zukertort 갬빗","e2e4 e7e5 g1f3 b8c6 f1b5 g8f6 e1g1 f8c5 c2c3"],["잉글리시 오프닝: 킹스 잉글리시 변형, 투 나이츠 변형","c2c4 e7e5 b1c3 g8f6"],["잉글리시 오프닝: 대칭 변형, 투 나이츠 변형","c2c4 c7c5 b1c3 b8c6"],["잉글리시 오프닝: 대칭 변형, 피앙케토 변형","c2c4 g8f6 b1c3 c7c5 g2g3"],["잉글리시 오프닝: 대칭 변형, 투 나이츠, 피앙케토 변형","c2c4 c7c5 b1c3 b8c6 g2g3"],["잉글리시 오프닝: 킹스 잉글리시 변형, 투 나이츠 변형, 반전 드래곤","c2c4 e7e5 b1c3 g8f6 g2g3 d7d5"],["잉글리시 오프닝: 킹스 잉글리시 변형, 투 나이츠 변형, Smyslov 시스템","c2c4 e7e5 b1c3 g8f6 g2g3 f8b4"],["잉글리시 오프닝: 킹스 잉글리시 변형, 투 나이츠 변형, 케레스 변형","c2c4 e7e5 b1c3 g8f6 g2g3 c7c6"],["잉글리시 오프닝: 킹스 잉글리시 변형, 투 나이츠 변형, 피앙케토 라인","c2c4 e7e5 b1c3 g8f6 g2g3 g7g6"],["잉글리시 오프닝: 킹스 잉글리시 변형, 포 나이츠 변형, 피앙케토 라인","c2c4 e7e5 b1c3 g8f6 g1f3 b8c6 g2g3"],["런던 시스템: 독 폰 변형","d2d4 g8f6 g1f3 d7d5 c1f4 c7c5 e2e3 d8b6 b1c3"],["스코치 게임: 슈타이니츠 변형","e2e4 e7e5 g1f3 b8c6 d2d4 e5d4 f3d4 d8h4"],["시칠리안 수비: 나이도르프 변형","e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4 g8f6 b1c3 a7a6"],["시칠리안 수비: 드래곤 변형","e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4 g8f6 b1c3 g7g6"],["시칠리안 수비: 스헤베닝언 변형","e2e4 c7c5 g1f3 e7e6 d2d4 c5d4 f3d4 g8f6 b1c3 d7d6"],["시칠리안 수비: 타이마노프 변형","e2e4 c7c5 g1f3 e7e6 d2d4 c5d4 f3d4 b8c6"],["시칠리안 수비: Kan 변형","e2e4 c7c5 g1f3 e7e6 d2d4 c5d4 f3d4 a7a6"],["시칠리안 수비: 알라핀 변형","e2e4 c7c5 c2c3"],["시칠리안 수비: 스미스-모라 갬빗","e2e4 c7c5 d2d4"],["시칠리안 수비: 클로즈드","e2e4 c7c5 b1c3"],["시칠리안 수비: 클래식 변형","e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4 g8f6 b1c3 b8c6"],["시칠리안 수비: 가속 드래곤","e2e4 c7c5 g1f3 b8c6 d2d4 c5d4 f3d4 g7g6"],["시칠리안 수비: 그랑프리 공격","e2e4 c7c5 b1c3 b8c6 f2f4"],["시칠리안 수비: 리히터-라우저 변형","e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4 g8f6 b1c3 b8c6 c1g5"],["시칠리안 수비: 오픈","e2e4 c7c5 g1f3 b8c6 d2d4"],["프랑스 수비: 전진 변형","e2e4 e7e6 d2d4 d7d5 e4e5"],["프랑스 수비: 교환 변형","e2e4 e7e6 d2d4 d7d5 e4d5"],["프랑스 수비: 타라시 변형","e2e4 e7e6 d2d4 d7d5 b1d2"],["프랑스 수비: 비나베르 변형","e2e4 e7e6 d2d4 d7d5 b1c3 f8b4"],["프랑스 수비: 클래식 변형","e2e4 e7e6 d2d4 d7d5 b1c3 g8f6"],["프랑스 수비: 루빈스타인 변형","e2e4 e7e6 d2d4 d7d5 b1c3 d5e4"],["카로칸 수비: 전진 변형","e2e4 c7c6 d2d4 d7d5 e4e5"],["카로칸 수비: 교환 변형","e2e4 c7c6 d2d4 d7d5 e4d5"],["카로칸 수비: 클래식 변형","e2e4 c7c6 d2d4 d7d5 b1d2 d5e4 d2e4 c8f5"],["카로칸 수비: 파노프 공격","e2e4 c7c6 d2d4 d7d5 e4d5 c6d5 c2c4"],["카로칸 수비: 투 나이츠 공격","e2e4 c7c6 b1c3 d7d5 g1f3"],["스칸디나비아 수비: 주요 라인","e2e4 d7d5 e4d5 d8d5 b1c3 d5a5"],["스칸디나비아 수비: 모던 변형","e2e4 d7d5 e4d5 g8f6"],["피르츠 수비: 오스트리안 공격","e2e4 d7d6 d2d4 g8f6 b1c3 g7g6 f2f4"],["피르츠 수비: 클래식 변형","e2e4 d7d6 d2d4 g8f6 b1c3 g7g6 g1f3"],["알레힌 수비: 모던 변형","e2e4 g8f6 e4e5 f6d5 d2d4 d7d6 g1f3"],["알레힌 수비: 포 폰스 공격","e2e4 g8f6 e4e5 f6d5 d2d4 d7d6 c2c4 d5b6 f2f4"],["필리도르 수비: 하냄 변형","e2e4 e7e5 g1f3 d7d6 d2d4 b8d7"],["필리도르 수비: 교환 변형","e2e4 e7e5 g1f3 d7d6 d2d4 e5d4"],["퀸스 갬빗 거절: 정통 수비","d2d4 g8f6 c2c4 e7e6 g1f3 d7d5 b1c3 f8e7 c1g5 e8g8 e2e3 b8d7"],["퀸스 갬빗 거절: 타라시 수비","d2d4 d7d5 c2c4 e7e6 b1c3 c7c5 c4d5 e6d5"],["퀸스 갬빗 거절: 교환 변형","d2d4 g8f6 c2c4 e7e6 b1c3 d7d5 c4d5"],["퀸스 갬빗 거절: Semi-Slav, Abrahams 변형","d2d4 d7d5 c2c4 e7e6 b1c3 c7c6 g1f3 d5c4 a2a4 f8b4 e2e3 b7b5 c1d2 a7a5"],["슬라브 수비: 교환 변형","d2d4 d7d5 c2c4 c7c6 c4d5"],["슬라브 수비: Czech 변형","d2d4 d7d5 c2c4 c7c6 g1f3 g8f6 b1c3 d5c4 a2a4 c8f5"],["세미 슬라브 수비: 메란 변형","d2d4 d7d5 c2c4 c7c6 b1c3 g8f6 e2e3 e7e6 g1f3 b8d7 f1d3 d5c4 d3c4 b7b5"],["님조 인디언 수비: 클래식 변형","d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2"],["님조 인디언 수비: 루빈스타인 시스템","d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 e2e3"],["님조 인디언 수비: 쎄미쉬 변형","d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 a2a3"],["님조 인디언 수비: 레닌그라드 변형","d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 c1g5"],["킹스 인디언 수비: 쎄미쉬 변형","d2d4 g8f6 c2c4 g7g6 b1c3 f8g7 e2e4 d7d6 f2f3"],["킹스 인디언 수비: 피앙케토 변형","d2d4 g8f6 c2c4 g7g6 g1f3 f8g7 g2g3"],["킹스 인디언 수비: 포 폰스 공격","d2d4 g8f6 c2c4 g7g6 b1c3 f8g7 e2e4 d7d6 f2f4"],["퀸스 인디언 수비: 페트로시안 변형","d2d4 g8f6 c2c4 e7e6 g1f3 b7b6 a2a3"],["퀸스 인디언 수비: 피앙케토 변형","d2d4 g8f6 c2c4 e7e6 g1f3 b7b6 g2g3"],["그륀펠트 수비: 교환 변형","d2d4 g8f6 c2c4 g7g6 b1c3 d7d5 c4d5 f6d5"],["그륀펠트 수비: Russian 변형","d2d4 g8f6 c2c4 g7g6 b1c3 d7d5 g1f3 f8g7 d1b3"],["네덜란드 수비: 레닌그라드 변형","d2d4 f7f5 c2c4 g8f6 g2g3 g7g6"],["네덜란드 수비: 스톤월 변형","d2d4 f7f5 c2c4 g8f6 g2g3 e7e6 f1g2 f8e7 g1f3 e8g8 e1g1 d7d5"],["퀸스 갬빗 수락: 센터 변형, Alekhine 시스템","d2d4 d7d5 c2c4 d5c4 e2e4 g8f6"],["베노니 수비: 모던 변형","d2d4 g8f6 c2c4 c7c5 d4d5 e7e6"],["벵코 갬빗 수락","d2d4 g8f6 c2c4 c7c5 d4d5 b7b5 c4b5 a7a6"],["이탈리아 게임: 투 나이츠 수비","e2e4 e7e5 g1f3 b8c6 f1c4 g8f6"],["루이 로페즈: 베를린 수비","e2e4 e7e5 g1f3 b8c6 f1b5 g8f6"],["루이 로페즈: 모피 수비","e2e4 e7e5 g1f3 b8c6 f1b5 a7a6"],["루이 로페즈: 슈타이니츠 수비","e2e4 e7e5 g1f3 b8c6 f1b5 d7d6"],["루이 로페즈: 슐리만 수비","e2e4 e7e5 g1f3 b8c6 f1b5 f7f5"],["루이 로페즈: 코지오 수비","e2e4 e7e5 g1f3 b8c6 f1b5 g8e7"],["보고 인디언 수비","d2d4 g8f6 c2c4 e7e6 g1f3 f8b4"],["카탈루냐 오프닝: 오픈 수비","d2d4 g8f6 c2c4 e7e6 g2g3 d7d5 f1g2"],["오웬 수비","e2e4 b7b6"],["엥글룬드 갬빗","d2d4 e7e5"],["라트비아 갬빗","e2e4 e7e5 g1f3 f7f5"],["엘리펀트 갬빗","e2e4 e7e5 g1f3 d7d5"],["님조비치 수비","e2e4 b8c6"],["모던 수비","e2e4 g7g6"],["킹스 갬빗 거절: 팔크비어 역갬빗","e2e4 e7e5 f2f4 d7d5"],["킹스 갬빗 수락: 키제리츠키 갬빗","e2e4 e7e5 f2f4 e5f4 g1f3 g7g5 h2h4 g5g4 f3e5"],["올드 인디언 수비","d2d4 d7d6 c2c4"],["시칠리안 수비","e2e4 c7c5"],["시칠리안 수비: 케레스 변형","e2e4 c7c5 g1e2"],["시칠리안 수비: 체르니악 공격, Queen 피앙케토 변형","e2e4 c7c5 b2b3 b7b6"],["시칠리안 수비: 클로즈드, Traditional","e2e4 c7c5 b1c3 b8c6"],["시칠리안 수비: 초가속 드래곤","e2e4 c7c5 g1f3 g7g6"],["시칠리안 수비: 윙 갬빗, 마셜 변형","e2e4 c7c5 b2b4 c5b4 a2a3"],["시칠리안 수비: 모피 갬빗","e2e4 c7c5 d2d4 c5d4 g1f3"],["프랑스 수비","e2e4 e7e6"],["프랑스 수비: 슈타이니츠 공격","e2e4 e7e6 e4e5"],["프랑스 수비: 알라핀 갬빗","e2e4 e7e6 d2d4 d7d5 c1e3"],["프랑스 수비: Franco-Hiva 갬빗 수락","e2e4 e7e6 d2d4 f7f5 e4f5"],["프랑스 수비: 모피 갬빗","e2e4 e7e6 d2d4 d7d5 g1h3"],["프랑스 수비: 투 나이츠 변형","e2e4 e7e6 g1f3 d7d5 b1c3"],["프랑스 수비: Diemer-Duhm 갬빗 수락","e2e4 e7e6 d2d4 d7d5 c2c4 d5e4"],["카로칸 수비","e2e4 c7c6"],["카로칸 수비: 가속 파노프 공격","e2e4 c7c6 c2c4"],["카로칸 수비: 가속 파노프 공격, 오픈 변형","e2e4 c7c6 c2c4 e7e5"],["카로칸 수비: 마로치 변형","e2e4 c7c6 d2d4 d7d5 f2f3"],["카로칸 수비: 투 나이츠 공격, Mindeno 변형","e2e4 c7c6 b1c3 d7d5 g1f3 c8g4"],["카로칸 수비: 전진 변형, 보트비닉-Carls 수비","e2e4 c7c6 d2d4 d7d5 e4e5 c6c5"],["카로칸 수비: 가속 파노프 공격, Van Weersel 공격","e2e4 c7c6 c2c4 d7d5 c4d5 c6d5 d1b3"],["스칸디나비아 수비","e2e4 d7d5"],["스칸디나비아 수비: 마셜 변형","e2e4 d7d5 e4d5 g8f6 d2d4 f6d5"],["스칸디나비아 수비: 파노프 Transfer","e2e4 d7d5 e4d5 g8f6 c2c4 c7c6"],["스칸디나비아 수비: 주요 라인, Leonhardt 갬빗","e2e4 d7d5 e4d5 d8d5 b1c3 d5a5 b2b4"],["스칸디나비아 수비: Portuguese 갬빗, 클래식 변형","e2e4 d7d5 e4d5 g8f6 d2d4 c8g4 g1f3"],["스칸디나비아 수비: 주요 라인, Mieses 변형","e2e4 d7d5 e4d5 d8d5 b1c3 d5a5 d2d4 g8f6"],["스칸디나비아 수비: 클래식 변형","e2e4 d7d5 e4d5 d8d5 b1c3 d5a5 d2d4 g8f6 g1f3 c8f5"]];
+const BOOKS=BOOK.map(([n,m])=>({n,m:m.split(" ")}));
+const uciOf=m=>"abcdefgh"[m.fc]+(8-m.fr)+"abcdefgh"[m.tc]+(8-m.tr);
+function bookInfo(ln){
+  const L=ln.length;let reached=null,path=null;
+  for(const e of BOOKS){
+    if(e.m.length<L)continue;
+    if(ln.every((x,i)=>e.m[i]===x)){ if(!path)path=e; if(e.m.length===L){reached=e;break;} }
+  }
+  if(!path)return null;                       // 책에서 벗어남
+  if(reached)return reached.n;
+  // 아직 이름이 붙은 지점이 아니면, 지나온 가장 긴 정석 이름을 사용
+  let best=null;
+  for(const e of BOOKS){ if(e.m.length<=L&&e.m.every((x,i)=>ln[i]===x)&&(!best||e.m.length>best.m.length))best=e; }
+  return best?best.n:path.n.split(":")[0];
+}
+
 /* ---------- 둔 수 평가 (연습실) ---------- */
 const wpct=cp=>50+50*(2/(1+Math.exp(-0.00368208*cp))-1);
 const cpOf=r=>r.mate!==null?(r.mate>0?1:-1)*(10000-Math.abs(r.mate)*10):r.cp;
@@ -473,7 +501,8 @@ function setFree(on){
 function freeMove(src,dst){
   if(src.t==="sq"&&dst.t==="sq"&&src.r===dst.r&&src.c===dst.c)return;
   if(src.t==="tray"&&dst.t==="tray")return;
-  hist.push({S:clone(S),last:lastMove});
+  hist.push({S:clone(S),last:lastMove,line:line});
+  line=null;
   let p;
   if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;}
   else p=S.tray[src.c].splice(src.i,1)[0];
@@ -556,7 +585,7 @@ function askPromo(color,cb){
 function reset(){
   free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="✋ 자유 이동";
   me=pick==="r"?(Math.random()<.5?"w":"b"):pick;
-  S=newState();hist=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
+  S=newState();hist=[];line=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
   $("#info").textContent=pick==="r"?"🎲 랜덤 결과: 내 색은 "+(me==="w"?"백":"흑"):"";
   render();
   if(mode==="lab")analyze(S).catch(()=>{});
@@ -566,7 +595,7 @@ $("#undo").onclick=()=>{
   if(busy&&mode==="ai")return;
   let h=hist.pop();if(!h)return;
   if(mode==="ai"){while(h.S.turn!==me&&hist.length)h=hist.pop();}
-  S=h.S;lastMove=h.last;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
+  S=h.S;lastMove=h.last;line=h.line===undefined?null:h.line;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
   maybeAI();
 };
 $("#new").onclick=()=>{if(busy&&mode==="ai")return;reset();};
