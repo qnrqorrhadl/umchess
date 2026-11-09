@@ -17,7 +17,7 @@ html,body{margin:0;height:100%;color:#2b3a2e;font-family:system-ui,"Noto Sans KR
 #status{text-align:center;font-size:20px;font-weight:700;padding:8px;background:rgba(255,255,255,.82);color:#2b3a2e;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 #board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));width:100%;aspect-ratio:1;border:4px solid #fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px rgba(40,70,100,.3)}
 .sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.sq.l{background:#fafcf7}.sq.d{background:#5fa05a}
+.sq.l{background:#fafcf7}.sq.d{background:#7fba7a}
 .sq.sel{background:#f6e05e!important}
 .sq.last{box-shadow:inset 0 0 0 100px rgba(255,235,80,.35)}
 .sq.chk{background:#e8504a!important}
@@ -71,11 +71,12 @@ body.freeon .tray{outline:2px dashed #c9892b}
 .gb{position:absolute;top:1px;right:1px;min-width:19px;height:19px;padding:0 3px;border-radius:10px;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#fff;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none}
 .gb.g-ok{border:2px solid #fff;min-width:17px;height:17px;padding:0}
 .gb.g-inacc{color:#3a2f00}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.12)),var(--bg) center/cover no-repeat,#cfe8f5}
+#bg{position:fixed;left:0;top:0;width:100%;height:100vh;height:100lvh;z-index:-1;pointer-events:none;will-change:transform;transform:translateZ(0);background:linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.12)),var(--bg) center/cover no-repeat,#cfe8f5}
 </style>
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
 </head>
 <body>
+<div id="bg"></div>
 <div id="app">
   <div id="status"></div>
   <div id="trayT" class="tray" data-ph="흑이 잡은 백 기물"></div>
@@ -187,6 +188,8 @@ function legal(s,r,c){
   const p=s.b[r][c];if(!p||col(p)!==s.turn)return[];
   return pseudo(s,r,c).filter(m=>!inCheck(apply(s,m),col(p)));
 }
+function dead(s){let n=0,bs=[],kn=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=s.b[r][c];if(!p||typ(p)==="K")continue;const t=typ(p);if(t==="P"||t==="R"||t==="Q")return false;n++;if(t==="B")bs.push((r+c)%2);else kn++;}
+  return n<=1||(kn===0&&bs.every(x=>x===bs[0]));}
 function anyLegal(s){for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(legal(s,r,c).length)return true;return false;}
 
 function pieceEl(p,small){
@@ -216,7 +219,8 @@ function render(){
   let t=S.turn==="w"?"⚪ 백 차례":"⚫ 흑 차례";
   if(free)t="✋ 자유 이동 · "+t;
   else if(over){
-    if(inCheck(S,S.turn))t="체크메이트! "+(S.turn==="w"?"흑":"백")+" 승리 🎉";
+    if(dead(S))t="기물 부족 — 무승부";
+    else if(inCheck(S,S.turn))t="체크메이트! "+(S.turn==="w"?"흑":"백")+" 승리 🎉";
     else t="스테일메이트 — 무승부";
   }else if(chk)t+=" (체크!)";
   $("#status").textContent=t;
@@ -255,7 +259,7 @@ function doMove(m,promo){
   hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
   $("#info").textContent="";
-  over=!anyLegal(S);
+  over=!anyLegal(S)||dead(S);
   let bk=null;
   if(mode==="lab"){line=line?line.concat(uciOf(m)):null;bk=line?bookInfo(line):null;}
   if(bk){
@@ -521,7 +525,7 @@ function setFree(on){
   else{
     const s2=normalize(S),err=validate(s2);
     if(err){$("#info").textContent="⚠ "+err;return;}
-    S=s2;free=false;over=!anyLegal(S);
+    S=s2;free=false;over=!anyLegal(S)||dead(S);
   }
   fsel=null;sel=null;legalCache=[];arrow=null;lastGrade=null;gradeToken++;hintToken++;
   document.body.classList.toggle("freeon",free);
