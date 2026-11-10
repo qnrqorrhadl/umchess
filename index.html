@@ -548,7 +548,7 @@ function doMove(m,promo,remote){
   const before=clone(S),prev=lastMove;
   hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
-  $("#info").textContent=S.bl?(S.bl.st?"방어막 반격! 공격한 기물이 2턴 스턴":"방어막이 공격을 막았어요! (방어막 소모)"):S.cvt?"비숍이 기물을 마녀 편으로 만들었어요!":S.cvr?"포섭이 풀렸어요! 이 기물은 요정 다음 턴에 움직일 수 없어요":"";
+  $("#info").textContent=S.bl?(S.bl.st?"끝까지 이렇게 나오면 얻어맞는 것 밖에 답이 없지!":"방어막이 공격을 막았어요! (방어막 소모)"):S.cvt?"비숍이 기물을 마녀 편으로 만들었어요!":S.cvr?"포섭이 풀렸어요! 이 기물은 요정 다음 턴에 움직일 수 없어요":"";
   over=!anyLegal(S)||dead(S);
   let bk=null;
   if(mode==="lab"){line=line?line.concat(uciOf(m)):null;bk=line?bookInfo(line):null;}
@@ -575,7 +575,7 @@ function maybeAI(){
 
 
 /* ---------- 종족전 스킬 (요정) ---------- */
-const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
+const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도로 둘러싸라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
 const nm=c=>isRace()?(c==="w"?"요정":"마녀"):(c==="w"?"백":"흑");
 let toastT=null;
 function toast(t,img){const e=$("#toast");e.innerHTML=(img?`<img class="tsimg" src="${img}" onerror="this.remove()">`:"")+`<span></span>`;e.lastChild.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),1800);}
