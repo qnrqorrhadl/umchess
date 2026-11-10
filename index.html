@@ -70,6 +70,11 @@ body.freeon #wrap,body.freeon .tray{touch-action:none}
 body.freeon .tray{outline:2px dashed #c9892b}
 .ghost{position:fixed;width:58px;height:58px;transform:translate(-50%,-50%);z-index:30;pointer-events:none;opacity:.92}
 .ghost .piece{width:100%;height:100%}
+.joinrow{display:flex;gap:8px}
+#menu .joinrow input{flex:1;min-width:0;font-size:20px;text-align:center;border:0;border-radius:12px;padding:10px;background:#fff;color:#164a25;letter-spacing:4px}
+#menu .joinrow button{flex:none;width:112px}
+#nStat{min-height:54px;font-size:18px;font-weight:900;text-align:center;color:#164a25;line-height:1.4;white-space:pre-line}
+#nStat b{display:block;font-size:40px;letter-spacing:8px;color:#2f8a46}
 .races2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pager{display:flex;align-items:center;justify-content:center;gap:14px}
 .pager b{font-size:16px;color:#2b5a35}
@@ -211,6 +216,7 @@ body.racem #info{display:none}
 .frzm{position:absolute;right:2%;top:0;font-size:1.1em;z-index:4;pointer-events:none;text-shadow:0 0 3px #08f}
 .piece.evo{filter:drop-shadow(0 0 5px #ffd24a)}
 </style>
+<script src="peerjs.min.js"></script>
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
 </head>
 <body>
@@ -251,8 +257,16 @@ body.racem #info{display:none}
     <div class="races2" id="races2"></div>
     <div class="pager"><button id="pgPrev">◀</button><b id="pgNum">1 / 2</b><button id="pgNext">▶</button></div>
     <button id="rStart">한 폰으로 둘이서 시작</button>
+    <button id="rNet">같이 하기</button>
     <button id="rPrac">연습실</button>
     <button class="back" data-to="pgMain">← 뒤로</button>
+  </div>
+  <div class="pg" id="pgNet" hidden>
+    <h1>같이 하기</h1>
+    <button id="nMake">방 만들기</button>
+    <div class="joinrow"><input id="nCode" inputmode="numeric" maxlength="5" placeholder="방 코드 5자리"><button id="nJoin">들어가기</button></div>
+    <div id="nStat"></div>
+    <button class="back" data-to="pgRace">← 뒤로</button>
   </div>
   <div class="pg" id="pgSk" hidden>
     <h1 id="skTitle"></h1>
@@ -276,7 +290,7 @@ const NAME={P:"pawn",N:"knight",B:"bishop",R:"rook",Q:"queen",K:"king"};
 const SYM={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 const $=s=>document.querySelector(s);
 let S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
-const isRace=()=>mode==="race"||mode==="rlab";
+const isRace=()=>mode==="race"||mode==="rlab"||mode==="net";
 let shEdit=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
 let free=false, fsel=null, justDragged=false;
@@ -457,7 +471,7 @@ function render(){
     q.dataset.r=r;q.dataset.c=c;q.onclick=()=>click(r,c);
     bd.appendChild(q);
   }
-  let t=isRace()?(S.turn==="w"?"요정 차례":"마녀 차례"):(S.turn==="w"?"백 차례":"흑 차례");
+  let t=mode==="net"?(S.turn===me?"내 차례":"상대 차례")+" · "+(S.turn==="w"?"요정":"마녀"):isRace()?(S.turn==="w"?"요정 차례":"마녀 차례"):(S.turn==="w"?"백 차례":"흑 차례");
   if(free)t="자유 이동 · "+t;
   else if(over){
     if(dead(S))t="기물 부족 — 무승부";
@@ -484,6 +498,7 @@ function click(r,c){
   if(free&&shEdit){shToggle(r,c);return;}
   if(free){freeClick(r,c);return;}
   if(over||busy)return;
+  if(mode==="net"&&S.turn!==me)return;
   if(skT){skillTarget(r,c);return;}
   if(gbT){gangTarget(r,c);return;}
   if(crT){carrotTarget(r,c);return;}
@@ -500,7 +515,8 @@ function click(r,c){
   else{sel=null;legalCache=[];}
   render();
 }
-function doMove(m,promo){
+function doMove(m,promo,remote){
+  if(mode==="net"&&!remote)netSend({t:"mv",fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc,promo:promo||null});
   const before=clone(S),prev=lastMove;
   hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
@@ -630,7 +646,8 @@ function cutIn(img,title,ln,cls,done){
   const end=()=>{if(fin)return;fin=true;e.classList.remove("on");e.innerHTML="";done();};
   e.onclick=end;setTimeout(end,2400);
 }
-function commitSkill(n,title,ln,info,img,cls){
+function commitSkill(n,title,ln,info,img,cls,remote){
+  if(mode==="net"&&!remote)netSend({t:"sk",S:JSON.stringify(n),a:[title,ln,info,img,cls]});
   busy=true;skT=false;crT=false;sel=null;legalCache=[];arrow=null;render();
   cutIn(img,title,ln,cls,()=>{
     hist.push({S:clone(S),last:lastMove,line:line});
@@ -685,9 +702,10 @@ function gangTargets(){
   return out;
 }
 function canGang(){return canSkill()&&S.sk.cdG===0;}
-function gangTarget(r,c){
+function gangTarget(r,c,remote){
   const g=gangTargets().find(x=>x.r===r&&x.c===c);
   if(!g){gbT=false;render();return;}
+  if(mode==="net"&&!remote)netSend({t:"gang",r,c});
   hist.push({S:clone(S),last:lastMove,line:line});
   gbT=false;busy=true;sel=null;legalCache=[];
   const shielded=S.sk.sh[g.r][g.c]>0;
@@ -796,12 +814,14 @@ function skUI(){
 $("#skBtn").onclick=e=>{
   if(S.turn==="b"&&isRace()){
     if(e.target.closest(".cinfo")){toast(PDESC+"\n"+WDESC[wsk]);return;}
+    if(mode==="net"&&S.turn!==me)return;
     if(crT===2){crT=false;render();return;}
     skT=false;gbT=false;crT=false;
     if(!canWitch()||(wsk===1?S.sk.wc1:S.sk.wc2)>0)return;
     if(wsk===1){crT=2;sel=null;legalCache=[];render();}else useWitch2();
     return;}
   if(e.target.closest(".cinfo")){toast(skDesc());return;}
+  if(mode==="net"&&S.turn!==me)return;
   if(skT){skT=false;render();return;}
   gbT=false;crT=false;
   if(!canSkill())return;
@@ -811,6 +831,7 @@ $("#skBtn").onclick=e=>{
 $("#gbBtn").onclick=e=>{
   if(S.turn==="b"&&isRace()){
     if(e.target.closest(".cinfo")){toast(CDESC);return;}
+    if(mode==="net"&&S.turn!==me)return;
     if(crT===1){crT=false;render();return;}
     skT=false;gbT=false;crT=false;
     if(!canWitch()||S.sk.wcC>0)return;
@@ -1169,25 +1190,26 @@ function askPromo(color,cb){
 }
 function reset(){
   free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="자유 이동";
-  me=mode==="race"?(myRace==="w"?"b":"w"):mode==="rlab"?"w":pick==="r"?(Math.random()<.5?"w":"b"):pick;
+  me=mode==="net"?NET.me:mode==="race"?(myRace==="w"?"b":"w"):mode==="rlab"?"w":pick==="r"?(Math.random()<.5?"w":"b"):pick;
   shEdit=false;$("#rlSh").classList.remove("on");$("#rlSh").textContent="방어막 편집";
-  S=newState(isRace());if(mode==="race")S.turn=Math.random()<.5?"w":"b";skT=false;gbT=false;crT=false;bonk=null;hist=[];line=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
+  S=newState(isRace());if(mode==="race")S.turn=Math.random()<.5?"w":"b";if(mode==="net")S.turn=NET.first;skT=false;gbT=false;crT=false;bonk=null;hist=[];line=[];sel=null;legalCache=[];lastMove=null;lastGrade=null;gradeToken++;over=false;arrow=null;busy=false;hintToken++;
   $("#info").textContent=isRace()?"":pick==="r"?"랜덤 결과: 내 색은 "+(me==="w"?"백":"흑"):"";
   render();
   if(mode==="lab")analyze(S).catch(()=>{});
   maybeAI();
 }
 $("#undo").onclick=()=>{
+  if(mode==="net")return;
   if(busy&&(mode==="ai"||isRace()))return;
   let h=hist.pop();if(!h)return;
   if(mode==="ai"){while(h.S.turn!==me&&hist.length)h=hist.pop();}
   S=h.S;skT=false;gbT=false;crT=false;lastMove=h.last;line=h.line===undefined?null:h.line;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
   maybeAI();
 };
-$("#new").onclick=()=>{if(busy&&(mode==="ai"||isRace()))return;reset();};
+$("#new").onclick=()=>{if(mode==="net")return;if(busy&&(mode==="ai"||isRace()))return;reset();};
 $("#hint").onclick=hint;
 function showPg(id){document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
-$("#home").onclick=()=>{if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";};
+$("#home").onclick=()=>{if(mode==="net"){if(!NET.dead&&!over&&!confirm("대결을 끝내고 나갈까요?"))return;netClose();}if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";};
 function shToggle(r,c){
   const p=S.b[r][c];if(!p||!S.sk)return;
   hist.push({S:clone(S),last:lastMove,line:line});
@@ -1206,11 +1228,71 @@ $("#rlReset").onclick=()=>{
   $("#info").textContent="스킬 상태를 처음으로 되돌렸어요 (기물 위치는 그대로)";render();
 };
 $("#rlSwap").onclick=()=>{if(S.turn==="b")setWsk(wsk===1?2:1);else setFsk(fsk===1?2:1);skT=false;gbT=false;crT=false;$("#info").textContent=(S.turn==="b"?"마녀":"요정")+" 스킬을 바꿨어요";render();};
+const NET={peer:null,conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
+function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
+function netSend(o){try{if(NET.conn)NET.conn.send(o);}catch(e){}}
+function netClose(){
+  try{if(NET.conn)NET.conn.close();}catch(e){}try{if(NET.peer)NET.peer.destroy();}catch(e){}
+  NET.conn=null;NET.peer=null;NET.q=[];NET.dead=false;
+  if(NET.own){fsk=NET.own.f;wsk=NET.own.w;NET.own=null;miniUpd();}
+}
+function netOpen(conn){
+  NET.conn=conn;
+  conn.on("data",netRecv);
+  conn.on("close",()=>{if(mode==="net"){NET.dead=true;toast("상대와 연결이 끊겼어요");}else netStat("연결이 끊겼어요");});
+  conn.on("error",()=>{});
+}
+function netGo(hostRace,first,theirSk){
+  // hostRace: "f"|"w" 방장 종족
+  const iAm=NET.host?hostRace:(hostRace==="f"?"w":"f");
+  NET.own={f:fsk,w:wsk};
+  if(iAm==="f")wsk=theirSk.w;else fsk=theirSk.f;
+  NET.me=iAm==="f"?"w":"b";NET.first=first;NET.dead=false;NET.q=[];
+  start("net");
+}
+function netRecv(msg){
+  if(!msg||!msg.t)return;
+  if(msg.t==="hi"&&NET.host){
+    const first=Math.random()<.5?"w":"b";
+    netSend({t:"go",race:myRace,first,sk:{f:fsk,w:wsk}});
+    netGo(myRace,first,msg.sk);
+  }else if(msg.t==="go"&&!NET.host){netGo(msg.race,msg.first,msg.sk);}
+  else if(msg.t==="mv"||msg.t==="sk"||msg.t==="gang"){NET.q.push(msg);}
+}
+function netPump(){
+  if(mode!=="net"||busy||!NET.q.length)return;
+  const m=NET.q.shift();
+  if(m.t==="mv"){const mv=legal(S,m.fr,m.fc).find(x=>x.tr===m.tr&&x.tc===m.tc);if(mv)doMove(mv,m.promo||undefined,true);}
+  else if(m.t==="sk"){commitSkill(JSON.parse(m.S),...m.a,true);}
+  else if(m.t==="gang"){gangTarget(m.r,m.c,true);}
+}
+setInterval(netPump,120);
+function netPeer(id){
+  if(typeof Peer==="undefined"){netStat("연결 도구를 불러오지 못했어요. 인터넷을 확인해 주세요");return null;}
+  return new Peer(id,{debug:0});
+}
+$("#rNet").onclick=()=>{netStat("");showPg("pgNet");};
+$("#nMake").onclick=()=>{
+  netClose();NET.host=true;
+  const code=String(Math.floor(10000+Math.random()*90000)),pr=netPeer("tchess-"+code);if(!pr)return;
+  NET.peer=pr;netStat("방을 만드는 중...");
+  pr.on("open",()=>netStat("친구에게 이 코드를 알려주세요",code));
+  pr.on("connection",c=>{if(NET.conn){c.close();return;}netOpen(c);netStat("친구가 들어왔어요!");});
+  pr.on("error",e=>{netStat(e.type==="unavailable-id"?"다시 눌러 주세요 (코드 겹침)":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
+};
+$("#nJoin").onclick=()=>{
+  const code=$("#nCode").value.trim();if(!/^\d{5}$/.test(code)){netStat("방 코드 5자리를 입력해 주세요");return;}
+  netClose();NET.host=false;const pr=netPeer();if(!pr)return;NET.peer=pr;netStat("방에 들어가는 중...");
+  pr.on("open",()=>{const c=pr.connect("tchess-"+code,{reliable:true});netOpen(c);
+    c.on("open",()=>{netStat("연결됐어요! 시작하는 중...");netSend({t:"hi",sk:{f:fsk,w:wsk}});});
+    setTimeout(()=>{if(!NET.dead&&mode!=="net"&&$("#pgNet").hidden===false&&!c.open)netStat("방을 찾을 수 없어요. 코드를 확인해 주세요");},12000);});
+  pr.on("error",e=>{netStat(e.type==="peer-unavailable"?"방을 찾을 수 없어요. 코드를 확인해 주세요":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
+};
 function start(m,l){
   mode=m;if(l)level=l;
   $("#hint").style.display=m==="lab"?"":"none";
   $("#bar2").classList.toggle("on",m==="lab"||m==="rlab");document.body.classList.toggle("rlab",m==="rlab");
-  $("#menu").style.display="none";$("#lvls").classList.remove("on");document.body.classList.toggle("racem",m==="race"||m==="rlab");
+  $("#menu").style.display="none";$("#lvls").classList.remove("on");document.body.classList.toggle("racem",m==="race"||m==="rlab"||m==="net");
   reset();
 }
 $("#mAi").onclick=()=>$("#lvls").classList.toggle("on");
