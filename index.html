@@ -526,7 +526,7 @@ function maybeAI(){
 
 
 /* ---------- 종족전 스킬 (요정) ---------- */
-const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
+const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도로 둘러싸라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
 const nm=c=>isRace()?(c==="w"?"요정":"마녀"):(c==="w"?"백":"흑");
 let toastT=null;
 function toast(t,img){const e=$("#toast");e.innerHTML=(img?`<img class="tsimg" src="${img}" onerror="this.remove()">`:"")+`<span></span>`;e.lastChild.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),1800);}
@@ -603,7 +603,7 @@ function skillTarget(r,c){
   const p=S.b[r][c];
   if(p&&col(p)==="w"&&typ(p)!=="K"&&!S.sk.sh[r][c]){
     const n=clone(S);n.sk.sh[r][c]=1;n.sk.cd1=10;n.sk.kb=2;
-    commitSkill(n,"빠아아아앙!!!","방어막 전개!","방어막 완료! 다음 턴에 킹이 한 칸 더 움직일 수 있어요","skill1.png","c1");
+    commitSkill(n,"빠아아아앙!!!","저거 다 인형 아니지? 진짜 빵 맞지?!","방어막 완료! 다음 턴에 킹이 한 칸 더 움직일 수 있어요","skill1.png","c1");
   }else{skT=false;render();}
 }
 function useSkill2(){
@@ -704,7 +704,7 @@ function carrotTarget(r,c){
   const p=S.b[r][c];
   if(p&&col(p)==="b"&&typ(p)!=="K"&&!S.sk.sh[r][c]){
     const n=clone(S),adj=wAdj(S);n.sk.sh[r][c]=1;n.sk.shT[r][c]=3;n.sk.wcC=Math.max(1,8+adj);
-    commitSkill(n,"UFC 당근튀김","방어막 전개!","방어막 완료! 내 턴 2번 동안 유지돼요","skill_carrot.jpg","c4");
+    commitSkill(n,"UFC 당근튀김","!","방어막 완료! 내 턴 2번 동안 유지돼요","skill_carrot.jpg","c4");
   }else{crT=false;render();}
 }
 function skUI(){
