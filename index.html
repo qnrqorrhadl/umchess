@@ -242,10 +242,9 @@ body.racem #info{display:none}
 <div id="menu"><div class="box">
   <div class="pg" id="pgMain">
     <div class="logo"><img class="lt" src="logo.png" alt="트릭컬 체스"></div>
-    <div class="vs"><img src="wK.png" alt=""><b>VS</b><img src="bK.png" alt=""></div>
     <button class="mb" id="mRace"><i>종족전</i></button>
     <button class="mb alt" id="mClassic"><i>클래식 모드</i></button>
-    <div class="mrow"><button class="mb off" disabled><i>같이 하기</i></button><button class="mb alt2" id="mSet"><i>설정</i></button></div>
+    <div class="mrow"><button class="mb alt2" id="mNet"><i>같이 하기</i></button><button class="mb alt2" id="mSet"><i>설정</i></button></div>
   </div>
   <div class="pg" id="pgSet" hidden>
     <h1>설정</h1>
@@ -257,7 +256,6 @@ body.racem #info{display:none}
     <div class="races2" id="races2"></div>
     <div class="pager"><button id="pgPrev">◀</button><b id="pgNum">1 / 2</b><button id="pgNext">▶</button></div>
     <button id="rStart">한 폰으로 둘이서 시작</button>
-    <button id="rNet">같이 하기</button>
     <button id="rPrac">연습실</button>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
@@ -266,7 +264,7 @@ body.racem #info{display:none}
     <button id="nMake">방 만들기</button>
     <div class="joinrow"><input id="nCode" inputmode="numeric" maxlength="5" placeholder="방 코드 5자리"><button id="nJoin">들어가기</button></div>
     <div id="nStat"></div>
-    <button class="back" data-to="pgRace">← 뒤로</button>
+    <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
   <div class="pg" id="pgSk" hidden>
     <h1 id="skTitle"></h1>
@@ -289,7 +287,7 @@ body.racem #info{display:none}
 const NAME={P:"pawn",N:"knight",B:"bishop",R:"rook",Q:"queen",K:"king"};
 const SYM={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 const $=s=>document.querySelector(s);
-let S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
+let NETEND="", S, hist=[], sel=null, legalCache=[], lastMove=null, over=false;
 const isRace=()=>mode==="race"||mode==="rlab"||mode==="net";
 let shEdit=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
@@ -473,6 +471,7 @@ function render(){
   }
   let t=mode==="net"?(S.turn===me?"내 차례":"상대 차례")+" · "+(S.turn==="w"?"요정":"마녀"):isRace()?(S.turn==="w"?"요정 차례":"마녀 차례"):(S.turn==="w"?"백 차례":"흑 차례");
   if(free)t="자유 이동 · "+t;
+  else if(over&&NETEND)t=NETEND;
   else if(over){
     if(dead(S))t="기물 부족 — 무승부";
     else if(inCheck(S,S.turn))t="체크메이트! "+nm(opp(S.turn))+" 승리";
@@ -568,7 +567,7 @@ function sfx(k){if(!sndOn)return;
   else if(k==="move"){tone(520,0,.07,"sine",.34,820);tone(1040,0,.05,"triangle",.1,1500);}
   else if(k==="cap"){tone(520,0,.14,"sine",.4,170);tone(260,.02,.12,"triangle",.3,120);tone(1040,.13,.07,"sine",.18);noise(0,.05,.12);}
   else if(k==="hit"){if(HITBUF&&AC){const sr=AC.createBufferSource(),g=AC.createGain();sr.buffer=HITBUF;const t=AC.currentTime;g.gain.setValueAtTime(.9,t);g.gain.setValueAtTime(.9,t+.3);g.gain.linearRampToValueAtTime(0,t+.38);sr.connect(g);g.connect(AC.destination);sr.start(t,0,.4);}else{tone(330,0,.12,"triangle",.16,110);tone(660,0,.06,"sine",.07,300);}}
-  else if(k==="check"){[0,.17].forEach(t=>{tone(1760,t,.5,"sine",.3);tone(1760*2.76,t,.22,"sine",.15);tone(1760*5.4,t,.1,"sine",.07);});}
+  else if(k==="check"){[0,.17].forEach(t=>{tone(1760,t,.5,"sine",.18);tone(1760*2.76,t,.22,"sine",.09);tone(1760*5.4,t,.1,"sine",.04);});}
   else if(k==="mate"){[523,659,784,1047].forEach((f,i)=>{tone(f,i*.1,.25,"triangle",.12);tone(f*2,i*.1,.12,"sine",.04);});[1047,1319,1568].forEach(f=>tone(f,.45,.7,"triangle",.09));tone(2093,.5,.5,"sine",.05);}
 }
 function sndBtn(){$("#snd").textContent=sndOn?"효과음 켬":"효과음 끔";}
@@ -678,7 +677,7 @@ function useSkill2(){
   if(st===1)info="폰 "+give(t=>t==="P",2)+"개에 방어막!";
   else if(st===2)info="룩·나이트·비숍 "+give(t=>t==="R"||t==="N"||t==="B",3)+"개에 방어막!";
   else{const[kr,kc]=findKing(n.b,"w");k.sh[kr][kc]=2;k.qk=1;info="킹: 방어막 2회 + 퀸처럼 이동!";}
-  commitSkill(n,st+"단계",ST2[st-1],info,"skill2_"+st+".png","c"+st);
+  commitSkill(n,"에르피엔 전통 해결법",ST2[st-1],info,"skill2_"+st+".png","c"+st);
 }
 function attackersOf(s,r,c,by){
   const b=s.b,out=[],pd=by==="w"?1:-1;
@@ -710,7 +709,7 @@ function gangTarget(r,c,remote){
   gbT=false;busy=true;sel=null;legalCache=[];
   const shielded=S.sk.sh[g.r][g.c]>0;
   bonk={tr:g.r,tc:g.c,list:g.l.slice(0,gangNeed()),kill:!shielded};
-  toast("다구리!");render();bonk.list.forEach((_,i)=>setTimeout(()=>sfx("hit"),340+i*400));
+  toast("다구리!");render();
   setTimeout(()=>{
     const n=clone(S),kk=n.sk;let msg;
     if(shielded){kk.sh[g.r][g.c]--;msg="다구리을 방어막이 막았어요! (방어막 소모)";}
@@ -770,12 +769,13 @@ function carrotTarget(r,c){
     commitSkill(n,"UFC 당근튀김","일당은 주시는거죠?","방어막 완료! 내 턴 2번 동안 유지돼요","skill_carrot.jpg","c4");
   }else{crT=false;render();}
 }
+const SIDE=()=>mode==="net"?me:S.turn;
 function skUI(){
   const bar=$("#skbar"),inf=$("#skinfo"),gb=$("#gbBtn"),b=$("#skBtn");
   bar.style.display=isRace()?"flex":"none";
   if(!isRace()||!S.sk){inf.textContent="";return;}
   const k=S.sk;
-  if(S.turn==="b"){
+  if(SIDE()==="b"){
     const adj=wAdj(S),bs=wsk===1?k.wc1:k.wc2;
     const boff=bs>0||!canWitch()||(wsk===2&&!w2pool())||(wsk===1&&!S.b.some((rw,r)=>rw.some((p,c)=>p&&col(p)==="b"&&typ(p)!=="K"&&!S.sk.gs[r][c])));
     b.className="skcard"+(boff?" off":"")+(bs>0?" cd":"")+(crT===2?" tgt":"");b.innerHTML=cardHTML(wsk===1?"skill_goseo.jpg":"witch_court.jpg",WNAME[wsk],Math.max(1,10+adj),bs);
@@ -812,7 +812,7 @@ function skUI(){
   inf.textContent=parts.join(" · ");
 }
 $("#skBtn").onclick=e=>{
-  if(S.turn==="b"&&isRace()){
+  if(SIDE()==="b"&&isRace()){
     if(e.target.closest(".cinfo")){toast(PDESC+"\n"+WDESC[wsk]);return;}
     if(mode==="net"&&S.turn!==me)return;
     if(crT===2){crT=false;render();return;}
@@ -829,7 +829,7 @@ $("#skBtn").onclick=e=>{
   else useSkill2();
 };
 $("#gbBtn").onclick=e=>{
-  if(S.turn==="b"&&isRace()){
+  if(SIDE()==="b"&&isRace()){
     if(e.target.closest(".cinfo")){toast(CDESC);return;}
     if(mode==="net"&&S.turn!==me)return;
     if(crT===1){crT=false;render();return;}
@@ -1198,15 +1198,16 @@ function reset(){
   if(mode==="lab")analyze(S).catch(()=>{});
   maybeAI();
 }
+function netBtns(){const n=mode==="net";$("#undo").textContent=n?"무승부":"되돌리기";$("#new").textContent=n?"기권":"새 게임";}
 $("#undo").onclick=()=>{
-  if(mode==="net")return;
+  if(mode==="net"){netDraw();return;}
   if(busy&&(mode==="ai"||isRace()))return;
   let h=hist.pop();if(!h)return;
   if(mode==="ai"){while(h.S.turn!==me&&hist.length)h=hist.pop();}
   S=h.S;skT=false;gbT=false;crT=false;lastMove=h.last;line=h.line===undefined?null:h.line;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
   maybeAI();
 };
-$("#new").onclick=()=>{if(mode==="net")return;if(busy&&(mode==="ai"||isRace()))return;reset();};
+$("#new").onclick=()=>{if(mode==="net"){netResign();return;}if(busy&&(mode==="ai"||isRace()))return;reset();};
 $("#hint").onclick=hint;
 function showPg(id){document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
 $("#home").onclick=()=>{if(mode==="net"){if(!NET.dead&&!over&&!confirm("대결을 끝내고 나갈까요?"))return;netClose();}if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";};
@@ -1236,6 +1237,17 @@ function netClose(){
   NET.conn=null;NET.peer=null;NET.q=[];NET.dead=false;
   if(NET.own){fsk=NET.own.f;wsk=NET.own.w;NET.own=null;miniUpd();}
 }
+function netEnd(t){NETEND=t;over=true;skT=false;gbT=false;crT=false;sel=null;legalCache=[];render();toast(t);}
+function netDraw(){
+  if(over||NET.dead||busy)return;
+  if(!confirm("무승부를 제안할까요?"))return;
+  netSend({t:"draw"});toast("무승부를 제안했어요");
+}
+function netResign(){
+  if(over||NET.dead)return;
+  if(!confirm("기권할까요? 패배로 처리돼요"))return;
+  netSend({t:"resign"});netEnd("기권 — 상대 승리");
+}
 function netOpen(conn){
   NET.conn=conn;
   conn.on("data",netRecv);
@@ -1243,6 +1255,7 @@ function netOpen(conn){
   conn.on("error",()=>{});
 }
 function netGo(hostRace,first,theirSk){
+  NETEND="";
   // hostRace: "f"|"w" 방장 종족
   const iAm=NET.host?hostRace:(hostRace==="f"?"w":"f");
   NET.own={f:fsk,w:wsk};
@@ -1258,6 +1271,12 @@ function netRecv(msg){
     netGo(myRace,first,msg.sk);
   }else if(msg.t==="go"&&!NET.host){netGo(msg.race,msg.first,msg.sk);}
   else if(msg.t==="mv"||msg.t==="sk"||msg.t==="gang"){NET.q.push(msg);}
+  else if(mode==="net"&&!over){
+    if(msg.t==="resign")netEnd("상대가 기권했어요 — 내 승리");
+    else if(msg.t==="draw"){const ok=confirm("상대가 무승부를 제안했어요. 받을까요?");netSend({t:ok?"drawok":"drawno"});if(ok)netEnd("무승부 합의");}
+    else if(msg.t==="drawok")netEnd("무승부 합의");
+    else if(msg.t==="drawno")toast("상대가 무승부를 거절했어요");
+  }
 }
 function netPump(){
   if(mode!=="net"||busy||!NET.q.length)return;
@@ -1271,7 +1290,7 @@ function netPeer(id){
   if(typeof Peer==="undefined"){netStat("연결 도구를 불러오지 못했어요. 인터넷을 확인해 주세요");return null;}
   return new Peer(id,{debug:0});
 }
-$("#rNet").onclick=()=>{netStat("");showPg("pgNet");};
+$("#mNet").onclick=()=>{netStat("");showPg("pgNet");};
 $("#nMake").onclick=()=>{
   netClose();NET.host=true;
   const code=String(Math.floor(10000+Math.random()*90000)),pr=netPeer("tchess-"+code);if(!pr)return;
@@ -1290,6 +1309,7 @@ $("#nJoin").onclick=()=>{
 };
 function start(m,l){
   mode=m;if(l)level=l;
+  if(m!=="net")NETEND="";netBtns();
   $("#hint").style.display=m==="lab"?"":"none";
   $("#bar2").classList.toggle("on",m==="lab"||m==="rlab");document.body.classList.toggle("rlab",m==="rlab");
   $("#menu").style.display="none";$("#lvls").classList.remove("on");document.body.classList.toggle("racem",m==="race"||m==="rlab"||m==="net");
