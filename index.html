@@ -549,10 +549,10 @@ function sfx(k){if(!sndOn)return;
   else if(k==="chime"){const f=PENTA[pn++%PENTA.length];tone(f,0,.4,"sine",.11);tone(f*2,0,.25,"sine",.05);tone(f*3,.02,.15,"sine",.025);}
   else if(k==="break"){tone(900,0,.12,"sine",.12,300);tone(700,.07,.12,"sine",.1,220);tone(1100,.13,.14,"sine",.09,350);noise(0,.08,.06);}
   else if(k==="boom"){tone(160,0,.5,"sawtooth",.16,40);tone(520,0,.1,"square",.09,120);tone(90,0,.6,"sine",.2,30);noise(0,.4,.18);tone(700,.05,.2,"triangle",.08,200);}
-  else if(k==="move"){tone(520,0,.06,"sine",.1,820);}
-  else if(k==="cap"){tone(520,0,.14,"sine",.14,170);tone(260,.02,.12,"triangle",.1,120);tone(1040,.13,.07,"sine",.06);}
-  else if(k==="hit"){if(HITBUF&&AC){const sr=AC.createBufferSource(),g=AC.createGain();sr.buffer=HITBUF;g.gain.value=.9;sr.connect(g);g.connect(AC.destination);sr.start();}else{tone(330,0,.12,"triangle",.16,110);tone(660,0,.06,"sine",.07,300);}}
-  else if(k==="check"){tone(700,0,.17,"triangle",.1,2600);tone(2637,.16,.24,"triangle",.12);tone(3951,.16,.14,"sine",.04);}
+  else if(k==="move"){tone(520,0,.07,"sine",.34,820);tone(1040,0,.05,"triangle",.1,1500);}
+  else if(k==="cap"){tone(520,0,.14,"sine",.4,170);tone(260,.02,.12,"triangle",.3,120);tone(1040,.13,.07,"sine",.18);noise(0,.05,.12);}
+  else if(k==="hit"){if(HITBUF&&AC){const sr=AC.createBufferSource(),g=AC.createGain();sr.buffer=HITBUF;const t=AC.currentTime;g.gain.setValueAtTime(.9,t);g.gain.setValueAtTime(.9,t+.3);g.gain.linearRampToValueAtTime(0,t+.38);sr.connect(g);g.connect(AC.destination);sr.start(t,0,.4);}else{tone(330,0,.12,"triangle",.16,110);tone(660,0,.06,"sine",.07,300);}}
+  else if(k==="check"){[0,.17].forEach(t=>{tone(1760,t,.5,"sine",.3);tone(1760*2.76,t,.22,"sine",.15);tone(1760*5.4,t,.1,"sine",.07);});}
   else if(k==="mate"){[523,659,784,1047].forEach((f,i)=>{tone(f,i*.1,.25,"triangle",.12);tone(f*2,i*.1,.12,"sine",.04);});[1047,1319,1568].forEach(f=>tone(f,.45,.7,"triangle",.09));tone(2093,.5,.5,"sine",.05);}
 }
 function sndBtn(){$("#snd").textContent=sndOn?"효과음 켬":"효과음 끔";}
@@ -582,7 +582,7 @@ function cartFx(bx,done){
   const cart=mk('<img src="witch_cart.png" style="width:100%;height:100%;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45))">',cw,ch);
   const T=(x,y)=>`translate(${x-cs/2}px,${y-cs/2}px)`;
   const TC=(x,y,r,sc)=>`translate(${x+fx*cs*.62-cw/2}px,${y+fy*cs*.62-ch/2}px) rotate(${r}deg) scale(${sc||1})`;
-  const wx=o[0]-fx*cs*.5,wy=o[1]-fy*cs*.5;
+  const wx=o[0]-fx*cs*.9,wy=o[1]-fy*cs*.9;
   const A=(el,kf,d,e)=>el.animate(kf,{duration:d,easing:e,fill:"forwards"});
   A(mv,[{transform:T(o[0],o[1])},{transform:T(wx,wy)}],300,"ease-out");
   A(cart,[{transform:TC(o[0],o[1],ang,.6),opacity:0},{transform:TC(wx,wy,ang-12,1),opacity:1}],300,"ease-out")
