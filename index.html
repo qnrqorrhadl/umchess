@@ -397,7 +397,7 @@ function apply(s,m,promo,nb){
     if(gsv>0&&!nb){const lost=[];
       for(let rr=cr-1;rr<=cr+1;rr++)for(let c2=cc-1;c2<=cc+1;c2++){
         if(!inb(rr,c2)||!n.b[rr][c2]||typ(n.b[rr][c2])==="K")continue;
-        if(gsv===2&&rr===m.tr&&c2===m.tc)continue;
+        if(rr===m.tr&&c2===m.tc&&(gsv===2||K.sh[rr][c2]>0))continue;
         if(K.sh[rr][c2]>0){K.sh[rr][c2]--;if(K.sh[rr][c2]===0)K.shT[rr][c2]=0;lost.push([rr,c2,0]);continue;}
         const pc=n.b[rr][c2];n.tray[col(pc)].push(pc);n.b[rr][c2]=null;
         for(const g of[K.gs,K.ic,K.qy,K.fz,K.shT])g[rr][c2]=0;lost.push([rr,c2,1,pc]);}
@@ -512,7 +512,7 @@ function doMove(m,promo){
     lastGrade="book";const u=uciOf(m);
     $("#info").innerHTML=`방금 ${KN[typ(before.b[m.fr][m.fc])]} ${u.slice(0,2)}→${u.slice(2)}: <b style="color:${GR.book.c}">정석</b> · ${bk}`;
   }
-  const fin=S;if(fin.bx){fin.bx._fin=fin;S=apply(before,m,promo,true);}
+  const fin=S;if(fin.bx){fin.bx._fin=fin;fin.bx.to=[m.tr,m.tc];fin.bx.mv=before.b[m.fr][m.fc];S=before;}
   render();
   if(S.bl)breakFx(S.bl.r,S.bl.c);
   else if(fin.bx){busy=true;cartFx(fin.bx,()=>{S=fin;busy=false;render();
@@ -569,36 +569,48 @@ function shieldFx(list,col){
 }
 const CARTIMG=new Image();CARTIMG.src="witch_cart.png";
 function cartFx(bx,done){
-  const cen=sqEl(bx.r,bx.c);if(!cen){done();return;}
+  const cen=sqEl(bx.r,bx.c),orig=sqEl(bx.from[0],bx.from[1]);if(!cen||!orig){done();return;}
   const bd=$("#board"),cs=cen.getBoundingClientRect().width;
   const pos=(r,c)=>{const q=sqEl(r,c).getBoundingClientRect();return[q.left+q.width/2,q.top+q.height/2];};
-  const[cx,cy]=pos(bx.r,bx.c),o=pos(bx.from[0],bx.from[1]);
+  const[cx,cy]=pos(bx.to[0],bx.to[1]),o=pos(bx.from[0],bx.from[1]),[ix,iy]=pos(bx.r,bx.c);
   let fx=cx-o[0],fy=cy-o[1],fl=Math.hypot(fx,fy);if(fl<1){fx=0;fy=-1;fl=1;}fx/=fl;fy/=fl;
-  const cw=cs*1.9,ch=cw*1.11,sd=bd.getBoundingClientRect().width*.95;
+  const cw=cs*1.3,ch=cw*1.11,sd=bd.getBoundingClientRect().width*.95;
   const mk=(html,w,h)=>{const e=document.createElement("div");e.style.cssText=`position:fixed;left:0;top:0;width:${w}px;height:${h}px;z-index:45;pointer-events:none;will-change:transform`;e.innerHTML=html;document.body.appendChild(e);return e;};
-  const cart=mk('<img src="witch_cart.png" style="width:100%;height:100%;filter:drop-shadow(0 6px 6px rgba(0,0,0,.45))">',cw,ch);
-  const tr=(x,y,rot,sc)=>`translate(${x-cw/2}px,${y-ch/2}px) rotate(${rot}deg) scale(${sc||1})`;
-  const ang=Math.atan2(fy,fx)*180/Math.PI;
-  cart.animate([{transform:tr(cx-fx*sd,cy-fy*sd,ang+90-25,1.15),opacity:1},{transform:tr(cx,cy,ang+90,1)}],{duration:360,easing:"cubic-bezier(.55,0,.95,.55)",fill:"forwards"})
+  const ang=Math.atan2(fy,fx)*180/Math.PI+90;
+  const mv=mk("",cs,cs);{const pe=pieceEl(bx.mv);pe.style.cssText="width:100%;height:100%";mv.appendChild(pe);}
+  const hid=orig.querySelector(".piece");if(hid)hid.style.visibility="hidden";
+  const cart=mk('<img src="witch_cart.png" style="width:100%;height:100%;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45))">',cw,ch);
+  const T=(x,y)=>`translate(${x-cs/2}px,${y-cs/2}px)`;
+  const TC=(x,y,r,sc)=>`translate(${x+fx*cs*.62-cw/2}px,${y+fy*cs*.62-ch/2}px) rotate(${r}deg) scale(${sc||1})`;
+  const wx=o[0]-fx*cs*.5,wy=o[1]-fy*cs*.5;
+  const A=(el,kf,d,e)=>el.animate(kf,{duration:d,easing:e,fill:"forwards"});
+  A(mv,[{transform:T(o[0],o[1])},{transform:T(wx,wy)}],300,"ease-out");
+  A(cart,[{transform:TC(o[0],o[1],ang,.6),opacity:0},{transform:TC(wx,wy,ang-12,1),opacity:1}],300,"ease-out")
    .onfinish=()=>{
-    const fl2=[];
-    const add=(r,c,pc)=>{if(!pc)return;const[x,y]=pos(r,c),e=mk("",cs,cs);const pe=pieceEl(pc);pe.style.cssText="width:100%;height:100%";e.appendChild(pe);fl2.push({e,x,y,r,c});};
-    bx.list.forEach(t=>{if(t[2])add(t[0],t[1],t[3]);});
-    if(bx.cap)add(bx.r,bx.c,bx.cap);
-    sfx("boom");bd.classList.add("shake");setTimeout(()=>bd.classList.remove("shake"),420);
-    const fl=mk('<div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,120,60,.85) 40%,rgba(255,0,0,0) 70%)"></div>',cs*3.4,cs*3.4);
-    fl.animate([{transform:`translate(${cx-cs*1.7}px,${cy-cs*1.7}px) scale(.3)`,opacity:1},{transform:`translate(${cx-cs*1.7}px,${cy-cs*1.7}px) scale(1.3)`,opacity:0}],{duration:420,easing:"ease-out",fill:"forwards"});
-    S=bx._fin||S;render();
-    const out=[];
-    fl2.forEach((t,i)=>{
-      let dx=t.x-cx,dy=t.y-cy,dl=Math.hypot(dx,dy);dx=dl?dx/dl:0;dy=dl?dy/dl:0;
-      let vx=dx*.8+fx*.9+(Math.random()-.5)*.5,vy=dy*.8+fy*.9+(Math.random()-.5)*.5,vl=Math.hypot(vx,vy)||1;vx/=vl;vy/=vl;
-      const dist=bd.getBoundingClientRect().width*(1.1+Math.random()*.5),rot=(Math.random()<.5?-1:1)*(360+Math.random()*720);
-      const a=t.e.animate([{transform:`translate(${t.x-cs/2}px,${t.y-cs/2}px) rotate(0) scale(1)`,opacity:1},{transform:`translate(${t.x-cs/2+vx*dist*.15}px,${t.y-cs/2+vy*dist*.15}px) rotate(${rot*.15}deg) scale(1.25)`,opacity:1,offset:.12},{transform:`translate(${t.x-cs/2+vx*dist}px,${t.y-cs/2+vy*dist}px) rotate(${rot}deg) scale(.7)`,opacity:.9}],{duration:900+Math.random()*250,easing:"cubic-bezier(.1,.7,.3,1)",fill:"forwards"});
-      out.push(a.finished);});
-    const ca=cart.animate([{transform:tr(cx,cy,ang+90,1)},{transform:tr(cx+fx*sd*1.4,cy+fy*sd*1.4,ang+90+40,.9)}],{duration:900,easing:"cubic-bezier(.1,.7,.3,1)",fill:"forwards"});
-    out.push(ca.finished);
-    Promise.all(out).then(()=>{[cart,fl,...fl2.map(t=>t.e)].forEach(e=>e.remove());done();}).catch(()=>{[cart,fl,...fl2.map(t=>t.e)].forEach(e=>e.remove());done();});
+    A(mv,[{transform:T(wx,wy)},{transform:T(cx,cy)}],150,"cubic-bezier(.6,0,1,.6)");
+    A(cart,[{transform:TC(wx,wy,ang-12,1)},{transform:TC(cx,cy,ang,1)}],150,"cubic-bezier(.6,0,1,.6)")
+     .onfinish=()=>{
+      const fl2=[];
+      const add=(r,c,pc,el)=>{if(!pc)return;const[x,y]=pos(r,c);let e=el;if(!e){e=mk("",cs,cs);const pe=pieceEl(pc);pe.style.cssText="width:100%;height:100%";e.appendChild(pe);}fl2.push({e,x,y});};
+      let moverGone=false;
+      bx.list.forEach(t=>{if(t[2]){if(t[0]===bx.to[0]&&t[1]===bx.to[1]){moverGone=true;add(t[0],t[1],bx.mv,mv);}else add(t[0],t[1],t[3]);}});
+      if(!moverGone)mv.remove();
+      if(bx.cap&&!(bx.r===bx.to[0]&&bx.c===bx.to[1]&&false))add(bx.r,bx.c,bx.cap);
+      sfx("boom");bd.classList.add("shake");setTimeout(()=>bd.classList.remove("shake"),420);
+      const fb=mk('<div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,120,60,.85) 40%,rgba(255,0,0,0) 70%)"></div>',cs*3.4,cs*3.4);
+      A(fb,[{transform:`translate(${ix-cs*1.7}px,${iy-cs*1.7}px) scale(.3)`,opacity:1},{transform:`translate(${ix-cs*1.7}px,${iy-cs*1.7}px) scale(1.3)`,opacity:0}],420,"ease-out");
+      S=bx._fin||S;render();
+      const out=[];
+      fl2.forEach(t=>{
+        let dx=t.x-ix,dy=t.y-iy,dl=Math.hypot(dx,dy);dx=dl?dx/dl:0;dy=dl?dy/dl:0;
+        let vx=dx*.8+fx*.9+(Math.random()-.5)*.5,vy=dy*.8+fy*.9+(Math.random()-.5)*.5,vl=Math.hypot(vx,vy)||1;vx/=vl;vy/=vl;
+        const dist=bd.getBoundingClientRect().width*(1.1+Math.random()*.5),rot=(Math.random()<.5?-1:1)*(360+Math.random()*720);
+        const a=t.e.animate([{transform:T(t.x,t.y)+" rotate(0) scale(1)",opacity:1},{transform:T(t.x+vx*dist*.15,t.y+vy*dist*.15)+` rotate(${rot*.15}deg) scale(1.25)`,opacity:1,offset:.12},{transform:T(t.x+vx*dist,t.y+vy*dist)+` rotate(${rot}deg) scale(.7)`,opacity:.9}],{duration:900+Math.random()*250,easing:"cubic-bezier(.1,.7,.3,1)",fill:"forwards"});
+        out.push(a.finished);});
+      out.push(A(cart,[{transform:TC(cx,cy,ang,1)},{transform:TC(cx+fx*sd*1.4,cy+fy*sd*1.4,ang+40,.9)}],900,"cubic-bezier(.1,.7,.3,1)").finished);
+      const fin=()=>{[cart,fb,mv,...fl2.map(t=>t.e)].forEach(e=>e.remove());done();};
+      Promise.all(out).then(fin).catch(fin);
+    };
   };
 }
 function breakFx(r,c){
