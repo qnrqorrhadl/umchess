@@ -139,6 +139,7 @@ body.freeon .tray{outline:2px dashed #c9892b}
 #cutin .card{position:relative;text-align:center;color:#fff;animation:cipop .45s cubic-bezier(.2,1.4,.4,1)}
 @keyframes cipop{from{transform:scale(.3) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
 #cutin img{width:min(58vw,300px);height:min(58vw,300px);border-radius:22px;object-fit:cover;border:4px solid var(--ci);box-shadow:0 0 40px var(--ci)}
+#cutin img.wide{width:min(92vw,520px);height:auto;object-fit:contain}
 #cutin .ct{font-size:28px;font-weight:900;margin-top:12px;text-shadow:0 0 14px var(--ci),0 2px 4px #000}
 #cutin .cl{font-size:15px;font-weight:800;margin-top:4px;text-shadow:0 2px 4px #000;max-width:86vw}
 .ringfx{position:absolute;left:50%;top:50%;width:20%;height:20%;margin:-10% 0 0 -10%;border-radius:50%;border:3px solid var(--fc);box-shadow:0 0 14px var(--fc),inset 0 0 14px var(--fc);pointer-events:none;z-index:5;opacity:0;animation:ringx .8s ease-out var(--d) forwards}
@@ -556,7 +557,7 @@ const CIC={c1:"#46beff",c2:"#b07bff",c3:"#ffd24a",c4:"#d36bff",c5:"#ff4d4d",c6:"
 function cutIn(img,title,ln,cls,done){
   const e=$("#cutin");let fin=false;
   e.style.setProperty("--ci",CIC[cls]||"#46beff");
-  e.innerHTML=`<div class="rays"></div><div class="card">${img?`<img src="${img}" onerror="this.remove()">`:""}<div class="ct"></div><div class="cl"></div></div>`;
+  e.innerHTML=`<div class="rays"></div><div class="card">${img?`<img src="${img}" onerror="this.remove()" onload="if(this.naturalWidth>this.naturalHeight*1.3)this.classList.add('wide')">`:""}<div class="ct"></div><div class="cl"></div></div>`;
   e.querySelector(".ct").textContent=title;e.querySelector(".cl").textContent=ln||"";
   e.classList.add("on");sfx("cut");
   const end=()=>{if(fin)return;fin=true;e.classList.remove("on");e.innerHTML="";done();};
@@ -671,17 +672,17 @@ function useWitch2(){
   if(!canWitch()||S.sk.wc2>0)return;
   const e=w2pool();if(!e)return;
   const n=clone(S),k=n.sk,[r,c]=e.at;k.wc2=Math.max(1,10+wAdj(S));
-  if(e.kind==="R"){k.gs[r][c]=2;commitSkill(n,"궁정 마녀들 · 룩","과거를 털어내면서 증명해 보이는 거얏!!","룩이 고서 상태! 잡아도 룩은 사라지지 않고 고서만 풀려요",null,"c5");}
-  else if(e.kind==="B"){k.ic[r][c]=1;commitSkill(n,"궁정 마녀들 · 비숍","얼어 버리는건 너야, 꺽다리 괴물의 친구 녀석","비숍이 잡으면 십자 1칸 안의 요정 기물이 한 턴 얼어요 (킹 제외)",null,"c6");}
-  else if(e.kind==="Q"){k.qy[r][c]=4;k.sh[r][c]=Math.max(1,k.sh[r][c]);k.shT[r][c]=4;commitSkill(n,"궁정 마녀들 · 퀸","멸망의 전조, 프리클님이시다!","퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가",null,"c3");}
-  else{k.sh[r][c]=1;commitSkill(n,"궁정 마녀들","오늘은 정시 퇴근 할수 있는 거죠?","폰에 방어막 1회!",null,"c4");}
+  if(e.kind==="R"){k.gs[r][c]=2;commitSkill(n,"궁정 마녀들 · 룩","과거를 털어내면서 증명해 보이는 거얏!!","룩이 고서 상태! 잡아도 룩은 사라지지 않고 고서만 풀려요","witch_rook.jpg","c5");}
+  else if(e.kind==="B"){k.ic[r][c]=1;commitSkill(n,"궁정 마녀들 · 비숍","얼어 버리는건 너야, 꺽다리 괴물의 친구 녀석","비숍이 잡으면 십자 1칸 안의 요정 기물이 한 턴 얼어요 (킹 제외)","witch_bishop.jpg","c6");}
+  else if(e.kind==="Q"){k.qy[r][c]=4;k.sh[r][c]=Math.max(1,k.sh[r][c]);k.shT[r][c]=4;commitSkill(n,"궁정 마녀들 · 퀸","멸망의 전조, 프리클님이시다!","퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가","witch_queen.jpg","c3");}
+  else{k.sh[r][c]=1;commitSkill(n,"궁정 마녀들","오늘은 정시 퇴근 할수 있는 거죠?","폰에 방어막 1회!","witch_court.jpg","c4");}
 }
 function carrotTarget(r,c){
   if(crT===2){gosoTarget(r,c);return;}
   const p=S.b[r][c];
   if(p&&col(p)==="b"&&typ(p)!=="K"&&!S.sk.sh[r][c]){
     const n=clone(S),adj=wAdj(S);n.sk.sh[r][c]=1;n.sk.shT[r][c]=3;n.sk.wcC=Math.max(1,8+adj);
-    commitSkill(n,"UFC 당근튀김","방어막 전개!","방어막 완료! 내 턴 2번 동안 유지돼요",null,"c4");
+    commitSkill(n,"UFC 당근튀김","방어막 전개!","방어막 완료! 내 턴 2번 동안 유지돼요","skill_carrot.jpg","c4");
   }else{crT=false;render();}
 }
 function skUI(){
@@ -692,10 +693,10 @@ function skUI(){
   if(S.turn==="b"){
     const adj=wAdj(S),bs=wsk===1?k.wc1:k.wc2;
     const boff=bs>0||!canWitch()||(wsk===2&&!w2pool())||(wsk===1&&!S.b.some((rw,r)=>rw.some((p,c)=>p&&col(p)==="b"&&typ(p)!=="K"&&!S.sk.gs[r][c])));
-    b.className="skcard noimg"+(boff?" off":"")+(bs>0?" cd":"")+(crT===2?" tgt":"");b.innerHTML=cardHTML(wsk===1?"skill_goseo.jpg":null,WNAME[wsk],Math.max(1,10+adj),bs);
+    b.className="skcard noimg"+(boff?" off":"")+(bs>0?" cd":"")+(crT===2?" tgt":"");b.innerHTML=cardHTML(wsk===1?"skill_goseo.jpg":"witch_court.jpg",WNAME[wsk],Math.max(1,10+adj),bs);
     const coff=k.wcC>0||!canWitch();
     gb.style.display="";gb.className="skcard noimg"+(coff?" off":"")+(k.wcC>0?" cd":"")+(crT===1?" tgt":"");
-    gb.innerHTML=cardHTML(null,"UFC 당근튀김",Math.max(1,8+adj),k.wcC);
+    gb.innerHTML=cardHTML("skill_carrot.jpg","UFC 당근튀김",Math.max(1,8+adj),k.wcC);
     const pp=[];
     if(crT===2)pp.push("고서 상태로 만들 마녀 기물을 고르세요 (카드를 다시 누르면 취소)");
     else if(crT)pp.push("방어막을 줄 마녀 기물을 고르세요 (카드를 다시 누르면 취소)");
