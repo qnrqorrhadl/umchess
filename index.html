@@ -458,7 +458,7 @@ function render(){
     if(hm){q.classList.add("hint");if(S.b[r][c]||hm.ep)q.classList.add("cap");}
     if(((skT&&S.b[r][c]&&col(S.b[r][c])==="w"&&!S.sk.sh[r][c])||(crT===1&&S.b[r][c]&&col(S.b[r][c])==="b"&&!S.sk.sh[r][c])||(crT===2&&S.b[r][c]&&col(S.b[r][c])==="b"&&!S.sk.gs[r][c]))&&typ(S.b[r][c])!=="K")q.classList.add("skt");
     if(gbT&&gangTargets().some(g=>g.r===r&&g.c===c))q.classList.add("gt");
-    if(S.b[r][c]){const pe=pieceEl(S.b[r][c]);
+    if(S.b[r][c]){const pe=pieceEl(S.sk&&S.sk.cv[r][c]>0?"w"+typ(S.b[r][c]):S.b[r][c]);
       if(S.sk&&S.sk.st>=3&&S.b[r][c]==="wK"){pe.classList.add("evo");pe.firstChild.onerror=null;pe.firstChild.src="wK_evo.png";}
       if(bonk){const vc=x=>flip()?7-x:x;
         const bi=bonk.list.findIndex(a=>a[0]===r&&a[1]===c);
@@ -470,7 +470,7 @@ function render(){
       if(S.sk){const au=(c2,i)=>{const a=document.createElement("div");a.className="aur "+c2+(i?" in":"");q.appendChild(a);};
         if(S.sk.gs[r][c]>0)au(S.sk.gs[r][c]>1?"red2":"red");
         if(S.sk.ic[r][c]>0)au("ice",S.sk.gs[r][c]>0);
-        else if(S.sk.cv[r][c]>0)au("ice",true);
+        else if(S.sk.cv[r][c]>0)au("ice");
         if(S.sk.qy[r][c]>0)au("yel");
         if(S.sk.fz[r][c]>0){const z=document.createElement("span");z.className="frzm";z.textContent="❄";q.appendChild(z);}}
       if(S.sk&&S.sk.sh[r][c]>0){const sd=document.createElement("div");sd.className="shd"+(S.sk.sh[r][c]>1?" s2":"")+(col(S.b[r][c])==="b"?" bw":"");if(S.sk.sh[r][c]>1)sd.textContent=S.sk.sh[r][c];q.appendChild(sd);}
