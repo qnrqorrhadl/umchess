@@ -964,7 +964,7 @@ function cardHTML(img,name,base,cd){
 const SNAME={1:"무식은 힘으로 커버한다!",2:"1마력 펀치~!"};
 const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 두 번 둘 수 있어요 · 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없지만 체크는 걸 수 있어요 · 쿨 10턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있어요 · 내 기물을 뛰어넘어 상대 기물을 잡아요 · 잡은 기물과 지나간 자리의 기물이 날아가요 (방어막 있는 기물은 방어막만 소모) · 체크는 불가능 · 쿨 8턴"};
 const KDESC="대리 촌장: 3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴";
-const SPDESC="전개 강화: 나이트·비숍·룩이 상대 기물을 3개 잡으면 강화돼요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
+const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 3개 잡으면 강화돼요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
 function canSu(){return canWitch()&&S.sk.P[S.turn].dm===0;}
 function useSu1(){
   const a=S.turn;if(!canSu()||S.sk.P[a].cd1>0)return;
@@ -1563,7 +1563,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.3.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.3.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -1820,7 +1820,7 @@ const RD={
     ex:[["공용","UFC 당근튀김","skill_carrot.jpg",CDESC.replace(/^UFC 당근튀김: /,"")],["패시브","마녀적 사고방식","witch_passive.jpg",PDESC.replace(/^마녀적 사고방식: /,"")]]}};
 const SDESC2={1:"즉발 · 이번 턴에 두 번 둘 수 있어요. 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없지만 체크는 걸 수 있어요 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있어요. 내 기물을 뛰어넘어 상대 기물을 잡고, 잡은 기물과 지나간 자리의 기물이 날아가요. 체크는 불가능 · 쿨 8턴"};
 RD.s={name:"수인",king:"sK.png",sk:[[SNAME[1],SDESC2[1],"skill_su1.jpg"],[SNAME[2],SDESC2[2],"skill_su2.jpg"]],
- ex:[["공용","대리 촌장","sK.png","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","전개 강화","sN_evo.png","나이트·비숍·룩이 상대 기물을 3개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
+ ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 3개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
 const RORDER=["f","m","s"];
 let skRace="f",myRace=(()=>{try{const v=localStorage.getItem("fc_myrace");return v==="w"||v==="m"?"m":(v==="s"?"s":"f");}catch(e){return "f";}})();
 let P2={r:"m",s:1},P2MODE=false,P2T="race";
