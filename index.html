@@ -1420,12 +1420,13 @@ function start(m,l){
 }
 let coinTm=0;
 function showFirst(){
+  actx();
   const f=rOf("w"),o=rOf("b"),c=$("#coin"),cn=c.querySelector(".cn");
   c.querySelector(".cf").src=RACES[f].img+"K.png";c.querySelector(".cb").src=RACES[o].img+"K.png";
   cn.style.animation="none";void cn.offsetWidth;cn.style.animation="";
   c.classList.remove("halo");c.style.setProperty("--hc",mirror()?"#fff":RACES[f].rc);clearTimeout(window.haloTm);window.haloTm=setTimeout(()=>c.classList.add("halo"),1800);c.classList.add("on");clearTimeout(coinTm);
-  sfx("toss");[.5,.62,.72,.8,.88,.96,1.04,1.12,1.2,1.3,1.4,1.52,1.65].forEach(t=>setTimeout(()=>sfx("spin"),t*1000));
-  setTimeout(()=>sfx("land"),1780);setTimeout(()=>sfx("decide"),1950);
+  sfx("toss");[.5,.62,.72,.8,.88,.96,1.04,1.12,1.2,1.3,1.4,1.52,1.65].forEach(t=>setTimeout(()=>sfx("spin"),t*1000-150));
+  setTimeout(()=>sfx("land"),1630);setTimeout(()=>sfx("decide"),1800);
   const hide=()=>{c.classList.remove("on");clearTimeout(coinTm);};c.onclick=()=>{if(c.classList.contains("halo"))hide();};coinTm=setTimeout(hide,3400);
 }
 $("#mAi").onclick=()=>$("#lvls").classList.toggle("on");
@@ -1480,7 +1481,7 @@ function setSel(r,x){
 }
 $("#rStart").onclick=()=>enterP2("race");
 $("#rPrac").onclick=()=>enterP2("rlab");
-$("#rGo").onclick=()=>{P2MODE=false;raceUI();start(P2T);};
+$("#rGo").onclick=()=>{actx();P2MODE=false;raceUI();start(P2T);};
 $("#mRace").onclick=()=>{P2MODE=false;raceUI();raceRender();showPg("pgRace");};
 $("#pgRace .back").onclick=()=>{if(P2MODE){P2MODE=false;raceUI();raceRender();return;}showPg("pgMain");};
 S=newState(false);render();
