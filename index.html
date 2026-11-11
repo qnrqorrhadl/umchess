@@ -22,12 +22,14 @@ button,input{font-family:inherit}
 .crd{position:absolute;font-size:11px;font-weight:800;line-height:1;pointer-events:none;z-index:4;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000,0 0 3px #000}
 .crd.rk{left:3px;top:2px}.crd.fl{left:3px;bottom:2px}
 #status:empty{visibility:hidden}
-#coin{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff;font-size:22px;font-weight:700;text-align:center}
+#coin{perspective:900px;position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff;font-size:22px;font-weight:700;text-align:center}
 #coin.on{display:flex}
 #coin .cn{position:relative;width:120px;height:120px;transform-style:preserve-3d;animation:cflip 1.3s ease-out}
 #coin .cn img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;border:5px solid #ffd24a;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.5);backface-visibility:hidden;-webkit-backface-visibility:hidden}
-#coin .cn .cb{transform:rotateY(180deg)}
-@keyframes cflip{0%{transform:translateY(80px) rotateY(0)}50%{transform:translateY(-90px) rotateY(900deg)}100%{transform:translateY(0) rotateY(1800deg)}}
+#coin .cn .cf{transform:translateZ(5px)}
+#coin .cn .cb{transform:rotateX(180deg) translateZ(5px)}
+#coin .cn .sl{position:absolute;inset:0;border-radius:50%;background:#d9a21b;border:5px solid #b9830f}
+@keyframes cflip{0%{transform:translateY(80px) rotateX(0)}50%{transform:translateY(-90px) rotateX(900deg)}100%{transform:translateY(0) rotateX(1800deg)}}
 @keyframes chalo{0%{box-shadow:0 0 0 0 var(--hc),0 0 0 0 var(--hc)}100%{box-shadow:0 0 18px 10px var(--hc),0 0 50px 22px var(--hc)}}
 #coin .rays{position:absolute;width:150vmax;height:150vmax;left:50%;top:50%;margin:-75vmax 0 0 -75vmax;background:repeating-conic-gradient(from 0deg,var(--hc) 0 6deg,transparent 6deg 18deg);opacity:0;transition:opacity .35s;animation:cispin 4s linear infinite;pointer-events:none}
 #coin.halo .rays{opacity:.3}
@@ -274,7 +276,7 @@ body.racem #info{display:none}
   <div id="bar"><button id="home">메뉴</button><button id="hint" style="display:none">힌트</button><button id="undo">되돌리기</button><button id="new">새 게임</button></div>
   </div>
 </div>
-<div id="coin"><div class="rays"></div><div class="cn"><img class="cf" alt=""><img class="cb" alt=""></div></div>
+<div id="coin"><div class="rays"></div><div class="cn"><i class="sl" style="transform:translateZ(-4px)"></i><i class="sl" style="transform:translateZ(-2px)"></i><i class="sl" style="transform:translateZ(0)"></i><i class="sl" style="transform:translateZ(2px)"></i><i class="sl" style="transform:translateZ(4px)"></i><img class="cf" alt=""><img class="cb" alt=""></div></div>
 <div id="menu"><div class="box">
   <div class="pg" id="pgMain">
     <div class="logo"><img class="lt" src="logo.png" alt="트릭컬 체스"></div>
@@ -1417,7 +1419,7 @@ function showFirst(){
   c.querySelector(".cf").src=RACES[f].img+"K.png";c.querySelector(".cb").src=RACES[o].img+"K.png";
   cn.style.animation="none";void cn.offsetWidth;cn.style.animation="";
   c.classList.remove("halo");c.style.setProperty("--hc",mirror()?"#fff":RACES[f].rc);clearTimeout(window.haloTm);window.haloTm=setTimeout(()=>c.classList.add("halo"),1250);c.classList.add("on");clearTimeout(coinTm);
-  const hide=()=>{c.classList.remove("on");clearTimeout(coinTm);};c.onclick=hide;coinTm=setTimeout(hide,2400);
+  const hide=()=>{c.classList.remove("on");clearTimeout(coinTm);};c.onclick=()=>{if(c.classList.contains("halo"))hide();};coinTm=setTimeout(hide,2800);
 }
 $("#mAi").onclick=()=>$("#lvls").classList.toggle("on");
 document.querySelectorAll("#lvls button").forEach(b=>b.onclick=()=>start("ai",+b.dataset.l));
