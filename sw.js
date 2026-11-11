@@ -1,11 +1,11 @@
-const CACHE = "face-chess-1.0.0";
+const CACHE = "face-chess-1.1.5";
 const FILES = ["./", "index.html", "manifest.json",
   "pawn.png", "bishop.png", "knight.png",
   "rook.png", "queen.png", "king.png",
   "wK_evo.png","wP.png","wN.png","wB.png","wR.png","wQ.png","wK.png",
   "bP.png","bN.png","bB.png","bR.png","bQ.png","bK.png",
   "bg1.jpg","bg2.jpg","bg3.jpg",
-  "logo.png","stun.png","Jua.woff2","dagu_hit.wav","skill1.png","skill2_1.png","skill2_2.png","skill2_3.png","skill_dagu.png","witch_passive.jpg","skill_goseo.jpg","skill_carrot.jpg","witch_bishop.jpg","witch_queen.jpg","witch_rook.jpg","witch_court.jpg","witch_cart.png","peerjs.min.js",
+  "logo.png","stun.png","Jua.woff2","dagu_hit.wav","skill1.png","skill2_1.png","skill2_2.png","skill2_3.png","skill_dagu.png","witch_passive.jpg","skill_goseo.jpg","skill_carrot.jpg","witch_bishop.jpg","witch_queen.jpg","witch_rook.jpg","witch_court.jpg","witch_cart.png","peerjs.min.js","res_win.png","res_lose.png","res_draw.png",
   "icon-192.png", "icon-512.png",
   "stockfish-19-lite-single.js", "stockfish-19-lite-single.wasm"];
 self.addEventListener("install", e => {

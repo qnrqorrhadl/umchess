@@ -23,6 +23,18 @@ button,input{font-family:inherit}
 .sq.l .crd{color:#5a9a67}.sq.d .crd{color:#eef7ea}
 .crd.rk{left:3px;top:2px}.crd.fl{left:3px;bottom:2px}
 #status:empty{visibility:hidden}
+#res{position:fixed;inset:0;z-index:34;display:none;align-items:center;justify-content:center;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#res.on{display:flex}
+#res .rays{display:none}
+#res .rc{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(92vw,420px);padding:18px;background:rgba(255,255,255,.96);border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.22);animation:resup .55s cubic-bezier(.2,1,.3,1)}
+@keyframes resup{from{transform:translateY(100vh)}to{transform:none}}
+#res img{max-width:100%;max-height:30vh;object-fit:contain}
+#resTxt{font-size:56px;font-weight:900;letter-spacing:4px;line-height:1.1}
+#res.win #resTxt{color:#2f8a46}#res.lose #resTxt{color:#5b6f95}#res.draw #resTxt{color:#7a8a7f}
+#resWhy{color:#2b5a35;font-weight:800;font-size:16px;text-align:center}
+#res .resb{display:flex;gap:10px;width:100%}
+#res .resb button{flex:1}
+#res .resb button:disabled{background:#c9cfca;color:#fff}
 #vs{position:fixed;inset:0;z-index:36;background:rgba(10,5,30,.82);display:none;align-items:center;justify-content:center;gap:14px;color:#fff}
 #vs.on{display:flex}
 #vs .vp{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:36vw}
@@ -299,6 +311,7 @@ body.racem #info{display:none}
   <div id="bar"><button id="home">메뉴</button><button id="hint" style="display:none">힌트</button><button id="undo">되돌리기</button><button id="new">새 게임</button></div>
   </div>
 </div>
+<div id="res"><div class="rc"><img id="resImg" alt=""><div id="resTxt"></div><div id="resWhy"></div><div class="resb"><button id="resAgain">다시하기</button><button id="resMenu">메뉴</button></div></div></div>
 <div id="vs"></div>
 <div id="coin"><div class="rays"></div><div class="cn"><i class="sl" style="transform:translateZ(-4px)"></i><i class="sl" style="transform:translateZ(-2px)"></i><i class="sl" style="transform:translateZ(0)"></i><i class="sl" style="transform:translateZ(2px)"></i><i class="sl" style="transform:translateZ(4px)"></i><img class="cf" alt=""><img class="cb" alt=""></div></div>
 <div id="menu"><div class="box">
@@ -378,9 +391,9 @@ function newState(withSk){
   const b=Array.from({length:8},()=>Array(8).fill(null));
   const back="RNBQKBNR";
   for(let c=0;c<8;c++){b[0][c]="b"+back[c];b[1][c]="bP";b[6][c]="wP";b[7][c]="w"+back[c];}
-  return {b,turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8()}:null};
+  return {b,turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),gt:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8()}:null};
 }
-const clone=s=>({b:s.b.map(r=>r.slice()),turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice())}:null});
+const clone=s=>({b:s.b.map(r=>r.slice()),turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice())}:null});
 const QK=(s,by)=>!!(s.sk&&s.sk.P[by].qk);
 const KJ=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 function QN(s,by){if(!s.sk)return null;const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(s.sk.qy[r][c]>0&&s.b[r][c]===by+"Q")o.push([r,c]);return o.length?o:null;}
@@ -453,6 +466,7 @@ function tickSide(n,c){const k=n.sk;if(!k)return;const P=k.P[c];
   if(P.cd1>0)P.cd1--;if(P.cd2>0)P.cd2--;if(P.cdG>0)P.cdG--;if(P.kb>0)P.kb--;if(P.wc1>0)P.wc1--;if(P.wc2>0)P.wc2--;if(P.wcC>0)P.wcC--;
   if(P.chT>0){P.chT--;if(P.chT===0)for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(n.b[r][cc]&&col(n.b[r][cc])===c)k.ic[r][cc]=0;}
   for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const pc=n.b[r][cc];if(!pc||col(pc)!==c)continue;
+    if(k.gt[r][cc]>0){k.gt[r][cc]--;if(k.gt[r][cc]===0&&k.gs[r][cc]===1)k.gs[r][cc]=0;}
     if(k.fz[r][cc]>0)k.fz[r][cc]--;
     if(k.shT[r][cc]>0){k.shT[r][cc]--;if(k.shT[r][cc]===0){k.sh[r][cc]=0;k.rs[r][cc]=0;}}
     if(k.qy[r][cc]>0)k.qy[r][cc]--;}}
@@ -477,10 +491,10 @@ function apply(s,m,promo,nb){
   n.b[m.tr][m.tc]=p;
   let gsv=0,icv=0;
   if(n.sk){const K=n.sk;gsv=K.gs[m.fr][m.fc];icv=K.ic[m.fr][m.fc];
-    for(const g of[K.gs,K.ic,K.qy,K.cv,K.rs]){g[m.tr][m.tc]=g[m.fr][m.fc];g[m.fr][m.fc]=0;if(m.ep)g[m.fr][m.tc]=0;}
+    for(const g of[K.gs,K.gt,K.ic,K.qy,K.cv,K.rs]){g[m.tr][m.tc]=g[m.fr][m.fc];g[m.fr][m.fc]=0;if(m.ep)g[m.fr][m.tc]=0;}
     K.fz[m.tr][m.tc]=0;K.fz[m.fr][m.fc]=0;if(m.ep)K.fz[m.fr][m.tc]=0;
-    if(m.cs==="K"){for(const g of[K.gs,K.ic,K.qy,K.cv,K.rs]){g[m.tr][5]=g[m.tr][7];g[m.tr][7]=0;}}
-    if(m.cs==="Q"){for(const g of[K.gs,K.ic,K.qy,K.cv,K.rs]){g[m.tr][3]=g[m.tr][0];g[m.tr][0]=0;}}}
+    if(m.cs==="K"){for(const g of[K.gs,K.gt,K.ic,K.qy,K.cv,K.rs]){g[m.tr][5]=g[m.tr][7];g[m.tr][7]=0;}}
+    if(m.cs==="Q"){for(const g of[K.gs,K.gt,K.ic,K.qy,K.cv,K.rs]){g[m.tr][3]=g[m.tr][0];g[m.tr][0]=0;}}}
   if(n.sk){const sh=n.sk.sh,st=n.sk.shT;sh[m.tr][m.tc]=sh[m.fr][m.fc];sh[m.fr][m.fc]=0;st[m.tr][m.tc]=st[m.fr][m.fc];st[m.fr][m.fc]=0;if(m.ep){sh[m.fr][m.tc]=0;st[m.fr][m.tc]=0;}
     if(m.cs==="K"){sh[m.tr][5]=sh[m.tr][7];sh[m.tr][7]=0;st[m.tr][5]=st[m.tr][7];st[m.tr][7]=0;}
     if(m.cs==="Q"){sh[m.tr][3]=sh[m.tr][0];sh[m.tr][0]=0;st[m.tr][3]=st[m.tr][0];st[m.tr][0]=0;}}
@@ -498,7 +512,7 @@ function apply(s,m,promo,nb){
         if(rr===m.tr&&c2===m.tc&&(gsv===2||K.sh[rr][c2]>0))continue;
         if(K.sh[rr][c2]>0){K.sh[rr][c2]--;if(K.sh[rr][c2]===0){K.shT[rr][c2]=0;K.rs[rr][c2]=0;}lost.push([rr,c2,0]);continue;}
         const pc=n.b[rr][c2],cvp=K.cv[rr][c2]>0,oc=opp(col(pc));n.tray[cvp?oc:col(pc)].push(cvp?oc+typ(pc):pc);n.b[rr][c2]=null;
-        for(const g of[K.gs,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[rr][c2]=0;lost.push([rr,c2,1,pc]);}
+        for(const g of[K.gs,K.gt,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[rr][c2]=0;lost.push([rr,c2,1,pc]);}
       K.gs[m.tr][m.tc]=0;
       for(const[sq,key]of[[[7,0],"wQ"],[[7,7],"wK"],[[0,0],"bQ"],[[0,7],"bK"]])if(n.b[sq[0]][sq[1]]!==key[0]+"R")n.cast[key]=0;
       n.bx={r:cr,c:cc,list:lost,from:[m.fr,m.fc],cap:capd};}}
@@ -537,7 +551,7 @@ function render(){
     if(chk&&chk[0]===r&&chk[1]===c)q.classList.add("chk");
     const hm=legalCache.find(m=>m.tr===r&&m.tc===c);
     if(hm){q.classList.add("hint");if(S.b[r][c]||hm.ep)q.classList.add("cap");}
-    if(((skT&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.sh[r][c])||(crT===1&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.sh[r][c])||(crT===2&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.gs[r][c]))&&typ(S.b[r][c])!=="K")q.classList.add("skt");
+    if(((skT&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.sh[r][c])||(crT===1&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.sh[r][c])||(crT===2&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.gs[r][c]))&&typ(S.b[r][c])!=="K"&&!(crT===2&&(typ(S.b[r][c])==="Q"||typ(S.b[r][c])==="R")))q.classList.add("skt");
     if(gbT&&gangTargets().some(g=>g.r===r&&g.c===c))q.classList.add("gt");
     if(vc===0){const k=document.createElement("span");k.className="crd rk";k.textContent=8-r;q.appendChild(k);}
     if(vr===7){const k=document.createElement("span");k.className="crd fl";k.textContent="abcdefgh"[c];q.appendChild(k);}
@@ -578,6 +592,8 @@ function render(){
   renderTrays();
   drawArrow();
   skUI();
+  if(!over)resShown=false;
+  else if(!resShown&&!free&&mode!=="lab"){resShown=true;const m0=mode;setTimeout(()=>{if(over&&mode===m0)showRes();},900);}
 }
 function drawArrow(){
   const a=$("#arrow");
@@ -837,16 +853,17 @@ function skDesc(c){const k=S.sk.P[c];
   return "에르피엔 "+(k.st+1)+"단계: "+STD[k.st]+" · 쿨 8턴";}
 function cardHTML(img,name,base,cd){
   return (img&&skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
+const GT=5;
 const WNAME={1:"고.서.카.트.다아아!",2:"궁정 마녀들"};
-const WDESC={1:"고.서.카.트.다아아!: 킹 제외 기물 1개를 고서 상태로 · 잡으면 주변 1칸 폭발 · 쿨 10턴 · 폰은 한 칸 더 전진",2:"궁정 마녀들: 룩·비숍·퀸 중 랜덤 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
+const WDESC={1:"고.서.카.트.다아아!: 퀸·룩·킹 제외 기물 1개를 고서 상태로 · 4턴 안에 잡으면 주변 1칸 폭발 · 쿨 10턴 · 폰은 한 칸 더 전진",2:"궁정 마녀들: 룩·비숍·퀸 중 랜덤 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
 const CDESC="UFC 당근튀김: 킹 제외 내 기물 1개에 방어막 1회 (내 턴 2번 동안) · 쿨 8턴";
 const PDESC="마녀적 사고방식: 기물 점수가 상대보다 3점 이상 낮으면 쿨타임 +1, 5점 이상 높으면 -1";
 function canWitch(){return isRace()&&S.sk&&!over&&!busy&&!free&&!inCheck(S,S.turn);}
 function gosoTarget(r,c){
   const p=S.b[r][c],a=S.turn;
-  if(p&&col(p)===a&&typ(p)!=="K"&&!S.sk.gs[r][c]){
-    const n=clone(S);n.sk.gs[r][c]=1;n.sk.P[a].wc1=Math.max(1,10+wAdj(S,a));
-    commitSkill(n,"고.서.카.트.다아아!","WRYYY!! 찌부러져라!!!","고서 상태! 이 기물이 잡으면 주변 1칸이 모두 사라져요 (킹 제외)","skill_goseo.jpg","c5");
+  if(p&&col(p)===a&&typ(p)!=="K"&&typ(p)!=="Q"&&typ(p)!=="R"&&!S.sk.gs[r][c]){
+    const n=clone(S);n.sk.gs[r][c]=1;n.sk.gt[r][c]=GT;n.sk.P[a].wc1=Math.max(1,10+wAdj(S,a));
+    commitSkill(n,"고.서.카.트.다아아!","WRYYY!! 찌부러져라!!!","고서 상태! 4턴 안에 잡으면 주변 1칸이 모두 사라져요 (킹 제외)","skill_goseo.jpg","c5");
   }else{crT=false;render();}
 }
 function w2pool(){
@@ -887,7 +904,7 @@ function skUI(){
   const c=SIDE(),k=S.sk,P=k.P[c],r=rOf(c),sk=skOf(c),mine=S.turn===c;
   if(r==="m"){
     const adj=wAdj(S,c),bs=sk===1?P.wc1:P.wc2;
-    const boff=!mine||bs>0||!canWitch()||(sk===2&&!w2pool())||(sk===1&&!S.b.some((rw,rr)=>rw.some((p,cc)=>p&&col(p)===c&&typ(p)!=="K"&&!S.sk.gs[rr][cc])));
+    const boff=!mine||bs>0||!canWitch()||(sk===2&&!w2pool())||(sk===1&&!S.b.some((rw,rr)=>rw.some((p,cc)=>p&&col(p)===c&&typ(p)!=="K"&&typ(p)!=="Q"&&typ(p)!=="R"&&!S.sk.gs[rr][cc])));
     b.className="skcard"+(boff?" off":"")+(bs>0?" cd":"")+(crT===2?" tgt":"");b.innerHTML=cardHTML(sk===1?"skill_goseo.jpg":"witch_court.jpg",WNAME[sk],Math.max(1,10+adj),bs);
     const coff=!mine||P.wcC>0||!canWitch();
     gb.style.display="";gb.className="skcard"+(coff?" off":"")+(P.wcC>0?" cd":"")+(crT===1?" tgt":"");
@@ -1222,9 +1239,9 @@ function freeMove(src,dst){
   line=null;
   let p;
   let shv=0;
-  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;if(S.sk){shv=S.sk.sh[src.r][src.c];S.sk.sh[src.r][src.c]=0;S.sk.shT[src.r][src.c]=0;for(const g of[S.sk.gs,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[src.r][src.c]=0;}}
+  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;if(S.sk){shv=S.sk.sh[src.r][src.c];S.sk.sh[src.r][src.c]=0;S.sk.shT[src.r][src.c]=0;for(const g of[S.sk.gs,S.sk.gt,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[src.r][src.c]=0;}}
   else p=S.tray[src.c].splice(src.i,1)[0];
-  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;if(S.sk){S.sk.sh[dst.r][dst.c]=shv;S.sk.shT[dst.r][dst.c]=0;for(const g of[S.sk.gs,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[dst.r][dst.c]=0;}}
+  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;if(S.sk){S.sk.sh[dst.r][dst.c]=shv;S.sk.shT[dst.r][dst.c]=0;for(const g of[S.sk.gs,S.sk.gt,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[dst.r][dst.c]=0;}}
   else S.tray[col(p)].push(p);
   fsel=null;arrow=null;lastMove=null;lastGrade=null;gradeToken++;hintToken++;$("#info").textContent="";
   render();
@@ -1300,7 +1317,9 @@ function askPromo(color,cb){
   }
   $("#promo").style.display="flex";
 }
+let resShown=false;
 function reset(){
+  $("#res").classList.remove("on");resShown=false;
   free=false;fsel=null;document.body.classList.remove("freeon");$("#free").classList.remove("on");$("#free").textContent="자유 이동";
   if(mode==="race"){me=Math.random()<.5?"w":"b";TEAM[me]={r:myRace,s:SEL[myRace]};TEAM[opp(me)]={r:P2.r,s:P2.s};}
   else if(mode==="rlab"){me="w";TEAM.w={r:myRace,s:SEL[myRace]};TEAM.b={r:P2.r,s:P2.s};}
@@ -1347,9 +1366,9 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.0.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.1.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
-const NET={waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
+const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
 function netSend(o){try{if(NET.conn)NET.conn.send(o);}catch(e){}}
 function fbUrl(c){return FB_URL.replace(/\/$/,"")+"/rooms"+(c?"/"+c:"")+".json";}
@@ -1363,7 +1382,7 @@ function hostAlive(){if(!NET.waiting)return;fbPut();if(!NET.hb)NET.hb=setInterva
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)hostAlive();});
 function netClose(){
   fbDel();keepAwake(false);NET.pw="";NET.bad=false;NET.waiting=false;NET.guest="";
-  try{if(NET.conn)NET.conn.close(mode==="net"&&!over);}catch(e){}
+  try{if(NET.conn)NET.conn.close(mode==="net");}catch(e){}
   NET.conn=null;NET.q=[];NET.dead=false;NET.classic=false;
 }
 function gUrl(code,sub){return FB_URL.replace(/\/$/,"")+"/g/"+code+(sub||"")+".json";}
@@ -1400,21 +1419,57 @@ function fbConn(code,role,hk){
   };
   return o;
 }
-const netLost=()=>{if(mode==="net"){NET.dead=true;toast("상대 연결이 불안정해요. 잠시 기다려 볼게요");}};
-const netBack=()=>{if(mode==="net"){NET.dead=false;toast("상대가 다시 연결됐어요");}};
+const netLost=()=>{if(mode==="net"){NET.dead=true;toast("상대 연결이 불안정해요. 잠시 기다려 볼게요");updateRes();}};
+const netBack=()=>{if(mode==="net"){NET.dead=false;toast("상대가 다시 연결됐어요");updateRes();}};
 function ask(msg,yes,no,cb){
   $("#dmsg").textContent=msg;$("#dyes").textContent=yes;$("#dno").textContent=no;$("#dlg").hidden=false;
   const fin=v=>{$("#dlg").hidden=true;$("#dyes").onclick=$("#dno").onclick=null;cb(v);};
   $("#dyes").onclick=()=>fin(true);$("#dno").onclick=()=>fin(false);
 }
-function netEnd(t){$("#dlg").hidden=true;NETEND=t;over=true;skT=false;gbT=false;crT=false;sel=null;legalCache=[];render();toast(t);}
+function netEnd(t,k){$("#dlg").hidden=true;NETEND=t;NET.res=k||"";over=true;skT=false;gbT=false;crT=false;sel=null;legalCache=[];render();toast(t);}
 function netDraw(){
   if(over||NET.dead||busy)return;
   ask("무승부를 제안할까요?","제안하기","취소",ok=>{if(ok){netSend({t:"draw"});toast("무승부를 제안했어요");}});
 }
 function netResign(){
   if(over||NET.dead)return;
-  ask("기권할까요?\n패배로 처리돼요","기권하기","취소",ok=>{if(ok&&!over){netSend({t:"resign"});netEnd("기권 — "+oppN()+" 승리");}});
+  ask("기권할까요?\n패배로 처리돼요","기권하기","취소",ok=>{if(ok&&!over){netSend({t:"resign"});netEnd("기권 — "+oppN()+" 승리","lose");}});
+}
+function resKind(){
+  if(mode==="net"&&NET.res)return NET.res;
+  if(dead(S)||!inCheck(S,S.turn))return "draw";
+  return opp(S.turn)===me?"win":"lose";
+}
+function updateRes(){
+  const b=$("#resAgain");if(mode!=="net"){b.disabled=false;b.textContent="다시하기";return;}
+  if(NET.dead){b.disabled=true;b.textContent="상대가 없어요";}
+  else if(NET.rm){b.disabled=true;b.textContent="상대를 기다려요...";}
+  else{b.disabled=false;b.textContent=NET.rmOpp?"다시하기 (상대가 원해요)":"다시하기";}
+}
+function showRes(){
+  const k=resKind(),r=$("#res"),im=$("#resImg"),tx=$("#resTxt");
+  r.className="on "+k;r.style.setProperty("--hc",k==="win"?"#ffd24a":"#fff");
+  const T={win:"WIN",lose:"LOSE",draw:"DRAW"}[k];
+  tx.textContent=T;tx.style.display="none";im.style.display="";
+  im.onerror=()=>{im.style.display="none";tx.style.display="";};
+  im.src="res_"+k+".png";
+  $("#resWhy").textContent=NETEND||$("#status").textContent||"";
+  updateRes();
+}
+$("#resMenu").onclick=()=>{$("#res").classList.remove("on");goHome();};
+$("#resAgain").onclick=()=>{
+  if(mode!=="net"){$("#res").classList.remove("on");start(mode,level);return;}
+  if(NET.dead||NET.rm)return;
+  NET.rm=true;netSend({t:"rematch"});updateRes();
+  clearTimeout(NET.rmT);NET.rmT=setTimeout(()=>{if(NET.rm){NET.rm=false;netSend({t:"rmcancel"});toast("상대가 응답하지 않았어요");updateRes();}},20000);
+  tryRematch();
+};
+function tryRematch(){if(NET.rm&&NET.rmOpp&&NET.host){clearTimeout(NET.rmT);hostBegin();}}
+function hostBegin(){
+  const hc=Math.random()<.5?"w":"b",g=NET.gi||{};
+  if(NET.kind==="classic"){netSend({t:"go",to:NET.guest,kind:"c",hc,n:getNick()});NET.oppN=g.n||"";vsThen(getNick(),"",NET.oppN,"",()=>netGoC(hc));}
+  else{netSend({t:"go",to:NET.guest,hc,r:myRace,s:SEL[myRace],n:getNick()});NET.oppN=g.n||"";
+    vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[g.r]||RACES.f).img+"K.png",()=>netGo(hc,g.r,g.s));}
 }
 function vsThen(n1,i1,n2,i2,cb){
   const v=$("#vs"),box=(n,i)=>`<div class="vp">${i?`<img src="${i}" alt="">`:""}<b>${esc(n)}</b></div>`;
@@ -1422,14 +1477,14 @@ function vsThen(n1,i1,n2,i2,cb){
   setTimeout(()=>{v.classList.remove("on");cb();},2300);
 }
 function netGo(hc,tr,ts){
-  NETEND="";NET.classic=false;
+  NETEND="";NET.classic=false;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:opp(hc);NET.first="w";NET.dead=false;NET.q=[];
   TEAM[NET.me]={r:myRace,s:SEL[myRace]};
   TEAM[opp(NET.me)]={r:RD[tr]?tr:"f",s:+ts===2?2:1};
   start("net");
 }
 function netGoC(hc){
-  NETEND="";NET.classic=true;
+  NETEND="";NET.classic=true;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:(hc==="w"?"b":"w");NET.first="w";NET.dead=false;NET.q=[];
   start("net");
 }
@@ -1437,23 +1492,19 @@ function netRecv(msg){
   if(!msg||!msg.t)return;
   if(NET.host&&msg.t!=="hi"&&(!NET.guest||msg._c!==NET.guest))return;
   if(NET.host&&msg.t==="hi"&&NET.guest)return;
-  if(msg.t==="leave"){if(mode==="net"){NET.dead=true;toast("상대가 나갔어요");}return;}
+  if(msg.t==="leave"){if(mode==="net"){NET.dead=true;toast("상대가 나갔어요");updateRes();}return;}
   if(msg.t==="bad"&&!NET.host){NET.bad=true;netStat("비밀번호가 달라요");$("#nPwRow").style.display="";const c=NET.conn;NET.conn=null;try{c.close();}catch(e){}return;}
   if(msg.t==="hi"&&NET.host&&NET.pw&&String(msg.pw||"")!==NET.pw){try{NET.conn.send({t:"bad",to:msg._c});}catch(e){}return;}
   if(msg.t==="hi"&&NET.host){NET.guest=msg._c;fbDel();NET.waiting=false;keepAwake(false);}
-  if(msg.t==="hi"&&NET.host&&NET.kind==="classic"){
-    const hc=Math.random()<.5?"w":"b";
-    netSend({t:"go",to:msg._c,kind:"c",hc,n:getNick()});NET.oppN=cleanN(msg.n);vsThen(getNick(),"",NET.oppN,"",()=>netGoC(hc));
-  }else if(msg.t==="hi"&&NET.host){
-    const hc=Math.random()<.5?"w":"b";
-    netSend({t:"go",to:msg._c,hc,r:myRace,s:SEL[myRace],n:getNick()});NET.oppN=cleanN(msg.n);
-    vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[msg.r]||RACES.f).img+"K.png",()=>netGo(hc,msg.r,msg.s));
+  if(msg.t==="rematch"){NET.rmOpp=true;updateRes();tryRematch();return;}
+  if(msg.t==="rmcancel"){NET.rmOpp=false;updateRes();return;}
+  if(msg.t==="hi"&&NET.host){NET.gi={r:msg.r,s:msg.s,n:cleanN(msg.n)};hostBegin();
   }else if(msg.t==="go"&&!NET.host){NET.oppN=cleanN(msg.n);if(msg.kind==="c")vsThen(getNick(),"",NET.oppN,"",()=>netGoC(msg.hc));else vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[msg.r]||RACES.f).img+"K.png",()=>netGo(msg.hc,msg.r,msg.s));}
   else if(msg.t==="mv"||msg.t==="sk"||msg.t==="gang"){NET.q.push(msg);}
   else if(mode==="net"&&!over){
-    if(msg.t==="resign")netEnd(oppN()+"님이 기권했어요 — 내 승리");
-    else if(msg.t==="draw")ask(oppN()+"님이 무승부를 제안했어요","받기","거절",ok=>{if(over)return;netSend({t:ok?"drawok":"drawno"});if(ok)netEnd("무승부 합의");});
-    else if(msg.t==="drawok")netEnd("무승부 합의");
+    if(msg.t==="resign")netEnd(oppN()+"님이 기권했어요 — 내 승리","win");
+    else if(msg.t==="draw")ask(oppN()+"님이 무승부를 제안했어요","받기","거절",ok=>{if(over)return;netSend({t:ok?"drawok":"drawno"});if(ok)netEnd("무승부 합의","draw");});
+    else if(msg.t==="drawok")netEnd("무승부 합의","draw");
     else if(msg.t==="drawno")toast(oppN()+"님이 무승부를 거절했어요");
   }
 }
@@ -1556,7 +1607,7 @@ $("#mClassic").onclick=()=>showPg("pgClassic");
 document.querySelectorAll("#menu .back").forEach(b=>b.onclick=()=>showPg(b.dataset.to));
 
 const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 2턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴",2:"쓸 때마다 3단계까지 진화 (쿨 8턴). 1단계 폰 방어막 2개, 2단계 룩·나이트·비숍 방어막 3개, 3단계 킹 강화 + 다구리 조건 완화"};
-const WDESC2={1:"기물 1개를 고서 상태로 만들어요. 잡으면 주변 1칸이 폭발해요 (킹 제외, 내 기물 포함). 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
+const WDESC2={1:"퀸·룩·킹을 뺀 기물 1개를 고서 상태로 만들어요. 4턴 안에 잡으면 주변 1칸이 폭발해요 (킹 제외, 내 기물 포함). 4턴이 지나면 풀려요. 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
 const RD={
  f:{name:"요정",king:"wK.png",sk:[["빠아아아앙!!!",FDESC[1],"skill1.png"],["에르피엔 전통 해결법",FDESC[2],"skill2_1.png"]],
     ex:[["공용","다구리","skill_dagu.png",GDESC.replace(/^요정 공용 스킬 다구리: /,"")]]},
