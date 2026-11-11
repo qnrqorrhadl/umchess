@@ -1497,7 +1497,7 @@ function showFirst(){
   const f=rOf("w"),o=rOf("b"),c=$("#coin"),cn=c.querySelector(".cn");
   c.querySelector(".cf").src=RACES[f].img+"K.png";c.querySelector(".cb").src=RACES[o].img+"K.png";
   cn.style.animation="none";void cn.offsetWidth;cn.style.animation="";
-  c.classList.remove("halo");const second=mirror()&&mode==="net"&&NET.me==="b";
+  c.classList.remove("halo");const second=mirror()&&me==="b";
   c.style.setProperty("--hc",mirror()?(second?"#8a8a8a":"#fff"):RACES[f].rc);
   c.style.setProperty("--hg",mirror()?(second?"#000":"#fff"):RACES[f].rc);
   c.style.setProperty("--cb",mirror()?(second?"#111":"#fff"):"#ffd24a");
