@@ -104,6 +104,15 @@ body.freeon .tray{outline:2px dashed #c9892b}
 #menu .half button{flex:1;min-width:0;padding-left:4px;padding-right:4px}
 #menu .joinrow input{flex:1;min-width:0;font-size:20px;text-align:center;border:0;border-radius:12px;padding:10px;background:#fff;color:#164a25;letter-spacing:4px}
 #menu .joinrow button{flex:none;width:112px}
+#menu .npw{border:0;border-radius:12px;padding:10px;font-size:18px;text-align:center;background:#fff;color:#164a25}
+.nlh{display:flex;justify-content:space-between;align-items:center;color:#2b5a35}
+.nlh button{flex:none;width:96px;padding:6px;font-size:14px}
+#nList{display:flex;flex-direction:column;gap:6px;max-height:190px;overflow:auto}
+#nList .rm{display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:8px 10px;text-align:left;color:#164a25;font-weight:700;font-size:15px}
+#nList .rm span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#nList .rm i{font-style:normal;font-size:12px;background:#c9892b;color:#fff;border-radius:8px;padding:2px 6px}
+#nList .rm button{flex:none;width:72px;padding:6px;font-size:14px}
+#nList .none{text-align:center;color:#6b8a72;font-size:14px;padding:8px}
 #nStat{min-height:54px;font-size:18px;font-weight:900;text-align:center;color:#164a25;line-height:1.4;white-space:pre-line}
 #nStat b{display:block;font-size:40px;letter-spacing:8px;color:#2f8a46}
 .races2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -303,8 +312,13 @@ body.racem #info{display:none}
   <div class="pg" id="pgNet" hidden>
     <h1>줘팸터 들어가기</h1>
     <div class="colors" id="nKind"><span>방식</span><button data-k="race">종족전</button><button data-k="classic">클래식</button></div>
+    <div class="colors" id="nVis"><span>방 종류</span><button data-v="0">공개방</button><button data-v="1">비밀번호방</button></div>
+    <input id="nPw" class="npw" maxlength="8" placeholder="비밀번호 (4~8자)" style="display:none" autocomplete="off">
     <button id="nMake">방 만들기</button>
+    <div class="nlh"><b>열린 방</b><button id="nRef">새로고침</button></div>
+    <div id="nList"></div>
     <div class="joinrow"><input id="nCode" inputmode="numeric" maxlength="5" placeholder="방 코드 5자리"><button id="nJoin">들어가기</button></div>
+    <input id="nPwIn" class="npw" maxlength="8" placeholder="비밀번호" style="display:none" autocomplete="off">
     <div id="nStat"></div>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
@@ -1318,10 +1332,17 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const NET={oppN:"",classic:false,kind:"race",peer:null,conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
+let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
+const NET={pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",peer:null,conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
 function netSend(o){try{if(NET.conn)NET.conn.send(o);}catch(e){}}
+function fbUrl(c){return FB_URL.replace(/\/$/,"")+"/rooms"+(c?"/"+c:"")+".json";}
+function fbPut(){if(!FB_URL||!NET.code)return;const o={n:getNick(),k:NET.kind,r:RACES[myRace].name,l:NET.pw?1:0,t:Date.now()};
+  try{fetch(fbUrl(NET.code),{method:"PUT",body:JSON.stringify(o)}).catch(()=>{});}catch(e){}}
+function fbDel(){clearInterval(NET.hb);NET.hb=0;if(!FB_URL||!NET.code)return;try{fetch(fbUrl(NET.code),{method:"DELETE",keepalive:true}).catch(()=>{});}catch(e){}}
+window.addEventListener("pagehide",()=>{if(NET.hb)fbDel();});
 function netClose(){
+  fbDel();NET.pw="";NET.bad=false;
   try{if(NET.conn)NET.conn.close();}catch(e){}try{if(NET.peer)NET.peer.destroy();}catch(e){}
   NET.conn=null;NET.peer=null;NET.q=[];NET.dead=false;NET.classic=false;
 }
@@ -1342,7 +1363,7 @@ function netResign(){
 function netOpen(conn){
   NET.conn=conn;
   conn.on("data",netRecv);
-  conn.on("close",()=>{if(mode==="net"){NET.dead=true;toast("상대와 연결이 끊겼어요");}else netStat("연결이 끊겼어요");});
+  conn.on("close",()=>{if(NET.bad)return;if(mode==="net"){NET.dead=true;toast("상대와 연결이 끊겼어요");}else netStat("연결이 끊겼어요");});
   conn.on("error",()=>{});
 }
 function netGo(hc,tr,ts){
@@ -1359,6 +1380,9 @@ function netGoC(hc){
 }
 function netRecv(msg){
   if(!msg||!msg.t)return;
+  if(msg.t==="bad"&&!NET.host){NET.bad=true;netStat("비밀번호가 달라요");$("#nPwIn").style.display="";const p=NET.peer;NET.conn=null;NET.peer=null;try{p.destroy();}catch(e){}return;}
+  if(msg.t==="hi"&&NET.host&&NET.pw&&String(msg.pw||"")!==NET.pw){const c=NET.conn;try{c.send({t:"bad"});}catch(e){}NET.conn=null;setTimeout(()=>{try{c.close();}catch(e){}},300);netStat("비밀번호가 틀려서 돌려보냈어요\n"+NET.code);return;}
+  if(msg.t==="hi"&&NET.host)fbDel();
   if(msg.t==="hi"&&NET.host&&NET.kind==="classic"){
     const hc=Math.random()<.5?"w":"b";
     netSend({t:"go",kind:"c",hc,n:getNick()});NET.oppN=cleanN(msg.n);netGoC(hc);
@@ -1389,27 +1413,53 @@ function netPeer(id){
 }
 function setNetKind(k){NET.kind=k;document.querySelectorAll("#nKind button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));}
 document.querySelectorAll("#nKind button").forEach(b=>b.onclick=()=>setNetKind(b.dataset.k));
-function openNet(from,k){netStat("");if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
+function openNet(from,k){netStat("");$("#nPwIn").value="";$("#nPwIn").style.display="none";loadRooms();if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
 setNetKind("race");
 $("#mNet").onclick=()=>openNet("pgMain");
 $("#rNet").onclick=()=>openNet("pgRace","race");
 $("#cNet").onclick=()=>openNet("pgClassic","classic");
+let nVis=0;
+function setVis(v){nVis=v;document.querySelectorAll("#nVis button").forEach(b=>b.classList.toggle("on",+b.dataset.v===v));$("#nPw").style.display=v?"":"none";}
+document.querySelectorAll("#nVis button").forEach(b=>b.onclick=()=>setVis(+b.dataset.v));setVis(0);
 $("#nMake").onclick=()=>{
-  netClose();NET.host=true;
+  const pw=nVis?$("#nPw").value.trim():"";
+  if(nVis&&(pw.length<4||pw.length>8)){netStat("비밀번호는 4~8자로 정해 주세요");return;}
+  netClose();NET.host=true;NET.pw=pw;
   const code=String(Math.floor(10000+Math.random()*90000)),pr=netPeer("tchess-"+code);if(!pr)return;
-  NET.peer=pr;netStat("방을 만드는 중...");
-  pr.on("open",()=>netStat("친구에게 이 코드를 알려주세요",code));
+  NET.peer=pr;NET.code=code;netStat("방을 만드는 중...");
+  pr.on("open",()=>{netStat(pw?"비밀번호방이에요. 이 코드와 비밀번호를 알려주세요":"방이 열렸어요. 목록에 올라가고 있어요",code);
+    if(FB_URL){fbPut();NET.hb=setInterval(fbPut,20000);}});
   pr.on("connection",c=>{if(NET.conn){c.close();return;}netOpen(c);netStat("친구가 들어왔어요!");});
   pr.on("error",e=>{netStat(e.type==="unavailable-id"?"다시 눌러 주세요 (코드 겹침)":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
 };
+function joinRoom(code,pw){
+  netClose();NET.host=false;NET.code="";const pr=netPeer();if(!pr)return;NET.peer=pr;netStat("방에 들어가는 중...");
+  pr.on("open",()=>{const c=pr.connect("tchess-"+code,{reliable:true});netOpen(c);
+    c.on("open",()=>{netStat("연결됐어요! 시작하는 중...");netSend({t:"hi",r:myRace,s:SEL[myRace],n:getNick(),pw:pw||""});});
+    setTimeout(()=>{if(!NET.dead&&!NET.bad&&mode!=="net"&&$("#pgNet").hidden===false&&!c.open)netStat("방을 찾을 수 없어요. 코드를 확인해 주세요");},12000);});
+  pr.on("error",e=>{netStat(e.type==="peer-unavailable"?"방을 찾을 수 없어요. 코드를 확인해 주세요":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
+}
 $("#nJoin").onclick=()=>{
   const code=$("#nCode").value.trim();if(!/^\d{5}$/.test(code)){netStat("방 코드 5자리를 입력해 주세요");return;}
-  netClose();NET.host=false;const pr=netPeer();if(!pr)return;NET.peer=pr;netStat("방에 들어가는 중...");
-  pr.on("open",()=>{const c=pr.connect("tchess-"+code,{reliable:true});netOpen(c);
-    c.on("open",()=>{netStat("연결됐어요! 시작하는 중...");netSend({t:"hi",r:myRace,s:SEL[myRace],n:getNick()});});
-    setTimeout(()=>{if(!NET.dead&&mode!=="net"&&$("#pgNet").hidden===false&&!c.open)netStat("방을 찾을 수 없어요. 코드를 확인해 주세요");},12000);});
-  pr.on("error",e=>{netStat(e.type==="peer-unavailable"?"방을 찾을 수 없어요. 코드를 확인해 주세요":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
+  joinRoom(code,$("#nPwIn").value.trim());
 };
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function loadRooms(){
+  const L=$("#nList");
+  if(!FB_URL){L.innerHTML='<div class="none">방 목록 서버가 아직 연결되지 않았어요. 코드로 들어갈 수 있어요</div>';return;}
+  try{
+    const r=await fetch(fbUrl()),d=await r.json(),now=Date.now();
+    const rooms=Object.entries(d||{}).filter(([k,v])=>v&&/^\d{5}$/.test(k)&&now-(+v.t||0)<75000).sort((a,b)=>b[1].t-a[1].t);
+    if(!rooms.length){L.innerHTML='<div class="none">열린 방이 없어요. 직접 만들어 보세요</div>';return;}
+    L.innerHTML="";
+    rooms.forEach(([k,v])=>{const d2=document.createElement("div");d2.className="rm";
+      d2.innerHTML=`<span>${esc(String(v.n||"교주").slice(0,12))} · ${v.k==="classic"?"클래식":"종족전 "+esc(String(v.r||"").slice(0,6))}</span>${v.l?"<i>비밀번호</i>":""}<button>입장</button>`;
+      d2.querySelector("button").onclick=()=>{$("#nCode").value=k;if(v.l){$("#nPwIn").style.display="";$("#nPwIn").focus();netStat("비밀번호를 입력하고 들어가기를 눌러요");}else{$("#nPwIn").value="";joinRoom(k,"");}};
+      L.appendChild(d2);});
+  }catch(e){L.innerHTML='<div class="none">목록을 불러오지 못했어요</div>';}
+}
+$("#nRef").onclick=loadRooms;
+setInterval(()=>{if(!$("#pgNet").hidden&&$("#menu").style.display!=="none")loadRooms();},4000);
 function start(m,l){
   mode=m;if(l)level=l;
   if(m!=="net")NETEND="";netBtns();
