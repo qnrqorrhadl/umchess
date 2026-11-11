@@ -275,7 +275,7 @@ body.racem #info{display:none}
 .frzm{position:absolute;right:4%;top:2%;width:24%;height:24%;object-fit:contain;z-index:4;pointer-events:none}
 .piece.evo{filter:drop-shadow(0 0 5px #ffd24a)}
 </style>
-<script src="peerjs.min.js"></script>
+
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
 </head>
 <body>
@@ -1346,7 +1346,7 @@ const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
-const NET={waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",peer:null,conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
+const NET={waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
 function netSend(o){try{if(NET.conn)NET.conn.send(o);}catch(e){}}
 function fbUrl(c){return FB_URL.replace(/\/$/,"")+"/rooms"+(c?"/"+c:"")+".json";}
@@ -1354,11 +1354,51 @@ function fbPut(){if(!FB_URL||!NET.code)return;const o={n:getNick(),k:NET.kind,r:
   try{fetch(fbUrl(NET.code),{method:"PUT",body:JSON.stringify(o)}).catch(()=>{});}catch(e){}}
 function fbDel(){clearInterval(NET.hb);NET.hb=0;if(!FB_URL||!NET.code)return;try{fetch(fbUrl(NET.code),{method:"DELETE",keepalive:true}).catch(()=>{});}catch(e){}}
 window.addEventListener("pagehide",()=>{if(NET.hb)fbDel();});
+let wkl=null;
+async function keepAwake(on){try{if(on&&navigator.wakeLock){wkl=await navigator.wakeLock.request("screen");}else if(wkl){await wkl.release();wkl=null;}}catch(e){}}
+function hostAlive(){if(!NET.waiting)return;fbPut();if(!NET.hb)NET.hb=setInterval(fbPut,20000);keepAwake(true);}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)hostAlive();});
 function netClose(){
-  fbDel();NET.pw="";NET.bad=false;NET.waiting=false;
-  try{if(NET.conn)NET.conn.close();}catch(e){}try{if(NET.peer)NET.peer.destroy();}catch(e){}
-  NET.conn=null;NET.peer=null;NET.q=[];NET.dead=false;NET.classic=false;
+  fbDel();keepAwake(false);NET.pw="";NET.bad=false;NET.waiting=false;NET.guest="";
+  try{if(NET.conn)NET.conn.close(mode==="net"&&!over);}catch(e){}
+  NET.conn=null;NET.q=[];NET.dead=false;NET.classic=false;
 }
+function gUrl(code,sub){return FB_URL.replace(/\/$/,"")+"/g/"+code+(sub||"")+".json";}
+function fbConn(code,role,hk){
+  const o={cid:Math.random().toString(36).slice(2,8),role,code,seen:new Set(),q:0,out:[],busy:false,closed:false,pn:0,lp:{v:null,at:0},got:false,stale:false};
+  const pres=(r,v)=>{if(r===role)return;if(v!==o.lp.v){o.lp={v,at:Date.now()};o.got=true;if(o.stale){o.stale=false;if(hk.back)hk.back();}}};
+  const msg=(k,m)=>{
+    if(!m||typeof m!=="object"||o.seen.has(k))return;o.seen.add(k);if(m.s===role)return;
+    const k2=m.s+m.c+":"+m.q;if(o.seen.has(k2))return;o.seen.add(k2);
+    let d;try{d=JSON.parse(m.d);}catch(_){return;}
+    if(!d||(d.to&&d.to!==o.cid))return;d._c=m.c;hk.msg(d);};
+  const walk=(p,d)=>{
+    const a=String(p||"/").split("/").filter(Boolean);
+    if(!a.length){if(d&&typeof d==="object"){if(d.m)Object.keys(d.m).sort().forEach(k=>msg(k,d.m[k]));if(d.p)Object.keys(d.p).forEach(r=>pres(r,d.p[r]));}}
+    else if(a[0]==="m"){if(a.length===1){if(d&&typeof d==="object")Object.keys(d).sort().forEach(k=>msg(k,d[k]));}else msg(a[1],d);}
+    else if(a[0]==="p"){if(a.length===1){if(d&&typeof d==="object")Object.keys(d).forEach(r=>pres(r,d[r]));}else pres(a[1],d);}
+  };
+  const es=new EventSource(gUrl(code));o.es=es;
+  es.addEventListener("open",()=>{if(hk.open)hk.open();});
+  es.addEventListener("put",e=>{try{const j=JSON.parse(e.data);walk(j.path,j.data);}catch(_){}});
+  es.addEventListener("patch",e=>{try{const j=JSON.parse(e.data);if(j.data&&typeof j.data==="object")Object.keys(j.data).forEach(k=>walk(String(j.path).replace(/\/$/,"")+"/"+k,j.data[k]));}catch(_){}});
+  const pump=()=>{
+    if(o.busy||!o.out.length||o.closed)return;o.busy=true;
+    fetch(gUrl(code,"/m"),{method:"POST",body:JSON.stringify(o.out[0])}).then(r=>{if(!r.ok)throw 0;o.out.shift();o.busy=false;pump();}).catch(()=>{o.busy=false;setTimeout(pump,1500);});
+  };
+  const ping=()=>{if(o.closed)return;fetch(gUrl(code,"/p/"+role),{method:"PUT",body:String(++o.pn)}).catch(()=>{});};
+  o.pt=setInterval(ping,8000);ping();
+  o.st=setInterval(()=>{if(o.got&&!o.stale&&Date.now()-o.lp.at>40000){o.stale=true;if(hk.lost)hk.lost();}},5000);
+  o.send=obj=>{o.out.push({s:role,c:o.cid,q:++o.q,d:JSON.stringify(obj),t:Date.now()});pump();};
+  o.close=leave=>{
+    if(o.closed)return;
+    const fin=()=>{o.closed=true;try{es.close();}catch(_){}clearInterval(o.pt);clearInterval(o.st);if(role==="h"){try{fetch(gUrl(code),{method:"DELETE",keepalive:true}).catch(()=>{});}catch(_){}}};
+    if(leave){o.send({t:"leave"});setTimeout(fin,900);}else fin();
+  };
+  return o;
+}
+const netLost=()=>{if(mode==="net"){NET.dead=true;toast("상대 연결이 불안정해요. 잠시 기다려 볼게요");}};
+const netBack=()=>{if(mode==="net"){NET.dead=false;toast("상대가 다시 연결됐어요");}};
 function ask(msg,yes,no,cb){
   $("#dmsg").textContent=msg;$("#dyes").textContent=yes;$("#dno").textContent=no;$("#dlg").hidden=false;
   const fin=v=>{$("#dlg").hidden=true;$("#dyes").onclick=$("#dno").onclick=null;cb(v);};
@@ -1372,12 +1412,6 @@ function netDraw(){
 function netResign(){
   if(over||NET.dead)return;
   ask("기권할까요?\n패배로 처리돼요","기권하기","취소",ok=>{if(ok&&!over){netSend({t:"resign"});netEnd("기권 — "+oppN()+" 승리");}});
-}
-function netOpen(conn){
-  NET.conn=conn;
-  conn.on("data",netRecv);
-  conn.on("close",()=>{if(NET.bad)return;if(mode==="net"){NET.dead=true;toast("상대와 연결이 끊겼어요");}else netStat("연결이 끊겼어요");});
-  conn.on("error",()=>{});
 }
 function vsThen(n1,i1,n2,i2,cb){
   const v=$("#vs"),box=(n,i)=>`<div class="vp">${i?`<img src="${i}" alt="">`:""}<b>${esc(n)}</b></div>`;
@@ -1398,15 +1432,18 @@ function netGoC(hc){
 }
 function netRecv(msg){
   if(!msg||!msg.t)return;
-  if(msg.t==="bad"&&!NET.host){NET.bad=true;netStat("비밀번호가 달라요");$("#nPwRow").style.display="";const p=NET.peer;NET.conn=null;NET.peer=null;try{p.destroy();}catch(e){}return;}
-  if(msg.t==="hi"&&NET.host&&NET.pw&&String(msg.pw||"")!==NET.pw){const c=NET.conn;try{c.send({t:"bad"});}catch(e){}NET.conn=null;setTimeout(()=>{try{c.close();}catch(e){}},300);netStat("비밀번호가 틀려서 돌려보냈어요\n"+NET.code);return;}
-  if(msg.t==="hi"&&NET.host){fbDel();NET.waiting=false;}
+  if(NET.host&&msg.t!=="hi"&&(!NET.guest||msg._c!==NET.guest))return;
+  if(NET.host&&msg.t==="hi"&&NET.guest)return;
+  if(msg.t==="leave"){if(mode==="net"){NET.dead=true;toast("상대가 나갔어요");}return;}
+  if(msg.t==="bad"&&!NET.host){NET.bad=true;netStat("비밀번호가 달라요");$("#nPwRow").style.display="";const c=NET.conn;NET.conn=null;try{c.close();}catch(e){}return;}
+  if(msg.t==="hi"&&NET.host&&NET.pw&&String(msg.pw||"")!==NET.pw){try{NET.conn.send({t:"bad",to:msg._c});}catch(e){}return;}
+  if(msg.t==="hi"&&NET.host){NET.guest=msg._c;fbDel();NET.waiting=false;keepAwake(false);}
   if(msg.t==="hi"&&NET.host&&NET.kind==="classic"){
     const hc=Math.random()<.5?"w":"b";
-    netSend({t:"go",kind:"c",hc,n:getNick()});NET.oppN=cleanN(msg.n);vsThen(getNick(),"",NET.oppN,"",()=>netGoC(hc));
+    netSend({t:"go",to:msg._c,kind:"c",hc,n:getNick()});NET.oppN=cleanN(msg.n);vsThen(getNick(),"",NET.oppN,"",()=>netGoC(hc));
   }else if(msg.t==="hi"&&NET.host){
     const hc=Math.random()<.5?"w":"b";
-    netSend({t:"go",hc,r:myRace,s:SEL[myRace],n:getNick()});NET.oppN=cleanN(msg.n);
+    netSend({t:"go",to:msg._c,hc,r:myRace,s:SEL[myRace],n:getNick()});NET.oppN=cleanN(msg.n);
     vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[msg.r]||RACES.f).img+"K.png",()=>netGo(hc,msg.r,msg.s));
   }else if(msg.t==="go"&&!NET.host){NET.oppN=cleanN(msg.n);if(msg.kind==="c")vsThen(getNick(),"",NET.oppN,"",()=>netGoC(msg.hc));else vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[msg.r]||RACES.f).img+"K.png",()=>netGo(msg.hc,msg.r,msg.s));}
   else if(msg.t==="mv"||msg.t==="sk"||msg.t==="gang"){NET.q.push(msg);}
@@ -1425,10 +1462,6 @@ function netPump(){
   else if(m.t==="gang"){gangTarget(m.r,m.c,true);}
 }
 setInterval(netPump,120);
-function netPeer(id){
-  if(typeof Peer==="undefined"){netStat("연결 도구를 불러오지 못했어요. 인터넷을 확인해 주세요");return null;}
-  return new Peer(id,{debug:0});
-}
 function setNetKind(k){NET.kind=k;document.querySelectorAll("#nKind button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));}
 document.querySelectorAll("#nKind button").forEach(b=>b.onclick=()=>setNetKind(b.dataset.k));
 function openNet(from,k){netStat("");$("#nPwIn").value="";$("#nPwRow").style.display="none";loadRooms();if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
@@ -1439,26 +1472,30 @@ $("#cNet").onclick=()=>openNet("pgClassic","classic");
 let nVis=0;
 function setVis(v){nVis=v;document.querySelectorAll("#nVis button").forEach(b=>b.classList.toggle("on",+b.dataset.v===v));$("#nPw").style.display=v?"":"none";}
 document.querySelectorAll("#nVis button").forEach(b=>b.onclick=()=>setVis(+b.dataset.v));setVis(0);
-$("#nMake").onclick=()=>{
+$("#nMake").onclick=async()=>{
   const pw=nVis?$("#nPw").value.trim():"";
   if(nVis&&(pw.length<4||pw.length>8)){netStat("비밀번호는 4~8자로 정해 주세요");return;}
-  netClose();NET.host=true;NET.pw=pw;
-  const code=String(Math.floor(10000+Math.random()*90000)),pr=netPeer("tchess-"+code);if(!pr)return;
-  NET.peer=pr;NET.code=code;netStat("방을 만드는 중...");
-  pr.on("open",()=>{netStat(pw?"비밀번호방이에요. 이 코드와 비밀번호를 알려주세요":"방이 열렸어요. 목록에 올라가고 있어요",code);
-    if(FB_URL){fbPut();NET.hb=setInterval(fbPut,20000);}
-    NET.waiting=true;
-    if(NET.kind==="classic")start("lab");else{P2.r=myRace==="f"?"m":"f";P2.s=SEL[P2.r];P2MODE=false;start("rlab");}
-    toast("방이 열렸어요. 연습하며 기다려요");});
-  pr.on("connection",c=>{if(NET.conn){c.close();return;}netOpen(c);netStat("친구가 들어왔어요!");});
-  pr.on("error",e=>{netStat(e.type==="unavailable-id"?"다시 눌러 주세요 (코드 겹침)":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
+  if(!FB_URL){netStat("서버 주소가 아직 없어요");return;}
+  netClose();NET.host=true;NET.pw=pw;netStat("방을 만드는 중...");
+  let code="";
+  try{for(let i=0;i<6&&!code;i++){const c=String(Math.floor(10000+Math.random()*90000));const v=await (await fetch(fbUrl(c))).json();if(!v||Date.now()-(+v.t||0)>75000)code=c;}}
+  catch(e){netStat("연결에 문제가 생겼어요. 다시 시도해 주세요");return;}
+  if(!code){netStat("다시 눌러 주세요");return;}
+  try{await fetch(gUrl(code),{method:"DELETE"});}catch(e){}
+  NET.code=code;NET.conn=fbConn(code,"h",{msg:netRecv,lost:netLost,back:netBack});
+  fbPut();NET.hb=setInterval(fbPut,20000);NET.waiting=true;keepAwake(true);
+  if(NET.kind==="classic")start("lab");else{P2.r=myRace==="f"?"m":"f";P2.s=SEL[P2.r];P2MODE=false;start("rlab");}
+  toast("방이 열렸어요. 연습하며 기다려요");
 };
-function joinRoom(code,pw){
-  netClose();NET.host=false;NET.code="";const pr=netPeer();if(!pr)return;NET.peer=pr;netStat("방에 들어가는 중...");
-  pr.on("open",()=>{const c=pr.connect("tchess-"+code,{reliable:true});netOpen(c);
-    c.on("open",()=>{netStat("연결됐어요! 시작하는 중...");netSend({t:"hi",r:myRace,s:SEL[myRace],n:getNick(),pw:pw||""});});
-    setTimeout(()=>{if(!NET.dead&&!NET.bad&&mode!=="net"&&$("#pgNet").hidden===false&&!c.open)netStat("방을 찾을 수 없어요. 코드를 확인해 주세요");},12000);});
-  pr.on("error",e=>{netStat(e.type==="peer-unavailable"?"방을 찾을 수 없어요. 코드를 확인해 주세요":"연결에 문제가 생겼어요. 다시 시도해 주세요");});
+async function joinRoom(code,pw){
+  if(!FB_URL){netStat("서버 주소가 아직 없어요");return;}
+  netClose();NET.host=false;NET.code="";netStat("방에 들어가는 중...");
+  try{const v=await (await fetch(fbUrl(code))).json();if(!v||Date.now()-(+v.t||0)>75000){netStat("방이 닫혔어요. 목록을 새로고침해 주세요");loadRooms();return;}}
+  catch(e){netStat("연결에 문제가 생겼어요. 다시 시도해 주세요");return;}
+  let sent=false;
+  const c=fbConn(code,"g",{msg:netRecv,lost:netLost,back:netBack,open:()=>{if(sent)return;sent=true;netStat("연결됐어요! 시작하는 중...");c.send({t:"hi",r:myRace,s:SEL[myRace],n:getNick(),pw:pw||""});}});
+  NET.conn=c;
+  setTimeout(()=>{if(NET.conn===c&&mode!=="net"&&!NET.bad&&$("#pgNet").hidden===false)netStat("방장이 응답하지 않아요. 잠시 뒤 다시 시도해 주세요");},15000);
 }
 $("#nJoin").onclick=()=>{
   const code=$("#nCode").value.trim();if(!/^\d{5}$/.test(code)){netStat("방 코드 5자리를 입력해 주세요");return;}
