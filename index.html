@@ -1412,15 +1412,16 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.2.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.2.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
 function netSend(o){try{if(NET.conn)NET.conn.send(o);}catch(e){}}
 function fbUrl(c){return FB_URL.replace(/\/$/,"")+"/rooms"+(c?"/"+c:"")+".json";}
-function fbPut(){if(!FB_URL||!NET.code)return;const o={n:getNick(),k:NET.kind,r:RACES[myRace].name,l:NET.pw?1:0,t:Date.now()};
+function fbPut(){if(!FB_URL||!NET.code)return;const o={n:getNick(),k:NET.kind,r:RACES[myRace].name,l:NET.pw?1:0,t:{".sv":"timestamp"}};
   try{fetch(fbUrl(NET.code),{method:"PUT",body:JSON.stringify(o)}).catch(()=>{});}catch(e){}}
-function fbDel(){clearInterval(NET.hb);NET.hb=0;if(!FB_URL||!NET.code)return;try{fetch(fbUrl(NET.code),{method:"DELETE",keepalive:true}).catch(()=>{});}catch(e){}}
+function fbDel(){clearInterval(NET.hb);NET.hb=0;if(!FB_URL||!NET.code)return;const u=fbUrl(NET.code),del=()=>{try{fetch(u,{method:"DELETE",keepalive:true}).catch(()=>{});}catch(e){}};
+  del();setTimeout(del,1500);setTimeout(del,6000);}
 window.addEventListener("pagehide",()=>{if(NET.hb)fbDel();});
 let wkl=null;
 async function keepAwake(on){try{if(on&&navigator.wakeLock){wkl=await navigator.wakeLock.request("screen");}else if(wkl){await wkl.release();wkl=null;}}catch(e){}}
@@ -1578,7 +1579,7 @@ $("#nMake").onclick=async()=>{
   if(!FB_URL){netStat("서버 주소가 아직 없어요");return;}
   netClose();NET.host=true;NET.pw=pw;netStat("방을 만드는 중...");
   let code="";
-  try{for(let i=0;i<6&&!code;i++){const c=String(Math.floor(10000+Math.random()*90000));const v=await (await fetch(fbUrl(c))).json();if(!v||Date.now()-(+v.t||0)>75000)code=c;}}
+  try{for(let i=0;i<6&&!code;i++){const c=String(Math.floor(10000+Math.random()*90000));const rr=await fetch(fbUrl(c));setSkew(rr);const v=await rr.json();if(!v||srvNow()-(+v.t||0)>75000)code=c;}}
   catch(e){netStat("연결에 문제가 생겼어요. 다시 시도해 주세요");return;}
   if(!code){netStat("다시 눌러 주세요");return;}
   try{await fetch(gUrl(code),{method:"DELETE"});}catch(e){}
@@ -1590,7 +1591,7 @@ $("#nMake").onclick=async()=>{
 async function joinRoom(code,pw){
   if(!FB_URL){netStat("서버 주소가 아직 없어요");return;}
   netClose();NET.host=false;NET.code="";netStat("방에 들어가는 중...");
-  try{const v=await (await fetch(fbUrl(code))).json();if(!v||Date.now()-(+v.t||0)>75000){netStat("방이 닫혔어요. 목록을 새로고침해 주세요");loadRooms();return;}}
+  try{const rr=await fetch(fbUrl(code));setSkew(rr);const v=await rr.json();if(!v||srvNow()-(+v.t||0)>75000){netStat("방이 닫혔어요. 목록을 새로고침해 주세요");loadRooms();return;}}
   catch(e){netStat("연결에 문제가 생겼어요. 다시 시도해 주세요");return;}
   let sent=false;
   const c=fbConn(code,"g",{msg:netRecv,lost:netLost,back:netBack,open:()=>{if(sent)return;sent=true;netStat("연결됐어요! 시작하는 중...");c.send({t:"hi",r:myRace,s:SEL[myRace],n:getNick(),pw:pw||""});}});
@@ -1602,12 +1603,19 @@ $("#nJoin").onclick=()=>{
   joinRoom(code,$("#nPwIn").value.trim());
 };
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let SKEW=0,RSEEN={};
+function srvNow(){return Date.now()+SKEW;}
+function setSkew(r){try{const d=r.headers.get("date");if(d){const t=new Date(d).getTime();if(t>0)SKEW=t-Date.now();}}catch(e){}}
 async function loadRooms(){
   const L=$("#nList");
   if(!FB_URL){L.innerHTML='<div class="none">방 목록 서버가 아직 연결되지 않았어요. 코드로 들어갈 수 있어요</div>';return;}
   try{
-    const r=await fetch(fbUrl()),d=await r.json(),now=Date.now();
-    const rooms=Object.entries(d||{}).filter(([k,v])=>v&&/^\d{5}$/.test(k)&&now-(+v.t||0)<75000).sort((a,b)=>b[1].t-a[1].t);
+    const r=await fetch(fbUrl()),d=await r.json();setSkew(r);const now=srvNow(),loc=Date.now();
+    for(const k of Object.keys(RSEEN))if(!d||!d[k])delete RSEEN[k];
+    const rooms=Object.entries(d||{}).filter(([k,v])=>{
+      if(!v||!/^\d{5}$/.test(k))return false;
+      const o=RSEEN[k];if(!o||o.t!==v.t)RSEEN[k]={t:v.t,at:loc};
+      return now-(+v.t||0)<75000&&loc-RSEEN[k].at<60000;}).sort((a,b)=>b[1].t-a[1].t);
     if(!rooms.length){L.innerHTML='<div class="none">열린 방이 없어요. 직접 만들어 보세요</div>';return;}
     L.innerHTML="";
     rooms.forEach(([k,v])=>{const d2=document.createElement("div");d2.className="rm";
