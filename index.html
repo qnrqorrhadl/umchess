@@ -35,6 +35,8 @@ button,input{font-family:inherit}
 .piece.tm .badge,.piece.tmW1 .badge,.piece.tmW2 .badge{background:#fff;color:#111}
 .piece.w.old img{filter:brightness(1.12) saturate(1.05)}
 .piece.b.old img{filter:brightness(.55) contrast(1.15)}
+.piece.hb .badge{display:none}
+.badge.bdg{right:2.5%;bottom:2.5%;width:31.7%;height:31.7%;z-index:3}
 .badge{position:absolute;right:-4%;bottom:-4%;width:36%;height:36%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(10px,3.6vw,18px);line-height:1;font-weight:900}
 .w .badge{background:#fff;color:#111}.b .badge{background:#111;color:#fff}
 #bar{display:flex;gap:8px}
@@ -491,13 +493,15 @@ function render(){
     if(((skT&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.sh[r][c])||(crT===1&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.sh[r][c])||(crT===2&&S.b[r][c]&&col(S.b[r][c])===S.turn&&!S.sk.gs[r][c]))&&typ(S.b[r][c])!=="K")q.classList.add("skt");
     if(gbT&&gangTargets().some(g=>g.r===r&&g.c===c))q.classList.add("gt");
     if(S.b[r][c]){const pe=pieceEl(S.b[r][c],false,S.sk&&S.sk.cv[r][c]>0?opp(col(S.b[r][c])):null);
-      if(S.sk&&S.b[r][c]&&typ(S.b[r][c])==="K"&&rOf(col(S.b[r][c]))==="f"&&S.sk.P[col(S.b[r][c])].st>=3){pe.classList.add("evo");pe.firstChild.onerror=null;pe.firstChild.src="wK_evo.png";}
+      if(S.sk&&S.b[r][c]&&typ(S.b[r][c])==="K"&&rOf(col(S.b[r][c]))==="f"&&S.sk.P[col(S.b[r][c])].st>=3){pe.classList.add("evo");pe.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";pe.firstChild.onerror=null;pe.firstChild.src="wK_evo.png";}
       if(bonk){const vc=x=>flip()?7-x:x;
         const bi=bonk.list.findIndex(a=>a[0]===r&&a[1]===c);
         if(bi>=0){pe.classList.add("bonk");pe.style.setProperty("--dx",vc(bonk.tc)-vc(c));pe.style.setProperty("--dy",vc(bonk.tr)-vc(r));pe.style.setProperty("--dl",(bi*.4)+"s");}
         if(bonk.tr===r&&bonk.tc===c){pe.classList.add(bonk.kill?"hitkill":"hit");
           bonk.list.forEach((_,i)=>{const fx=document.createElement("span");fx.className="fx";fx.textContent="💥";fx.style.setProperty("--fd",(i*.4+.34)+"s");q.appendChild(fx);});}}
       if(S.sk&&S.sk.fz[r][c]>0)pe.classList.add("frz");
+      let bgEl=null;const bonkHere=bonk&&(bonk.list.some(a=>a[0]===r&&a[1]===c)||(bonk.tr===r&&bonk.tc===c));
+      if(!bonkHere){pe.classList.add("hb");const bg=document.createElement("span"),pc=S.b[r][c],wh=isRace()||col(pc)==="w";bg.className="badge bdg";bg.textContent=SYM[typ(pc)];bg.style.background=wh?"#fff":"#111";bg.style.color=wh?"#111":"#fff";bgEl=bg;}
       q.appendChild(pe);
       let lk=0;
       if(S.sk){const au=c2=>{const a=document.createElement("div");a.className="aur "+c2;a.style.inset=(lk++*5)+"%";q.appendChild(a);};
@@ -507,6 +511,7 @@ function render(){
         if(S.sk.qy[r][c]>0)au("yel");
         if(S.sk.fz[r][c]>0){const z=document.createElement("img");z.className="frzm";z.src="stun.png";z.alt="";q.appendChild(z);}}
       if(S.sk&&S.sk.sh[r][c]>0){const sd=document.createElement("div");sd.style.inset=(lk*5)+"%";sd.className="shd"+(S.sk.sh[r][c]>1?" s2":"")+(isRace()&&rOf(col(S.b[r][c]))==="m"?" bw":"");if(S.sk.sh[r][c]>1)sd.textContent=S.sk.sh[r][c];q.appendChild(sd);}
+      if(bgEl)q.appendChild(bgEl);
     }
     if(lastGrade&&!free&&lastMove&&lastMove.tr===r&&lastMove.tc===c){const g=document.createElement("span");g.className="gb g-"+lastGrade;g.textContent=GR[lastGrade].t;g.style.background=GR[lastGrade].c;q.appendChild(g);}
     q.dataset.r=r;q.dataset.c=c;q.onclick=()=>click(r,c);
@@ -1104,7 +1109,7 @@ function renderTrays(){
   const sum=a=>a.reduce((s,p)=>s+PV[typ(p)],0);
   const wl=sum(S.tray.b)-sum(S.tray.w); // 백이 잡은 점수 - 흑이 잡은 점수
   for(const [id,c] of (flip()?[["#trayT","b"],["#trayB","w"]]:[["#trayT","w"],["#trayB","b"]])){
-    const el=$(id);el.innerHTML="";el.dataset.ph=isRace()?tmn(opp(c))+"이 잡은 "+tmn(c)+" 기물":c==="w"?"흑이 잡은 백 기물":"백이 잡은 흑 기물";
+    const el=$(id);el.innerHTML="";el.dataset.ph="";
     const arr=S.tray[c].map((p,i)=>({p,i})).sort((a,b)=>PV[typ(b.p)]-PV[typ(a.p)]);
     for(const {p,i} of arr){
       const d=document.createElement("div");d.className="tp";d.dataset.c=c;d.dataset.i=i;
