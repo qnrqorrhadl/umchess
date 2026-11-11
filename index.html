@@ -626,6 +626,7 @@ let AC=null,sndOn=localStorage.getItem("fc_snd")!=="0";
 let HITBUF=null;
 function loadHit(){try{fetch("dagu_hit.wav").then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(buf=>{HITBUF=buf;}).catch(()=>{});}catch(e){}}
 function actx(){try{if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();loadHit();}if(AC.state==="suspended")AC.resume();}catch(e){}return AC;}
+["pointerdown","touchstart","click"].forEach(ev=>document.addEventListener(ev,()=>actx(),{passive:true}));
 function tone(f,t0,d,type,v,f2){const a=actx();if(!a)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;o.type=type||"sine";o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v||.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02);}
 function noise(t0,d,v){const a=actx();if(!a)return;const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource(),g=a.createGain(),t=a.currentTime+t0;s.buffer=b;g.gain.value=v||.2;s.connect(g);g.connect(a.destination);s.start(t);}
 const PENTA=[784,880,988,1175,1319,1568];let pn=0;
