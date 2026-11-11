@@ -416,7 +416,7 @@ function newState(withSk){
 const clone=s=>({b:s.b.map(r=>r.slice()),lg:s.lg||[],turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),cn:(s.sk.cn||g8()).map(r=>r.slice()),ev:(s.sk.ev||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice())}:null});
 const QK=(s,by)=>!!(s.sk&&(s.sk.P[by].qk||s.sk.P[by].kq>0));
 const KJ=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
-function QN(s,by){if(!s.sk)return null;const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(s.sk.qy[r][c]>0&&s.b[r][c]===by+"Q")o.push([r,c]);return o.length?o:null;}
+function QN(s,by){if(!s.sk)return null;const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(s.sk.qy[r][c]>0&&s.b[r][c]===by+"Q")o.push([r,c]);else if(s.sk.ev[r][c]&&s.b[r][c]===by+"N"&&rOf(by)==="s")o.push([r,c,1]);}return o.length?o:null;}
 const inb=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
 const col=p=>p[0], typ=p=>p[1], opp=c=>c==="w"?"b":"w";
 
@@ -424,7 +424,7 @@ function attacked(b,r,c,by,qk,qn){ // is square (r,c) attacked by color `by`
   const pd=by==="w"?1:-1; // white pawns attack upward (row-1), so attacker sits at row+1
   for(const dc of[-1,1]){const rr=r+pd,cc=c+dc;if(inb(rr,cc)&&b[rr][cc]===by+"P")return true;}
   for(const[dr,dc]of[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]]){const rr=r+dr,cc=c+dc;if(inb(rr,cc)&&b[rr][cc]===by+"N")return true;}
-  if(qn)for(const[qr,qc]of qn){const dr=Math.abs(qr-r),dc=Math.abs(qc-c);if(dr*dc===2)return true;}
+  if(qn)for(const[qr,qc,ek]of qn){const dr=Math.abs(qr-r),dc=Math.abs(qc-c);if(ek){if(Math.max(dr,dc)===1)return true;}else if(dr*dc===2)return true;}
   for(const[dr,dc]of[[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]]){
     if(inb(r+dr,c+dc)&&b[r+dr][c+dc]===by+"K")return true;
     let rr=r+dr,cc=c+dc;
@@ -861,7 +861,7 @@ function breakFx(r,c){
   for(let k=0;k<10;k++){const sh=document.createElement("div");sh.className="shard";sh.style.setProperty("--a",(k*36+Math.random()*20)+"deg");sh.style.setProperty("--t",(40+Math.random()*50)+"px");e.appendChild(sh);}
 }
 const RACES={f:{name:"요정",img:"w",cc:"#ffd400",rc:"#ffd400",cn:"노랑"},m:{name:"마녀",img:"b",cc:"#4b1a8c",rc:"#a066ff",cn:"보라"},s:{name:"수인",img:"s",cc:"#ff8a00",rc:"#ff8a00",cn:"주황"}};
-const EVN=3;
+const EVN=2;
 let TEAM={w:{r:"f",s:1},b:{r:"m",s:1}};
 const rOf=c=>TEAM[c].r,skOf=c=>TEAM[c].s;
 const CIC={c1:"#46beff",c2:"#b07bff",c3:"#ffd24a",c4:"#d36bff",c5:"#ff4d4d",c6:"#8fe3ff",c7:"#ff8a00"};
@@ -962,9 +962,9 @@ function skDesc(c){const k=S.sk.P[c];
 function cardHTML(img,name,base,cd){
   return (img&&skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
 const SNAME={1:"무식은 힘으로 커버한다!",2:"1마력 펀치~!"};
-const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 두 번 둘 수 있어요 · 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없지만 체크는 걸 수 있어요 · 쿨 10턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있어요 · 내 기물을 뛰어넘어 상대 기물을 잡아요 · 잡은 기물과 지나간 자리의 기물이 날아가요 (방어막 있는 기물은 방어막만 소모) · 체크는 불가능 · 쿨 8턴"};
+const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 두 번 둘 수 있어요 · 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없지만 체크는 걸 수 있어요 · 쿨 10턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있어요 · 내 기물이든 상대 기물이든 뛰어넘어 상대 기물을 잡아요 · 잡은 기물과 지나간 자리의 기물이 날아가요 (방어막 있는 기물은 방어막만 소모, 뛰어넘을 기물이 없어도 돼요) · 체크는 불가능 · 쿨 8턴"};
 const KDESC="대리 촌장: 3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴";
-const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 3개 잡으면 강화돼요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
+const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
 function canSu(){return canWitch()&&S.sk.P[S.turn].dm===0;}
 function useSu1(){
   const a=S.turn;if(!canSu()||S.sk.P[a].cd1>0)return;
@@ -978,10 +978,9 @@ function punchOptions(s,a){
       let rr=r+dr,cc=c+dc;const j=[];
       while(inb(rr,cc)){const p=b[rr][cc];
         if(!p){rr+=dr;cc+=dc;continue;}
-        if(col(p)===a){if(typ(p)==="K")break;j.push([rr,cc]);rr+=dr;cc+=dc;continue;}
-        if(typ(p)==="K"||s.sk.sh[rr][cc]>0)break;
-        if(j.length){const o={q:[r,c],t:[rr,cc],j};if(punchState(s,o))out.push(o);}
-        break;}}}
+        if(typ(p)==="K")break;
+        if(col(p)!==a&&!(s.sk.sh[rr][cc]>0)){const o={q:[r,c],t:[rr,cc],j:j.slice()};if(punchState(s,o))out.push(o);}
+        j.push([rr,cc]);rr+=dr;cc+=dc;}}}
   return out;
 }
 function punchState(s,o){
@@ -1563,7 +1562,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.3.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.3.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -1818,9 +1817,9 @@ const RD={
     ex:[["공용","다구리","skill_dagu.png",GDESC.replace(/^요정 공용 스킬 다구리: /,"")]]},
  m:{name:"마녀",king:"bK.png",sk:[["고.서.카.트.다아아!",WDESC2[1],"skill_goseo.jpg"],["궁정 마녀들",WDESC2[2],"witch_court.jpg"]],
     ex:[["공용","UFC 당근튀김","skill_carrot.jpg",CDESC.replace(/^UFC 당근튀김: /,"")],["패시브","마녀적 사고방식","witch_passive.jpg",PDESC.replace(/^마녀적 사고방식: /,"")]]}};
-const SDESC2={1:"즉발 · 이번 턴에 두 번 둘 수 있어요. 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없지만 체크는 걸 수 있어요 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있어요. 내 기물을 뛰어넘어 상대 기물을 잡고, 잡은 기물과 지나간 자리의 기물이 날아가요. 체크는 불가능 · 쿨 8턴"};
+const SDESC2={1:"즉발 · 이번 턴에 두 번 둘 수 있어요. 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없지만 체크는 걸 수 있어요 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있어요. 내 기물이든 상대 기물이든 뛰어넘어 상대 기물을 잡고, 잡은 기물과 지나간 자리의 기물이 날아가요. 체크는 불가능 · 쿨 8턴"};
 RD.s={name:"수인",king:"sK.png",sk:[[SNAME[1],SDESC2[1],"skill_su1.jpg"],[SNAME[2],SDESC2[2],"skill_su2.jpg"]],
- ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 3개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
+ ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
 const RORDER=["f","m","s"];
 let skRace="f",myRace=(()=>{try{const v=localStorage.getItem("fc_myrace");return v==="w"||v==="m"?"m":(v==="s"?"s":"f");}catch(e){return "f";}})();
 let P2={r:"m",s:1},P2MODE=false,P2T="race";
