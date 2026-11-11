@@ -84,6 +84,14 @@ button{flex:1;padding:12px;font-size:16px;font-weight:700;border:0;border-radius
 button:active{background:#479455}
 #wrap{position:relative;width:100%}
 #arrow{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);pointer-events:none}
+#kb{display:flex;gap:5px;align-items:center;overflow-x:auto;white-space:nowrap;min-height:38px;padding:4px 8px;background:rgba(255,255,255,.82);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.12);scrollbar-width:none}
+#kb::-webkit-scrollbar{display:none}
+#kb .kc{flex:none;font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;padding:6px 8px;border-radius:7px;border:2px solid transparent}
+#kb .kc.kw{background:#fff;color:#223;border-color:#c9d3dc}
+#kb .kc.kk{background:#2a2f3a;color:#fff;border-color:#2a2f3a}
+#kb .kc.ks{border-style:dashed;border-color:#e0a63a}
+#kb .kc.kl{box-shadow:0 0 0 3px #ffd400}
+#kb .kn{flex:none;font:700 13px/1 ui-monospace,monospace;color:#6a7a88;margin-right:-2px}
 #info{min-height:22px;text-align:center;font-size:16px;color:#2b5a35;font-weight:600}
 #menu{position:fixed;inset:0;background:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:9;display:flex;align-items:center;justify-content:center}
 #menu .box{background:rgba(255,255,255,.92);padding:18px;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.18);width:min(92vw,420px);display:flex;flex-direction:column;gap:12px;text-align:center}
@@ -302,6 +310,7 @@ body.racem #info{display:none}
     <svg id="arrow" viewBox="0 0 8 8"></svg>
   </div>
   <div id="trayB" class="tray" data-ph="백이 잡은 흑 기물"></div>
+  <div id="kb"></div>
   </div>
   <div id="right">
   <div id="info"></div>
@@ -391,9 +400,9 @@ function newState(withSk){
   const b=Array.from({length:8},()=>Array(8).fill(null));
   const back="RNBQKBNR";
   for(let c=0;c<8;c++){b[0][c]="b"+back[c];b[1][c]="bP";b[6][c]="wP";b[7][c]="w"+back[c];}
-  return {b,turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),gt:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8()}:null};
+  return {b,lg:[],turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),gt:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8()}:null};
 }
-const clone=s=>({b:s.b.map(r=>r.slice()),turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice())}:null});
+const clone=s=>({b:s.b.map(r=>r.slice()),lg:s.lg||[],turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice())}:null});
 const QK=(s,by)=>!!(s.sk&&s.sk.P[by].qk);
 const KJ=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 function QN(s,by){if(!s.sk)return null;const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(s.sk.qy[r][c]>0&&s.b[r][c]===by+"Q")o.push([r,c]);return o.length?o:null;}
@@ -589,7 +598,7 @@ function render(){
     else t="스테일메이트 — 무승부";
   }else if(chk)t=t?t+" · 체크!":"체크!";
   $("#status").textContent=t;
-  renderTrays();
+  renderTrays();kbRender();
   drawArrow();
   skUI();
   if(!over)resShown=false;
@@ -627,6 +636,41 @@ function click(r,c){
   else{sel=null;legalCache=[];}
   render();
 }
+function mvText(before,m,promo,fin){
+  const p=before.b[m.fr][m.fc],t=typ(p);let x;
+  if(m.cs==="K")x="O-O";else if(m.cs==="Q")x="O-O-O";
+  else{const cap=before.b[m.tr][m.tc]||m.ep;
+    x=(t==="P"?(cap?"abcdefgh"[m.fc]:""):t)+(cap?"x":"")+(fin.bl?"!":"")+sqNm(m.tr,m.tc);
+    if(t==="P"&&(m.tr===0||m.tr===7)&&!fin.bl)x+="="+(promo||"Q");
+    if(fin.cvt)x+="~";
+    if(fin.bx){for(const l of fin.bx.list)if(l[2]===1&&!(l[0]===m.tr&&l[1]===m.tc))x+=","+sqNm(l[0],l[1]);if(fin.bx.list.some(l=>l[2]===1&&l[0]===m.tr&&l[1]===m.tc))x+="*";}}
+  if(!free&&!fin.bl){if(inCheck(fin,fin.turn))x+=(!anyLegal(fin)?"#":"+");}
+  return x;
+}
+function skText(old,n,title){
+  const code=title.startsWith("빠")?"S":title.startsWith("에")?"E":title.startsWith("고")?"B":title.startsWith("궁")?"C":title.startsWith("UFC")?"U":"X";
+  const l=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(n.b[r][c]&&["sh","gs","ic","qy"].some(g=>(n.sk[g][r][c]||0)>(old.sk[g][r][c]||0)))l.push((typ(n.b[r][c])==="P"?"":typ(n.b[r][c]))+sqNm(r,c));
+  return code+"_"+l.join(",");
+}
+let kbN=-1;
+function kbRender(){
+  const el=$("#kb");if(!el)return;
+  const lg=S.lg||[];let h="",w=0;
+  lg.forEach((e,i)=>{if(e.s==="w"){w++;h+=`<span class="kn">${w}.</span>`;}
+    h+=`<span class="kc ${e.s==="w"?"kw":"kk"}${e.t.includes("_")?" ks":""}${i===lg.length-1?" kl":""}">${e.t}</span>`;});
+  const keep=el.scrollLeft;
+  el.innerHTML=h;el.scrollLeft=(lg.length!==kbN)?el.scrollWidth:keep;kbN=lg.length;
+}
+function slideFx(m){
+  const mv=(fr,fc,tr,tc)=>{const a=sqEl(fr,fc),b=sqEl(tr,tc);if(!a||!b||!b.firstElementChild)return;
+    const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=ra.left-rb.left,dy=ra.top-rb.top;
+    b.style.zIndex=7;
+    let k=0;for(const ch of b.children){if(ch.classList.contains("crd"))continue;k++;
+      const an=ch.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:"translate(0,0)"}],{duration:230,easing:"cubic-bezier(.2,.8,.3,1)"});
+      an.onfinish=()=>{b.style.zIndex="";};}};
+  mv(m.fr,m.fc,m.tr,m.tc);
+  if(m.cs==="K")mv(m.tr,7,m.tr,5);if(m.cs==="Q")mv(m.tr,0,m.tr,3);
+}
 function doMove(m,promo,remote){
   if(mode==="net"&&!remote)netSend({t:"mv",fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc,promo:promo||null});
   const before=clone(S),prev=lastMove;
@@ -634,6 +678,7 @@ function doMove(m,promo,remote){
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
   $("#info").textContent=S.bl&&S.bl.st?"끝까지 이렇게 나오면 얻어맞는 것 밖에 답이 없지!":"";
   over=!anyLegal(S)||dead(S);
+  S.lg=(before.lg||[]).concat([{s:before.turn,t:mvText(before,m,promo,S)}]);
   let bk=null;
   if(mode==="lab"){line=line?line.concat(uciOf(m)):null;bk=line?bookInfo(line):null;}
   if(bk){
@@ -645,7 +690,7 @@ function doMove(m,promo,remote){
   if(S.bl)breakFx(S.bl.r,S.bl.c);
   else if(fin.bx){busy=true;cartFx(fin.bx,()=>{S=fin;busy=false;render();
     if(!free&&inCheck(S,S.turn)){const mt=over&&!dead(S);setTimeout(()=>sfx(mt?"mate":"check"),180);}});}
-  else{sfx((before.b[m.tr][m.tc]||m.ep)?"cap":"move");
+  else{slideFx(m);sfx((before.b[m.tr][m.tc]||m.ep)?"cap":"move");
     if(!free&&inCheck(S,S.turn)){const mt=over&&!dead(S);setTimeout(()=>sfx(mt?"mate":"check"),180);}}
   if(mode==="lab"){
     if(bk){gradeToken++;analyze(clone(S)).catch(()=>{});}
@@ -769,6 +814,7 @@ function cutIn(img,title,ln,cls,done){
   e.onclick=end;setTimeout(end,2400);
 }
 function commitSkill(n,title,ln,info,img,cls,remote){
+  if(!remote)n.lg=(S.lg||[]).concat([{s:S.turn,t:skText(S,n,title)}]);
   if(mode==="net"&&!remote)netSend({t:"sk",S:JSON.stringify(n),a:[title,ln,info,img,cls]});
   busy=true;skT=false;crT=false;sel=null;legalCache=[];arrow=null;render();
   cutIn(img,title,ln,cls,()=>{
@@ -839,7 +885,7 @@ function gangTarget(r,c,remote){
     const n=clone(S),kk=n.sk;let msg;
     if(shielded){kk.sh[g.r][g.c]--;msg="다구리을 방어막이 막았어요! (방어막 소모)";}
     else{const cp=n.b[g.r][g.c];n.tray[col(cp)].push(cp);n.b[g.r][g.c]=null;msg="다구리 성공! 기물을 잡았어요";}
-    const ga=S.turn;kk.P[ga].cdG=5;n.ep=null;n.turn=opp(ga);tickSide(n,ga);if(mode==="rlab")kk.P[ga].cdG=0;
+    const ga=S.turn;n.lg=(S.lg||[]).concat([{s:ga,t:"G_"+(typ(S.b[g.r][g.c])==='P'?'':typ(S.b[g.r][g.c]))+sqNm(g.r,g.c)}]);kk.P[ga].cdG=5;n.ep=null;n.turn=opp(ga);tickSide(n,ga);if(mode==="rlab")kk.P[ga].cdG=0;
     S=n;lastMove={fr:g.r,fc:g.c,tr:g.r,tc:g.c};bonk=null;busy=false;
     over=!anyLegal(S)||dead(S);$("#info").textContent=msg;render();if(shielded)breakFx(g.r,g.c);
   },1950);
@@ -1116,7 +1162,7 @@ function bookInfo(ln){
 /* ---------- 둔 수 평가 (연습실) ---------- */
 const wpct=cp=>50+50*(2/(1+Math.exp(-0.00368208*cp))-1);
 const cpOf=r=>r.mate!==null?(r.mate>0?1:-1)*(10000-Math.abs(r.mate)*10):r.cp;
-const sqn=(r,c)=>"abcdefgh"[c]+(8-r);
+const sqNm=(r,c)=>"abcdefgh"[c]+(8-r);
 const matOf=(s,c)=>{let v=0;for(let r=0;r<8;r++)for(let k=0;k<8;k++){const p=s.b[r][k];if(p&&col(p)===c)v+=PV[typ(p)];}return v;};
 const matDiff=(s,c)=>matOf(s,c)-matOf(s,opp(c));
 function replyOf(s,u4){
@@ -1366,7 +1412,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.1.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.2.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}

@@ -1,4 +1,4 @@
-const CACHE = "face-chess-1.1.5";
+const CACHE = "face-chess-1.2.0";
 const FILES = ["./", "index.html", "manifest.json",
   "pawn.png", "bishop.png", "knight.png",
   "rook.png", "queen.png", "king.png",
