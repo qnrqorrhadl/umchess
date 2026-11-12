@@ -599,6 +599,7 @@ function legal(s,r,c){
   const p=s.b[r][c];if(!p||col(p)!==s.turn)return[];
   const P=s.sk&&s.sk.P[s.turn],two=P&&P.dm===1;
   if(two&&r===P.d1r&&c===P.d1c)return[];
+  if(P&&P.dm>0&&typ(p)!=="P")return[];
   return pseudo(s,r,c).filter(m=>{
     if(s.sk&&typ(p)==="P"&&s.sk.cv[r][c]>0&&m.tr===(col(p)==="w"?0:7))return false;
     if(two&&(s.b[m.tr][m.tc]||m.ep))return false;
@@ -958,12 +959,12 @@ function commitSkill(n,title,ln,info,img,cls,remote){
     S=n;if(mode==="rlab"){for(const sd of["w","b"]){const P=S.sk.P[sd];P.cd1=P.cd2=P.cdG=P.wc1=P.wc2=P.wcC=0;}}
     const nl=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(['sh','gs','ic','qy'].some(g=>(S.sk[g][r][c]||0)>(old.sk[g][r][c]||0)))nl.push([r,c]);
     if(n.fxl){n.fxl.forEach(q=>nl.push(q));delete n.fxl;}
-    const sn=n.spkNew;delete n.spkNew;
+    const sn=n.spkNew;delete n.spkNew;const tpx=n.tpfx;delete n.tpfx;
     over=!anyLegal(S)||dead(S);
     $("#info").textContent=info||"";
-    render();shieldFx(nl,CIC[cls]||"#46beff");
+    render();shieldFx(nl,CIC[cls]||"#46beff");if(tpx)portalFx(tpx);
     if(sn){const pe=sqEl(sn.r,sn.c)&&sqEl(sn.r,sn.c).querySelector(".piece");if(pe){pe.animate([{transform:"translateY(-320%) scale(1.5)",opacity:0},{transform:"translateY(0) scale(1)",opacity:1}],{duration:520,easing:"cubic-bezier(.3,1.5,.5,1)"});sfx("cap");}}
-    setTimeout(()=>{busy=false;render();},nl.length*180+800);
+    setTimeout(()=>{busy=false;render();},nl.length*180+800+(tpx?1500:0));
   }
 }
 function skillTarget(r,c){
@@ -1037,15 +1038,16 @@ function skDesc(c){const k=S.sk.P[c];
 function cardHTML(img,name,base,cd){
   return (img&&skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
 const SNAME={1:"무식은 힘으로 커버한다!",2:"1마력 펀치~!"};
-const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 두 번 둘 수 있어요 · 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없어요 · 이 스킬로는 체크를 걸 수 없어요 · 쿨 12턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있어요 · 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아가요 (킹 제외, 방어막은 방어막만 소모, 내 기물도 날아가요) · 퀸은 1턴 스턴 · 스턴된 퀸은 체크로 치지 않아요 · 쿨 8턴"};
+const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 폰만 두 번 움직일 수 있어요 · 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없어요 · 이 스킬로는 체크를 걸 수 없어요 · 쿨 10턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있어요 · 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아가요 (킹 제외, 방어막은 방어막만 소모, 내 기물도 날아가요) · 퀸은 1턴 스턴 · 스턴된 퀸은 체크로 치지 않아요 · 쿨 8턴"};
 const KDESC="대리 촌장: 3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴";
-const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요\n수인의 모든 스킬은 첫 수에는 쓸 수 없어요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
-function suFirst(a){return !(S.lg||[]).some(x=>x.s===a);}
+const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
+function suFirst(a){return false;}
 function canSu(){return canWitch()&&S.sk.P[S.turn].dm===0&&!suFirst(S.turn);}
+function pawnMoves(a){for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(p&&col(p)===a&&typ(p)==="P"&&legal(S,r,c).length)return true;}return false;}
 function useSu1(){
   const a=S.turn;if(!canSu()||S.sk.P[a].cd1>0||suFirst(a))return;
-  const n=clone(S);n.sk.P[a].cd1=12;n.sk.P[a].dm=2;n.inst=true;n.nolg=true;
-  commitSkill(n,SNAME[1],"약한 자는 강한 자의 말을 듣는 게 당연하니까!","이번 턴에 두 번 둘 수 있어요! 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없고 체크도 걸 수 없어요","skill_su1.jpg","c7");
+  const n=clone(S);n.sk.P[a].cd1=10;n.sk.P[a].dm=2;n.inst=true;n.nolg=true;
+  commitSkill(n,SNAME[1],"약한 자는 강한 자의 말을 듣는 게 당연하니까!","이번 턴에 폰만 두 번 움직일 수 있어요! 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없고 체크도 걸 수 없어요","skill_su1.jpg","c7");
 }
 function punchBlast(s,t,dr,dc){
   const L=[];
@@ -1136,7 +1138,7 @@ function ghTeleTarget(r,c){
   if(hit){const n=teleState(S,a,hit.fr,hit.fc,hit.tr,hit.tc);if(n){const P=n.sk.P[a],p=S.b[hit.fr][hit.fc];
       P.cd1=10;P.tp=1;P.en=0;n.inst=true;n.fxl=[[hit.tr,hit.tc]];
       n.lgT="T_"+(typ(p)==="P"?"":typ(p))+sqNm(hit.fr,hit.fc)+">"+sqNm(hit.tr,hit.tc);
-      lastMove={fr:hit.fr,fc:hit.fc,tr:hit.tr,tc:hit.tc};
+      lastMove={fr:hit.fr,fc:hit.fc,tr:hit.tr,tc:hit.tc};n.tpfx={fr:hit.fr,fc:hit.fc,tr:hit.tr,tc:hit.tc};
       commitSkill(n,GNAME[1],"난 재미없는 장난은 안해","차원문이 열렸어요! 이어서 평소처럼 한 수 두세요 (이번 턴엔 체크 불가)","skill_gh1.jpg","c8");return;}}
   const d=teleDests(S,a,r,c);
   if(d.length){sel=[r,c];legalCache=d;render();return;}
@@ -1160,7 +1162,7 @@ function ghCommon(){
     else if(k===1){const o=gOwn(S,a,false).filter(([r,c])=>stunOk(t,r,c));if(!o.length)continue;
       const[r,c]=o[Math.floor(Math.random()*o.length)];K.fz[r][c]=2;t.fxl=[[r,c]];t.lgT="X_Zap"+(typ(t.b[r][c])==="P"?"":typ(t.b[r][c]))+sqNm(r,c);res=k;n=t;}
     else if(k===2){const o=gOwn(S,a,true),pr=[];
-      for(let i=0;i<o.length;i++)for(let j=i+1;j<o.length;j++){const x=clone(t);gSw(x,o[i][0],o[i][1],o[j][0],o[j][1]);gFix(x);if(!inCheck(x,a))pr.push([o[i],o[j]]);}
+      for(let i=0;i<o.length;i++)for(let j=i+1;j<o.length;j++){if(typ(t.b[o[i][0]][o[i][1]])==='P'&&typ(t.b[o[j][0]][o[j][1]])==='P')continue;const x=clone(t);gSw(x,o[i][0],o[i][1],o[j][0],o[j][1]);gFix(x);if(!inCheck(x,a))pr.push([o[i],o[j]]);}
       if(!pr.length)continue;const[p1,p2]=pr[Math.floor(Math.random()*pr.length)];
       const nm=q=>(typ(t.b[q[0]][q[1]])==="P"?"":typ(t.b[q[0]][q[1]]))+sqNm(q[0],q[1]);t.lgT="X_Sw"+nm(p1)+","+nm(p2);
       gSw(t,p1[0],p1[1],p2[0],p2[1]);gFix(t);t.fxl=[p1,p2];res=k;n=t;}
@@ -1192,6 +1194,27 @@ function spikFx(sp){
   const D=window.innerWidth*1.1;
   e.animate([{transform:"translate(0,0) rotate(0) scale(1)",opacity:1},{transform:"translate("+(dx*cs*.6)+"px,"+(dy*cs*.6-cs*.5)+"px) rotate(120deg) scale(1.15)",opacity:1,offset:.18},{transform:"translate("+(dx*D)+"px,"+(dy*D+D*.3)+"px) rotate(900deg) scale(.5)",opacity:.9}],{duration:1100,easing:"cubic-bezier(.2,.6,.4,1)"}).onfinish=()=>e.remove();
   sfx("cap");
+}
+function portalFx(g){
+  const a=sqEl(g.fr,g.fc),b=sqEl(g.tr,g.tc);if(!a||!b)return;
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),cs=ra.width,W=cs*1.35,H=W*259/420;
+  const sg=(rb.left+rb.width/2>=ra.left+ra.width/2)?1:-1,off=cs*.5;
+  const mk=(r,d)=>{const e=document.createElement("img");e.src="gPortal.png";e.style.cssText="position:fixed;left:"+(r.left+cs/2+d*off-W/2)+"px;top:"+(r.top+cs/2-H/2)+"px;width:"+W+"px;height:"+H+"px;z-index:47;pointer-events:none;opacity:0";document.body.appendChild(e);return e;};
+  const R0="rotate(-63deg)";
+  const door=(e,t0)=>{const o={duration:300,delay:t0,fill:"both",easing:"ease-out"};
+    e.animate([{transform:R0+" scale(.05,.05)",opacity:0},{transform:R0+" scale(1,1)",opacity:1}],o);
+    e.animate([{transform:R0+" scale(1,1)",opacity:1},{transform:R0+" scale(.05,.05)",opacity:0}],{duration:300,delay:t0+700,fill:"forwards",easing:"ease-in"}).onfinish=()=>e.remove();};
+  const p1=mk(ra,sg),p2=mk(rb,-sg);
+  door(p1,0);door(p2,1100);
+  const pe=b.querySelector(".piece");
+  if(pe){
+    pe.style.opacity="0";
+    const gh=pe.cloneNode(true);gh.style.cssText="position:fixed;left:"+ra.left+"px;top:"+ra.top+"px;width:"+cs+"px;height:"+cs+"px;margin:0;z-index:46;pointer-events:none;transform-origin:50% 60%";
+    document.body.appendChild(gh);
+    gh.animate([{transform:"translateX(0) scale(1,1)",opacity:1},{transform:"translateX(0) scale(1,1)",opacity:1,offset:.3},{transform:"translateX("+(sg*off*.9)+"px) scale(.05,.05)",opacity:0}],{duration:800,easing:"ease-in",fill:"forwards"}).onfinish=()=>gh.remove();
+    pe.animate([{transform:"translateX("+(-sg*off*.9)+"px) scale(.05)",opacity:0},{transform:"translateX(0) scale(1)",opacity:1}],{duration:500,delay:1450,fill:"both",easing:"ease-out"}).onfinish=()=>{pe.style.opacity="";};
+  }
+  sfx("cut");setTimeout(()=>sfx("cut"),1100);
 }
 function rngFx(g){
   const a=sqEl(g.fr,g.fc),b=sqEl(g.tr,g.tc);if(!a||!b)return;
@@ -1277,15 +1300,15 @@ function skUI(){
   }
   if(r==="s"){
     const dm=P.dm,sk2=sk===2,cdm=sk2?P.cd2:P.cd1;
-    const off=!mine||cdm>0||!canSu()||(sk2?!punchOptions(S,c).length:suFirst(c));
+    const off=!mine||cdm>0||!canSu()||(sk2?!punchOptions(S,c).length:(suFirst(c)||!pawnMoves(c)));
     b.className="skcard"+(off?" off":"")+(cdm>0?" cd":"")+(crT===4?" tgt":"");
-    b.innerHTML=cardHTML(sk2?"skill_su2.jpg":"skill_su1.jpg",SNAME[sk],sk2?8:12,cdm);
+    b.innerHTML=cardHTML(sk2?"skill_su2.jpg":"skill_su1.jpg",SNAME[sk],sk2?8:10,cdm);
     const koff=!mine||P.cdG>0||!canSu();
     gb.style.display="";gb.className="skcard"+(koff?" off":"")+(P.cdG>0?" cd":"");
     gb.innerHTML=cardHTML("skill_su_k.jpg","대리 촌장",10,P.cdG);
     const pp=[];
-    if(dm===2)pp.push("첫 번째 수를 두세요");
-    else if(dm===1)pp.push("한 번 더! 다른 기물로, 잡지 않는 수만 가능해요");
+    if(dm===2)pp.push("첫 번째 폰을 움직이세요");
+    else if(dm===1)pp.push("한 번 더! 다른 폰으로, 잡지 않는 수만 가능해요");
     else if(crT===4)pp.push(sel?"박을 상대 기물을 고르세요":"펀치를 쓸 퀸을 고르세요 (카드를 다시 누르면 취소)");
     else if(P.kq>0)pp.push("킹이 퀸처럼 움직여요 · 남은 "+P.kq+"턴");
     inf.textContent=pp.join(" · ");
@@ -1787,7 +1810,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.4.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2042,9 +2065,9 @@ const RD={
     ex:[["공용","다구리","skill_dagu.png",GDESC.replace(/^요정 공용 스킬 다구리: /,"")]]},
  m:{name:"마녀",king:"bK.png",sk:[["고.서.카.트.다아아!",WDESC2[1],"skill_goseo.jpg"],["궁정 마녀들",WDESC2[2],"witch_court.jpg"]],
     ex:[["공용","UFC 당근튀김","skill_carrot.jpg",CDESC.replace(/^UFC 당근튀김: /,"")],["패시브","마녀적 사고방식","witch_passive.jpg",PDESC.replace(/^마녀적 사고방식: /,"")]]}};
-const SDESC2={1:"즉발 · 이번 턴에 두 번 둘 수 있어요. 같은 기물은 안 되고, 두 번째 수로는 잡을 수 없어요 · 이 스킬로는 체크를 걸 수 없어요 · 쿨 12턴",2:"즉발 · 퀸만 쓸 수 있어요. 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아가요. 킹은 안 날아가고 방어막은 방어막만 소모돼요. 내 기물도 날아가고 퀸은 1턴 스턴이에요 · 스턴된 퀸은 체크로 치지 않아요 · 쿨 8턴"};
+const SDESC2={1:"즉발 · 이번 턴에 폰만 두 번 움직일 수 있어요. 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없어요 · 이 스킬로는 체크를 걸 수 없어요 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있어요. 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아가요. 킹은 안 날아가고 방어막은 방어막만 소모돼요. 내 기물도 날아가고 퀸은 1턴 스턴이에요 · 스턴된 퀸은 체크로 치지 않아요 · 쿨 8턴"};
 RD.s={name:"수인",king:"sK.png",sk:[[SNAME[1],SDESC2[1],"skill_su1.jpg"],[SNAME[2],SDESC2[2],"skill_su2.jpg"]],
- ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","수인의 모든 스킬은 첫 수에는 쓸 수 없어요. 나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
+ ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
 RD.g={name:"유령",king:"gK.png",sk:[[GNAME[1],GDESCS[1].replace(/^[^:]*: /,""),"skill_gh1.jpg"],[GNAME[2],GDESCS[2].replace(/^[^:]*: /,""),"skill_gh2.jpg"]],
  ex:[["공용","차원의 틈","skill_gh0.jpg",GCDESC.replace(/^[^:]*: /,"")]]};
 const RORDER=["f","m","s","g"];

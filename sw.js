@@ -1,13 +1,5 @@
-const CACHE = "face-chess-1.4.1";
-const FILES = ["./", "index.html", "manifest.json",
-  "pawn.png", "bishop.png", "knight.png",
-  "rook.png", "queen.png", "king.png",
-  "wK_evo.png","sK.png","sQ.png","sR.png","sN.png","sB.png","sP.png","wP.png","wN.png","wB.png","wR.png","wQ.png","wK.png",
-  "bP.png","bN.png","bB.png","bR.png","bQ.png","bK.png",
-  "bg1.jpg","bg2.jpg","bg3.jpg",
-  "logo.png","stun.png","Jua.woff2","dagu_hit.wav","skill1.png","skill2_1.png","skill2_2.png","skill2_3.png","skill_dagu.png","witch_passive.jpg","skill_goseo.jpg","skill_carrot.jpg","witch_bishop.jpg","witch_queen.jpg","witch_rook.jpg","witch_court.jpg","witch_cart.png","peerjs.min.js","res_win.png","res_lose.png","res_draw.png","skill_su1.jpg","skill_su2.jpg","sN_evo.png","sB_evo.png","sR_evo.png","sK_dr.png","gK.png","gQ.png","gR.png","gN.png","gB.png","gP.png","gSpic.png","skill_gh0.jpg","skill_gh1.jpg","skill_gh2.jpg","gh_e1.jpg","gh_e2.jpg","gh_e3.jpg","gh_e4.jpg","gh_e5.jpg","skill_su_k.jpg","skill_su_p.jpg",
-  "icon-192.png", "icon-512.png",
-  "stockfish-19-lite-single.js", "stockfish-19-lite-single.wasm"];
+const CACHE = "face-chess-1.5.2";
+const FILES = ["./", "index.html", "Jua.woff2","bB.png","bK.png","bN.png","bP.png","bQ.png","bR.png","bg1.jpg","bg2.jpg","bg3.jpg","bishop.png","dagu_hit.wav","gB.png","gK.png","gN.png","gP.png","gPortal.png","gQ.png","gR.png","gSpic.png","gh_e1.jpg","gh_e2.jpg","gh_e3.jpg","gh_e4.jpg","gh_e5.jpg","icon-192.png","icon-512.png","king.png","knight.png","logo.png","manifest.json","pawn.png","peerjs.min.js","queen.png","res_draw.png","res_lose.png","res_win.png","rook.png","sB.png","sB_evo.png","sK.png","sK_dr.png","sN.png","sN_evo.png","sP.png","sQ.png","sR.png","sR_evo.png","skill1.png","skill2_1.png","skill2_2.png","skill2_3.png","skill_carrot.jpg","skill_dagu.png","skill_gh0.jpg","skill_gh1.jpg","skill_gh2.jpg","skill_goseo.jpg","skill_su1.jpg","skill_su2.jpg","skill_su_k.jpg","skill_su_p.jpg","stockfish-19-lite-single.js","stockfish-19-lite-single.wasm","stun.png","wB.png","wK.png","wK_evo.png","wN.png","wP.png","wQ.png","wR.png","witch_bishop.jpg","witch_cart.png","witch_court.jpg","witch_passive.jpg","witch_queen.jpg","witch_rook.jpg"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(FILES.map(f => fetch(f, {cache: "reload"}).then(r => r.ok ? c.put(f, r) : null).catch(() => null)))));
   self.skipWaiting();
