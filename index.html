@@ -1212,8 +1212,6 @@ function zapFx(z){
   const q=sqEl(z.r,z.c);if(!q)return;ZAP[z.r+","+z.c]=true;
   const rc=q.getBoundingClientRect(),cs=rc.width,cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
   voice("zap.mp3");
-  const fl=document.createElement("div");fl.style.cssText="position:fixed;inset:0;z-index:48;pointer-events:none;background:#fffbd0";document.body.appendChild(fl);
-  fl.animate([{opacity:.0},{opacity:.75,offset:.08},{opacity:0,offset:.22},{opacity:.5,offset:.3},{opacity:0}],{duration:480}).onfinish=()=>fl.remove();
   const H=Math.max(cy,60),pts=[];let x=cx+(Math.random()-.5)*cs*.6,y=0;pts.push([x,y]);const N=9;
   for(let i=1;i<N;i++){y=H*i/N;x=cx+(Math.random()-.5)*cs*(i<N-1?1.6:.4);pts.push([x,y]);}pts.push([cx,cy]);
   const W=window.innerWidth,svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("style","position:fixed;left:0;top:0;width:"+W+"px;height:"+(cy+cs)+"px;z-index:49;pointer-events:none;overflow:visible");svg.setAttribute("viewBox","0 0 "+W+" "+(cy+cs));
@@ -1223,7 +1221,6 @@ function zapFx(z){
   svg.animate([{opacity:0},{opacity:1,offset:.04},{opacity:1,offset:.25},{opacity:0,offset:.28},{opacity:1,offset:.4},{opacity:1,offset:.5},{opacity:0}],{duration:520,easing:"linear"}).onfinish=()=>svg.remove();
   const pe=q.querySelector(".piece");
   if(pe)pe.animate([{transform:"translateX(0)"},{transform:"translateX(-5px)"},{transform:"translateX(5px)"},{transform:"translateX(-4px)"},{transform:"translateX(4px)"},{transform:"translateX(-2px)"},{transform:"translateX(0)"}],{duration:140,iterations:7});
-  const bd=$("#board");bd.classList.add("shake");setTimeout(()=>bd.classList.remove("shake"),320);
 }
 function spikFx(sp){
   voice("spk_dont.mp3");
@@ -1872,7 +1869,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.7.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.7.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
