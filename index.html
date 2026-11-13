@@ -311,6 +311,11 @@ body.racem #info{display:none}
 .aur.ice{border-color:#a8ecff;box-shadow:0 0 4px 1px rgba(150,230,255,.7)}
 .aur.yel{border-color:#ffd23a;box-shadow:0 0 4px 1px rgba(255,210,60,.7)}
 .piece.frz{filter:grayscale(.3) brightness(1.08)}
+.piece.mtb::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:3px solid #2f7fe0;box-shadow:0 0 8px 3px rgba(47,127,224,.75);pointer-events:none;z-index:3;animation:mtp 1.6s ease-in-out infinite}
+@keyframes mtp{50%{border-color:#6fb2ff;box-shadow:0 0 11px 4px rgba(111,178,255,.85)}}
+.frzm.zbolt{width:40%;height:40%;right:-2%;top:-6%;z-index:6}
+.frzm.zbolt.dim{opacity:.6;width:30%;height:30%}
+.zbolt svg{width:100%;height:100%;filter:drop-shadow(0 0 3px #ffe34d)}
 .zsp{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:visible}
 .zsp svg{position:absolute;width:46%;height:46%;filter:drop-shadow(0 0 3px #ffe34d)}
 .zsp svg.z1{left:-8%;top:-8%;animation:zfl 1.1s steps(1) infinite}
@@ -428,9 +433,9 @@ function newState(withSk){
   const b=Array.from({length:8},()=>Array(8).fill(null));
   const back="RNBQKBNR";
   for(let c=0;c<8;c++){b[0][c]="b"+back[c];b[1][c]="bP";b[6][c]="wP";b[7][c]="w"+back[c];}
-  return {b,lg:[],turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),gt:g8(),cn:g8(),ev:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8(),gh:g8(),mt:g8(),mx:g8()}:null};
+  return {b,lg:[],turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),gt:g8(),cn:g8(),ev:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8(),gh:g8(),mt:g8(),mx:g8(),el:g8()}:null};
 }
-const clone=s=>({b:s.b.map(r=>r.slice()),lg:s.lg||[],turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),cn:(s.sk.cn||g8()).map(r=>r.slice()),ev:(s.sk.ev||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice()),gh:(s.sk.gh||g8()).map(r=>r.slice()),mt:(s.sk.mt||g8()).map(r=>r.slice()),mx:(s.sk.mx||g8()).map(r=>r.slice())}:null});
+const clone=s=>({b:s.b.map(r=>r.slice()),lg:s.lg||[],turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w},b:{...s.sk.P.b}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),cn:(s.sk.cn||g8()).map(r=>r.slice()),ev:(s.sk.ev||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice()),gh:(s.sk.gh||g8()).map(r=>r.slice()),mt:(s.sk.mt||g8()).map(r=>r.slice()),mx:(s.sk.mx||g8()).map(r=>r.slice()),el:(s.sk.el||g8()).map(r=>r.slice())}:null});
 const QK=(s,by)=>!!(s.sk&&(s.sk.P[by].qk||s.sk.P[by].kq>0));
 const KJ=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 function QN(s,by){if(!s.sk)return null;const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(s.sk.qy[r][c]>0&&s.b[r][c]===by+"Q")o.push([r,c]);else if(s.sk.ev[r][c]&&s.b[r][c]===by+"N"&&rOf(by)==="s")o.push([r,c,1]);}return o.length?o:null;}
@@ -529,6 +534,7 @@ function tickSide(n,c){const k=n.sk;if(!k)return;const P=k.P[c];
   for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const pc=n.b[r][cc];if(!pc||col(pc)!==c)continue;
     if(k.gt[r][cc]>0){k.gt[r][cc]--;if(k.gt[r][cc]===0&&k.gs[r][cc]===1)k.gs[r][cc]=0;}
     if(k.fz[r][cc]>0)k.fz[r][cc]--;
+    if(k.el[r][cc]===10){if(k.fz[r][cc]===0)k.el[r][cc]=3;}else if(k.el[r][cc]>0)k.el[r][cc]--;
     if(k.gh[r][cc]>0)k.gh[r][cc]--;
     if(k.mt[r][cc]>0){k.mt[r][cc]--;if(k.mt[r][cc]===0)k.mx[r][cc]=0;}
     if(k.shT[r][cc]>0){k.shT[r][cc]--;if(k.shT[r][cc]===0){k.sh[r][cc]=0;k.rs[r][cc]=0;}}
@@ -545,7 +551,7 @@ function apply0(s,m,promo,nb,hold){
     else{
       if(col(tg)==="n")n.spk={r:m.tr,c:m.tc,by:[m.fr,m.fc]};
       else{const cvp=K.cv[m.tr][m.tc]>0,oc=opp(col(tg));n.tray[cvp?oc:col(tg)].push(cvp?oc+typ(tg):tg);}
-      n.b[m.tr][m.tc]=null;for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[m.tr][m.tc]=0;
+      n.b[m.tr][m.tc]=null;for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[m.tr][m.tc]=0;
       for(const[sq,key]of[[[7,0],"wQ"],[[7,7],"wK"],[[0,0],"bQ"],[[0,7],"bK"]])if(n.b[sq[0]][sq[1]]!==key[0]+"R")n.cast[key]=0;
       n.rngc={fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc};}
     K.fz[m.fr][m.fc]=K.mx[m.fr][m.fc]>0?2:3;
@@ -553,7 +559,7 @@ function apply0(s,m,promo,nb,hold){
     return n;}
   if(n.sk){const cr=m.ep?m.fr:m.tr,tg=n.b[cr][m.tc];
     if(tg&&col(tg)!==me&&n.sk.sh[cr][m.tc]>0){n.sk.sh[cr][m.tc]--;n.ep=null;n.turn=hold?me:opp(me);if(n.sk.sh[cr][m.tc]===0)n.sk.shT[cr][m.tc]=0;
-      let st=false;if(n.sk.rs[cr][m.tc]>0){if(typ(p)!=="K"){n.sk.fz[m.fr][m.fc]=3;st=true;}if(n.sk.sh[cr][m.tc]===0)n.sk.rs[cr][m.tc]=0;}
+      let st=false;if(n.sk.rs[cr][m.tc]>0){if(typ(p)!=="K"){n.sk.fz[m.fr][m.fc]=2;st=true;}if(n.sk.sh[cr][m.tc]===0)n.sk.rs[cr][m.tc]=0;}
       if(!hold){if(me==="w")tick(n);else tickB(n);}n.bl={r:cr,c:m.tc,st};return n;}}
   if(n.sk&&typ(p)==="B"&&n.sk.ic[m.fr][m.fc]>0&&!m.ep){const tg=n.b[m.tr][m.tc];
     if(tg&&col(tg)===opp(me)&&typ(tg)!=="Q"&&typ(tg)!=="K"&&cvCount(n,me)<3){
@@ -566,10 +572,10 @@ function apply0(s,m,promo,nb,hold){
   n.b[m.tr][m.tc]=p;
   let gsv=0,icv=0;
   if(n.sk){const K=n.sk;gsv=K.gs[m.fr][m.fc];icv=K.ic[m.fr][m.fc];
-    for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs]){g[m.tr][m.tc]=g[m.fr][m.fc];g[m.fr][m.fc]=0;if(m.ep)g[m.fr][m.tc]=0;}
+    for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs]){g[m.tr][m.tc]=g[m.fr][m.fc];g[m.fr][m.fc]=0;if(m.ep)g[m.fr][m.tc]=0;}
     K.fz[m.tr][m.tc]=0;K.fz[m.fr][m.fc]=0;if(m.ep)K.fz[m.fr][m.tc]=0;
-    if(m.cs==="K"){for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs]){g[m.tr][5]=g[m.tr][7];g[m.tr][7]=0;}}
-    if(m.cs==="Q"){for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs]){g[m.tr][3]=g[m.tr][0];g[m.tr][0]=0;}}}
+    if(m.cs==="K"){for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs]){g[m.tr][5]=g[m.tr][7];g[m.tr][7]=0;}}
+    if(m.cs==="Q"){for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs]){g[m.tr][3]=g[m.tr][0];g[m.tr][0]=0;}}}
   if(n.sk){const sh=n.sk.sh,st=n.sk.shT;sh[m.tr][m.tc]=sh[m.fr][m.fc];sh[m.fr][m.fc]=0;st[m.tr][m.tc]=st[m.fr][m.fc];st[m.fr][m.fc]=0;if(m.ep){sh[m.fr][m.tc]=0;st[m.fr][m.tc]=0;}
     if(m.cs==="K"){sh[m.tr][5]=sh[m.tr][7];sh[m.tr][7]=0;st[m.tr][5]=st[m.tr][7];st[m.tr][7]=0;}
     if(m.cs==="Q"){sh[m.tr][3]=sh[m.tr][0];sh[m.tr][0]=0;st[m.tr][3]=st[m.tr][0];st[m.tr][0]=0;}}
@@ -587,7 +593,7 @@ function apply0(s,m,promo,nb,hold){
         if(rr===m.tr&&c2===m.tc&&(gsv===2||K.sh[rr][c2]>0))continue;
         if(K.sh[rr][c2]>0){K.sh[rr][c2]--;if(K.sh[rr][c2]===0){K.shT[rr][c2]=0;K.rs[rr][c2]=0;}lost.push([rr,c2,0]);continue;}
         const pc=n.b[rr][c2],cvp=K.cv[rr][c2]>0,oc=opp(col(pc));if(col(pc)!=="n")n.tray[cvp?oc:col(pc)].push(cvp?oc+typ(pc):pc);n.b[rr][c2]=null;
-        for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[rr][c2]=0;lost.push([rr,c2,1,pc]);}
+        for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[rr][c2]=0;lost.push([rr,c2,1,pc]);}
       K.gs[m.tr][m.tc]=0;
       for(const[sq,key]of[[[7,0],"wQ"],[[7,7],"wK"],[[0,0],"bQ"],[[0,7],"bK"]])if(n.b[sq[0]][sq[1]]!==key[0]+"R")n.cast[key]=0;
       n.bx={r:cr,c:cc,list:lost,from:[m.fr,m.fc],cap:capd};}}
@@ -668,7 +674,7 @@ function render(){
           bonk.list.forEach((_,i)=>{const fx=document.createElement("span");fx.className="fx";fx.textContent="💥";fx.style.setProperty("--fd",(i*.4+.34)+"s");q.appendChild(fx);});}}
       if(S.sk&&S.sk.fz[r][c]>0)pe.classList.add("frz");
       if(S.sk&&S.sk.gh[r][c]>0)pe.classList.add("gst");
-      if(S.sk&&S.sk.mt[r][c]>0){pe.classList.add("mtb");pe.style.boxShadow="0 0 0 3px #0c2742,0 0 10px 4px rgba(22,92,150,.95)";}
+      if(S.sk&&S.sk.mt[r][c]>0){pe.classList.add("mtb");}
       let bgEl=null;const bonkHere=bonk&&(bonk.list.some(a=>a[0]===r&&a[1]===c)||(bonk.tr===r&&bonk.tc===c));
       if(!bonkHere&&col(S.b[r][c])!=="n"){pe.classList.add("hb");const bg=document.createElement("span"),pc=S.b[r][c],wh=isRace()||col(pc)==="w";bg.className="badge bdg";bg.textContent=SYM[typ(pc)];bg.style.background=wh?"#fff":"#111";bg.style.color=wh?"#111":"#fff";bgEl=bg;}
       q.appendChild(pe);
@@ -678,9 +684,10 @@ function render(){
         if(S.sk.ic[r][c]>0)au("ice");
         else if(S.sk.cv[r][c]>0)au("ice");
         if(S.sk.qy[r][c]>0)au("yel");
-        if(S.sk.fz[r][c]>0){const z=document.createElement("img");z.className="frzm";z.src="stun.png";z.alt="";q.appendChild(z);
-        if(ZAP[r+","+c]){const zs=document.createElement("div");zs.className="zsp";zs.innerHTML=ZB+ZB.replace("<svg","<svg class=\"z2\"")+ZB.replace("<svg","<svg class=\"z3\"");zs.firstChild.setAttribute("class","z1");q.appendChild(zs);}}
-        else delete ZAP[r+","+c];}
+        if(S.sk.fz[r][c]>0){const zz=!!ZAP[r+","+c]||S.sk.el[r][c]===10;if(zz){const zs=document.createElement("div");zs.className="frzm zbolt";zs.innerHTML=ZB;q.appendChild(zs);}
+        else{const z=document.createElement("img");z.className="frzm";z.src="stun.png";z.alt="";q.appendChild(z);}}
+      else delete ZAP[r+","+c];
+      if(S.sk.el[r][c]>0&&S.sk.el[r][c]<10){const zs=document.createElement("div");zs.className="frzm zbolt dim";zs.innerHTML=ZB;q.appendChild(zs);}}
       if(S.sk&&S.sk.sh[r][c]>0){const sd=document.createElement("div");sd.style.inset=(lk*5)+"%";sd.className="shd"+(S.sk.sh[r][c]>1?" s2":"")+(isRace()&&rOf(col(S.b[r][c]))==="m"?" bw":"");if(S.sk.sh[r][c]>1)sd.textContent=S.sk.sh[r][c];q.appendChild(sd);}
       if(bgEl)q.appendChild(bgEl);
     }
@@ -784,8 +791,19 @@ function slideFx(m){
   mv(m.fr,m.fc,m.tr,m.tc);
   if(m.cs==="K")mv(m.tr,7,m.tr,5);if(m.cs==="Q")mv(m.tr,0,m.tr,3);
 }
-function doMove(m,promo,remote){
-  if(mode==="net"&&!remote)netSend({t:"mv",fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc,promo:promo||null});
+function doMove(m,promo,remote,failArg){
+  let fail=false;
+  if(S.sk&&S.sk.el&&S.sk.el[m.fr][m.fc]>0&&S.sk.el[m.fr][m.fc]<10&&!inCheck(S,S.turn)){fail=remote?!!failArg:Math.random()<.2;}
+  if(mode==="net"&&!remote)netSend({t:"mv",fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc,promo:promo||null,fail:fail?1:0});
+  if(fail){
+    const before=clone(S);hist.push({S:before,last:lastMove,line:line});
+    const n=clone(S),side=S.turn;tickSide(n,side);n.ep=null;n.turn=opp(side);n.lg=(before.lg||[]).concat([{s:side,t:"N_"+sqNm(m.fr,m.fc)}]);
+    S=n;sel=null;legalCache=[];arrow=null;hintToken++;
+    $("#info").textContent="저림! 기물이 떨려서 움직이지 못했어요";over=!anyLegal(S)||dead(S);
+    render();const pe=sqEl(m.fr,m.fc)&&sqEl(m.fr,m.fc).querySelector(".piece");
+    if(pe)pe.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(-5px)"},{transform:"translateX(5px)"},{transform:"translateX(-2px)"},{transform:"translateX(0)"}],{duration:110,iterations:4});
+    sfx("land");maybeAI();return;
+  }
   const before=clone(S),prev=lastMove;
   hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
@@ -845,6 +863,7 @@ function sfx(k){if(!sndOn)return;
   else if(k==="chime"){const f=PENTA[pn++%PENTA.length];tone(f,0,.4,"sine",.11);tone(f*2,0,.25,"sine",.05);tone(f*3,.02,.15,"sine",.025);}
   else if(k==="break"){tone(900,0,.12,"sine",.12,300);tone(700,.07,.12,"sine",.1,220);tone(1100,.13,.14,"sine",.09,350);noise(0,.08,.06);}
   else if(k==="boom"){tone(160,0,.5,"sawtooth",.16,40);tone(520,0,.1,"square",.09,120);tone(90,0,.6,"sine",.2,30);noise(0,.4,.18);tone(700,.05,.2,"triangle",.08,200);}
+  else if(k==="shot"){noise(0,.16,.3);tone(1800,0,.05,"square",.1,300);tone(140,0,.18,"sine",.28,45);tone(620,.02,.12,"sawtooth",.07,120);}
   else if(k==="move"){tone(520,0,.07,"sine",.34,820);tone(1040,0,.05,"triangle",.1,1500);}
   else if(k==="cap"){tone(520,0,.14,"sine",.4,170);tone(260,.02,.12,"triangle",.3,120);tone(1040,.13,.07,"sine",.18);noise(0,.05,.12);}
   else if(k==="hit"){if(HITBUF&&AC){const sr=AC.createBufferSource(),g=AC.createGain();sr.buffer=HITBUF;const t=AC.currentTime;g.gain.setValueAtTime(.9,t);g.gain.setValueAtTime(.9,t+.3);g.gain.linearRampToValueAtTime(0,t+.38);sr.connect(g);g.connect(AC.destination);sr.start(t,0,.4);}else{tone(330,0,.12,"triangle",.16,110);tone(660,0,.06,"sine",.07,300);}}
@@ -992,7 +1011,7 @@ function skillTarget(r,c){
   const p=S.b[r][c],a=S.turn;
   if(p&&col(p)===a&&typ(p)!=="K"&&!S.sk.sh[r][c]){
     const n=clone(S);n.sk.sh[r][c]=1;n.sk.rs[r][c]=1;n.sk.P[a].cd1=10;n.sk.P[a].kb=2;
-    commitSkill(n,"빠아아아앙!!!","이거 다 인형 아니지? 전부 빵 맞지?!","방어막 완료! 막으면 공격한 기물이 2턴 스턴, 다음 턴 킹은 한 칸 더 움직여요","skill1.png","c1");
+    commitSkill(n,"빠아아아앙!!!","이거 다 인형 아니지? 전부 빵 맞지?!","방어막 완료! 막으면 공격한 기물이 1턴 스턴, 다음 턴 킹은 한 칸 더 움직여요","skill1.png","c1");
   }else{skT=false;render();}
 }
 function useSkill2(){
@@ -1053,7 +1072,7 @@ const skIcon=(st,c)=>skOf(c)===1?"skill1.png":"skill2_"+st+".png";
 const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 조건 2기물로 완화"];
 const GDESC="요정 공용 스킬 다구리: 3기물(3단계 후 2기물)이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
 function skDesc(c){const k=S.sk.P[c];
-  if(skOf(c)===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 (막으면 공격한 기물 2턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴";
+  if(skOf(c)===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴";
   if(k.st>=3)return "에르피엔 전통 해결법: 진화 완료";
   return "에르피엔 "+(k.st+1)+"단계: "+STD[k.st]+" · 쿨 8턴";}
 function cardHTML(img,name,base,cd){
@@ -1094,7 +1113,7 @@ function punchState(s,o){
   for(const[jr,jc]of o.j){const pc=n.b[jr][jc];if(!pc)continue;
     if(K.sh[jr][jc]>0){K.sh[jr][jc]--;if(K.sh[jr][jc]===0){K.shT[jr][jc]=0;K.rs[jr][jc]=0;}continue;}
     const cvp=K.cv[jr][jc]>0,oc=opp(col(pc));if(col(pc)!=="n")n.tray[cvp?oc:col(pc)].push(cvp?oc+typ(pc):pc);n.b[jr][jc]=null;
-    for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[jr][jc]=0;}
+    for(const g of[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs,K.fz,K.shT])g[jr][jc]=0;}
   for(const[sq,key]of[[[7,0],"wQ"],[[7,7],"wK"],[[0,0],"bQ"],[[0,7],"bK"]])if(n.b[sq[0]][sq[1]]!==key[0]+"R")n.cast[key]=0;
   K.P[a].cd2=8;K.fz[o.t[0]][o.t[1]]=2;
   if(inCheck(n,a))return null;
@@ -1125,14 +1144,14 @@ function evoFx(e){
 /* ===== 유령 ===== */
 const GNAME={1:"불좀 꺼줄래?",2:"마.탄.의.사.수"};
 const GDESCS={1:"불좀 꺼줄래?: 내 턴 소모 · 내 기물 1개(킹 제외)가 상하좌우·대각선으로 정확히 2칸 떨어진 빈칸으로 차원문을 열어 이동해요 · 사이의 기물은 뛰어넘고, 이 이동으로는 잡을 수 없어요 · 체크를 거는 이동은 할 수 없어요 · 강화되면 3칸도 가능해요 · 쿨 10턴",2:"마.탄.의.사.수: 내 비숍 1개를 5턴 동안 강화해요 · 비숍 이동에 앞쪽 직선(룩)이 더해지고, 잡을 때는 이동하지 않고 공격해요 · 앞의 기물을 무시하고 바로 뒤의 기물도 공격할 수 있어요 · 체크를 걸 수 있어요(대각선·앞쪽 직선) · 공격하면 비숍이 2턴 기절 · 강화되면 기절이 1턴으로 줄어요 · 쿨 12턴"};
-const GCDESC="차원의 틈: 내 턴을 소모하고 5개 효과 중 하나가 랜덤으로 나와요 · 스핔이가 떨어짐 / 내 기물 1개 1턴 기절 / 내 기물 2개 자리 바뀜(킹 제외) / 메인 스킬 강화+쿨 4턴 감소 / 폰이 아닌 내 기물 1개가 3턴 동안 공격받지 않는 유령 상태(체크 불가) · 쿨 8턴";
+const GCDESC="차원의 틈: 내 턴을 소모하고 5개 효과 중 하나가 랜덤으로 나와요 · 스핔이가 떨어짐 / 내 기물 1개 1턴 감전 / 내 기물 2개 자리 바뀜(킹 제외) / 메인 스킬 강화+쿨 4턴 감소 / 폰이 아닌 내 기물 1개가 2턴 동안 공격받지 않는 유령 상태(체크 불가) · 쿨 6턴";
 const GRES=[
  {t:"스핔이 네르지 마세요!",l:"흐에엥!",i:"gh_e1.jpg",inf:"스핔이가 떨어졌어요! 움직이지도 공격하지도 못하고, 누가 공격하면 날아가요",c:"X_Sp"},
- {t:"라이카-노바 테이저 건-2000",l:"유령들에게 아주 잘 먹힌다더니..",i:"gh_e2.jpg",inf:"내 기물 하나가 1턴 동안 기절했어요!",c:"X_Zap"},
+ {t:"라이카-노바 테이저 건-2000",l:"유령들에게 아주 잘 먹힌다더니..",i:"gh_e2.jpg",inf:"내 기물 하나가 1턴 동안 감전됐어요! (움직일 수 없어요)",c:"X_Zap"},
  {t:"왔어......?",l:"침대 이불 뒤집어쓰고 있었던 거야?!",i:"gh_e3.jpg",inf:"내 기물 두 개의 자리가 바뀌었어요!",c:"X_Sw"},
  {t:"응, 나야~ 셰이디",l:"내 방식대로 지키겠어",i:"gh_e4.jpg",inf:"다음 메인 스킬이 강화돼요! 쿨 중이면 4턴 줄어요 (쿨 중이어도 강화는 유지돼요)",c:"X_En"},
- {t:"우왁! 수, 숨어!",l:"빨리 이쪽으로 들어와!",i:"gh_e5.jpg",inf:"폰이 아닌 기물 하나가 3턴 동안 공격받지 않는 유령 상태가 됐어요 (체크는 못 걸어요)",c:"X_Gh"}];
-const GGR=K=>[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.ic,K.qy,K.cv,K.rs,K.fz,K.sh,K.shT];
+ {t:"우왁! 수, 숨어!",l:"빨리 이쪽으로 들어와!",i:"gh_e5.jpg",inf:"폰이 아닌 기물 하나가 2턴 동안 공격받지 않는 유령 상태가 됐어요 (체크는 못 걸어요)",c:"X_Gh"}];
+const GGR=K=>[K.gs,K.gt,K.cn,K.ev,K.gh,K.mt,K.mx,K.el,K.ic,K.qy,K.cv,K.rs,K.fz,K.sh,K.shT];
 function gMv(n,fr,fc,tr,tc){const K=n.sk;n.b[tr][tc]=n.b[fr][fc];n.b[fr][fc]=null;for(const g of GGR(K)){g[tr][tc]=g[fr][fc];g[fr][fc]=0;}}
 function gSw(n,r1,c1,r2,c2){const K=n.sk,t=n.b[r1][c1];n.b[r1][c1]=n.b[r2][c2];n.b[r2][c2]=t;for(const g of GGR(K)){const x=g[r1][c1];g[r1][c1]=g[r2][c2];g[r2][c2]=x;}}
 function gFix(n){for(const[sq,key]of[[[7,0],"wQ"],[[7,7],"wK"],[[0,0],"bQ"],[[0,7],"bK"]]){if(n.b[sq[0]][sq[1]]!==key[0]+"R")n.cast[key]=0;}
@@ -1177,18 +1196,18 @@ function ghCommon(){
   const stunOk=(t,r,c)=>{const x=clone(t);x.turn=a;x.sk.fz[r][c]=2;return anyLegal(x);};
   while(pool.length&&res===null){
     const k=pool.splice(Math.floor(Math.random()*pool.length),1)[0];
-    const t=clone(S),K=t.sk,P=K.P[a];P.cdG=8;
+    const t=clone(S),K=t.sk,P=K.P[a];P.cdG=6;
     if(k===0){const e=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(!t.b[r][c])e.push([r,c]);
       if(!e.length)continue;const[r,c]=e[Math.floor(Math.random()*e.length)];t.b[r][c]="nS";t.spkNew={r,c};t.fxl=[];t.lgT="X_Sp"+sqNm(r,c);res=k;n=t;}
     else if(k===1){const o=gOwn(S,a,false).filter(([r,c])=>stunOk(t,r,c));if(!o.length)continue;
-      const[r,c]=o[Math.floor(Math.random()*o.length)];K.fz[r][c]=2;t.fxl=[[r,c]];t.zapfx={r,c};t.lgT="X_Zap"+(typ(t.b[r][c])==="P"?"":typ(t.b[r][c]))+sqNm(r,c);res=k;n=t;}
+      const[r,c]=o[Math.floor(Math.random()*o.length)];K.fz[r][c]=2;K.el[r][c]=10;t.fxl=[[r,c]];t.zapfx={r,c};t.lgT="X_Zap"+(typ(t.b[r][c])==="P"?"":typ(t.b[r][c]))+sqNm(r,c);res=k;n=t;}
     else if(k===2){const o=gOwn(S,a,true),pr=[];
       for(let i=0;i<o.length;i++)for(let j=i+1;j<o.length;j++){if(typ(t.b[o[i][0]][o[i][1]])==='P'&&typ(t.b[o[j][0]][o[j][1]])==='P')continue;const x=clone(t);gSw(x,o[i][0],o[i][1],o[j][0],o[j][1]);gFix(x);if(!inCheck(x,a))pr.push([o[i],o[j]]);}
       if(!pr.length)continue;const[p1,p2]=pr[Math.floor(Math.random()*pr.length)];
       const nm=q=>(typ(t.b[q[0]][q[1]])==="P"?"":typ(t.b[q[0]][q[1]]))+sqNm(q[0],q[1]);t.lgT="X_Sw"+nm(p1)+","+nm(p2);
       gSw(t,p1[0],p1[1],p2[0],p2[1]);gFix(t);t.fxl=[p1,p2];t.swfx={a:p1,b:p2};res=k;n=t;}
     else if(k===3){const sk1=skOf(a)===1;if(sk1)P.cd1=Math.max(0,P.cd1-4);else P.cd2=Math.max(0,P.cd2-4);P.en=1;t.fxl=[];t.lgT="X_En";res=k;n=t;}
-    else{const o=gOwn(S,a,true).filter(([r,c])=>typ(S.b[r][c])!=="P");if(!o.length)continue;const[r,c]=o[Math.floor(Math.random()*o.length)];K.gh[r][c]=4;t.fxl=[[r,c]];t.lgT="X_Gh"+(typ(t.b[r][c])==="P"?"":typ(t.b[r][c]))+sqNm(r,c);res=k;n=t;}
+    else{const o=gOwn(S,a,true).filter(([r,c])=>typ(S.b[r][c])!=="P");if(!o.length)continue;const[r,c]=o[Math.floor(Math.random()*o.length)];K.gh[r][c]=3;t.fxl=[[r,c]];t.lgT="X_Gh"+(typ(t.b[r][c])==="P"?"":typ(t.b[r][c]))+sqNm(r,c);res=k;n=t;}
   }
   if(!n)return;
   const g=GRES[res];
@@ -1279,13 +1298,36 @@ function rngFx(g){
   const a=sqEl(g.fr,g.fc),b=sqEl(g.tr,g.tc);if(!a||!b)return;
   const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),cs=ra.width;
   const x1=ra.left+cs/2,y1=ra.top+cs/2,x2=rb.left+cs/2,y2=rb.top+cs/2;
-  const e=document.createElement("div");e.style.cssText="position:fixed;left:"+(x1-cs*.14)+"px;top:"+(y1-cs*.14)+"px;width:"+(cs*.28)+"px;height:"+(cs*.28)+"px;border-radius:50%;z-index:46;pointer-events:none;background:radial-gradient(circle,#fff,#4ab0ff 45%,#10306a 75%);box-shadow:0 0 12px 5px rgba(60,140,255,.9)";
-  document.body.appendChild(e);
-  e.animate([{transform:"translate(0,0)"},{transform:"translate("+(x2-x1)+"px,"+(y2-y1)+"px)"}],{duration:190,easing:"ease-in",fill:"forwards"}).onfinish=()=>{
-    e.style.cssText="position:fixed;left:"+(x2-cs*.8)+"px;top:"+(y2-cs*.8)+"px;width:"+(cs*1.6)+"px;height:"+(cs*1.6)+"px;border-radius:50%;z-index:46;pointer-events:none;background:radial-gradient(circle,#fff,rgba(60,140,255,.85) 40%,rgba(10,40,100,0) 70%)";
-    e.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.2)",opacity:0}],{duration:360,easing:"ease-out"}).onfinish=()=>e.remove();
-    const bd=$("#board");bd.classList.add("shake");setTimeout(()=>bd.classList.remove("shake"),320);};
-  sfx("boom");
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,ang=Math.atan2(dy,dx)*180/Math.PI;
+  const flip=dx<0?" scaleY(-1)":"";
+  const GW=cs*1.7,GH=GW*116/420,mz=GW*.32,mx=x1+ux*mz,my=y1+uy*mz;
+  const gun=document.createElement("img");gun.src="gGun.png";gun.draggable=false;
+  gun.style.cssText="position:fixed;left:"+(x1-GW/2)+"px;top:"+(y1-GH/2)+"px;width:"+GW+"px;height:"+GH+"px;z-index:47;pointer-events:none;opacity:0";
+  document.body.appendChild(gun);
+  const T0="rotate("+ang+"deg)"+flip;
+  gun.animate([{opacity:0,transform:T0+" scale(.5)"},{opacity:1,transform:T0+" scale(1)"}],{duration:200,easing:"ease-out",fill:"forwards"});
+  setTimeout(()=>{ // fire
+    sfx("shot");
+    gun.animate([{transform:T0},{transform:"translate("+(-ux*cs*.12)+"px,"+(-uy*cs*.12)+"px) "+T0,offset:.35},{transform:T0}],{duration:200,easing:"ease-out"});
+    const fl=document.createElement("div");
+    fl.style.cssText="position:fixed;left:"+(mx-cs*.3)+"px;top:"+(my-cs*.3)+"px;width:"+(cs*.6)+"px;height:"+(cs*.6)+"px;border-radius:50%;z-index:48;pointer-events:none;background:radial-gradient(circle,#fff,#9fe8ff 40%,rgba(40,120,255,0) 72%)";
+    document.body.appendChild(fl);
+    fl.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.3)",opacity:0}],{duration:200,easing:"ease-out"}).onfinish=()=>fl.remove();
+    const BW=cs*.62,BH=BW*152/300;
+    const bu=document.createElement("img");bu.src="gBullet.png";bu.draggable=false;
+    bu.style.cssText="position:fixed;left:"+(mx-BW/2)+"px;top:"+(my-BH/2)+"px;width:"+BW+"px;height:"+BH+"px;z-index:49;pointer-events:none";
+    document.body.appendChild(bu);
+    const tx=x2-mx,ty=y2-my;
+    bu.animate([{transform:"translate(0,0) rotate("+ang+"deg)"},{transform:"translate("+tx+"px,"+ty+"px) rotate("+ang+"deg)"}],{duration:130,easing:"ease-in",fill:"forwards"}).onfinish=()=>{
+      bu.remove();
+      const e=document.createElement("div");
+      e.style.cssText="position:fixed;left:"+(x2-cs*.8)+"px;top:"+(y2-cs*.8)+"px;width:"+(cs*1.6)+"px;height:"+(cs*1.6)+"px;border-radius:50%;z-index:46;pointer-events:none;background:radial-gradient(circle,#fff,rgba(60,200,255,.85) 40%,rgba(10,40,100,0) 70%)";
+      document.body.appendChild(e);
+      e.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.2)",opacity:0}],{duration:360,easing:"ease-out"}).onfinish=()=>e.remove();
+      const bd=$("#board");bd.classList.add("shake");setTimeout(()=>bd.classList.remove("shake"),320);sfx("boom");
+      gun.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:"forwards"}).onfinish=()=>gun.remove();
+    };
+  },260);
 }
 const GT=5;
 const WNAME={1:"고.서.카.트.다아아!",2:"궁정 마녀들"};
@@ -1346,7 +1388,7 @@ function skUI(){
     b.innerHTML=cardHTML(sk1?"skill_gh1.jpg":"skill_gh2.jpg",GNAME[sk],sk1?10:12,cdm);
     const goff=!mine||P.cdG>0||!canWitch();
     gb.style.display="";gb.className="skcard"+(goff?" off":"")+(P.cdG>0?" cd":"");
-    gb.innerHTML=cardHTML("skill_gh0.jpg","차원의 틈",8,P.cdG);
+    gb.innerHTML=cardHTML("skill_gh0.jpg","차원의 틈",6,P.cdG);
     const pp=[];
     if(crT===5)pp.push(sel?"도착할 빈칸을 고르세요":"순간이동할 내 기물을 고르세요 (카드를 다시 누르면 취소)");
     else if(crT===6)pp.push("강화할 내 비숍을 고르세요 (카드를 다시 누르면 취소)");
@@ -1742,9 +1784,9 @@ function freeMove(src,dst){
   line=null;
   let p;
   let shv=0;
-  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;if(S.sk){shv=S.sk.sh[src.r][src.c];S.sk.sh[src.r][src.c]=0;S.sk.shT[src.r][src.c]=0;for(const g of[S.sk.gs,S.sk.gt,S.sk.cn,S.sk.ev,S.sk.gh,S.sk.mt,S.sk.mx,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[src.r][src.c]=0;}}
+  if(src.t==="sq"){p=S.b[src.r][src.c];S.b[src.r][src.c]=null;if(S.sk){shv=S.sk.sh[src.r][src.c];S.sk.sh[src.r][src.c]=0;S.sk.shT[src.r][src.c]=0;for(const g of[S.sk.gs,S.sk.gt,S.sk.cn,S.sk.ev,S.sk.gh,S.sk.mt,S.sk.mx,S.sk.el,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[src.r][src.c]=0;}}
   else p=S.tray[src.c].splice(src.i,1)[0];
-  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;if(S.sk){S.sk.sh[dst.r][dst.c]=shv;S.sk.shT[dst.r][dst.c]=0;for(const g of[S.sk.gs,S.sk.gt,S.sk.cn,S.sk.ev,S.sk.gh,S.sk.mt,S.sk.mx,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[dst.r][dst.c]=0;}}
+  if(dst.t==="sq"){const o=S.b[dst.r][dst.c];if(o)S.tray[col(o)].push(o);S.b[dst.r][dst.c]=p;if(S.sk){S.sk.sh[dst.r][dst.c]=shv;S.sk.shT[dst.r][dst.c]=0;for(const g of[S.sk.gs,S.sk.gt,S.sk.cn,S.sk.ev,S.sk.gh,S.sk.mt,S.sk.mx,S.sk.el,S.sk.ic,S.sk.cv,S.sk.rs,S.sk.fz,S.sk.qy])g[dst.r][dst.c]=0;}}
   else S.tray[col(p)].push(p);
   fsel=null;arrow=null;lastMove=null;lastGrade=null;gradeToken++;hintToken++;$("#info").textContent="";
   render();
@@ -1869,7 +1911,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.7.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.8.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2015,7 +2057,7 @@ function netRecv(msg){
 function netPump(){
   if(mode!=="net"||busy||!NET.q.length)return;
   const m=NET.q.shift();
-  if(m.t==="mv"){const mv=legal(S,m.fr,m.fc).find(x=>x.tr===m.tr&&x.tc===m.tc);if(mv)doMove(mv,m.promo||undefined,true);}
+  if(m.t==="mv"){const mv=legal(S,m.fr,m.fc).find(x=>x.tr===m.tr&&x.tc===m.tc);if(mv)doMove(mv,m.promo||undefined,true,m.fail);}
   else if(m.t==="sk"){commitSkill(JSON.parse(m.S),...m.a,true);}
   else if(m.t==="gang"){gangTarget(m.r,m.c,true);}
 }
@@ -2117,7 +2159,7 @@ $("#nick").oninput=()=>{try{localStorage.setItem("fc_nick",$("#nick").value.trim
 $("#mClassic").onclick=()=>showPg("pgClassic");
 document.querySelectorAll("#menu .back").forEach(b=>b.onclick=()=>showPg(b.dataset.to));
 
-const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 2턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴",2:"쓸 때마다 3단계까지 진화 (쿨 8턴). 1단계 폰 방어막 2개, 2단계 룩·나이트·비숍 방어막 3개, 3단계 킹 강화 + 다구리 조건 완화"};
+const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴",2:"쓸 때마다 3단계까지 진화 (쿨 8턴). 1단계 폰 방어막 2개, 2단계 룩·나이트·비숍 방어막 3개, 3단계 킹 강화 + 다구리 조건 완화"};
 const WDESC2={1:"퀸·룩·킹을 뺀 기물 1개를 고서 상태로 만들어요. 4턴 안에 잡으면 주변 1칸이 폭발해요 (킹 제외, 내 기물 포함). 4턴이 지나면 풀려요. 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
 const RD={
  f:{name:"요정",king:"wK.png",sk:[["빠아아아앙!!!",FDESC[1],"skill1.png"],["에르피엔 전통 해결법",FDESC[2],"skill2_1.png"]],
