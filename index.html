@@ -344,6 +344,8 @@ body.racem #info{display:none}
 #sidlg button{border:0;border-radius:12px;padding:11px;font-size:16px;font-weight:900;background:#5fb36b;color:#fff}
 #oppSk{align-self:center;border:0;border-radius:12px;padding:8px 16px;font-size:15px;font-weight:900;background:#5fb36b;color:#fff;box-shadow:0 2px 0 #3f8f50}
 #sil{display:flex;flex-direction:column;gap:8px}
+#menu #bwBtn{background:#a3aaa5;color:#fff}
+#menu #bwBtn.on{background:#3f8f50}
 </style>
 
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
@@ -386,6 +388,7 @@ body.racem #info{display:none}
     <h1>설정</h1>
     <input id="nick" maxlength="10" placeholder="닉네임 (비우면 교주)" autocomplete="off">
     <button id="snd">효과음 켬</button>
+    <button id="bwBtn">흑백 모드 끔</button>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
   <div class="pg" id="pgRace" hidden>
@@ -395,6 +398,7 @@ body.racem #info{display:none}
     <button id="rNet">줘팸터 들어가기</button>
     <div class="half" id="rBtns"><button id="rPrac">연습하기</button><button id="rStart">한 폰으로 둘이서</button></div>
     <button id="rGo" style="display:none">시작</button>
+    <button id="rAi">컴퓨터와 대결 (체험)</button>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
   <div class="pg" id="pgNet" hidden>
@@ -438,6 +442,7 @@ let shEdit=false;
 let mode="2p", level=2, busy=false, arrow=null, hintToken=0;
 let free=false, fsel=null, justDragged=false;
 const SEL={f:1,m:1,s:1,g:1};
+let RAI=false;
 let skT=false, gbT=false, crT=false, bonk=null, skImgOk=true;
 try{SEL.f=+localStorage.getItem("fc_fsk")||1;SEL.m=+localStorage.getItem("fc_wsk")||1;SEL.s=+localStorage.getItem("fc_ssk")||1;SEL.g=+localStorage.getItem("fc_gsk")||1;}catch(e){}
 let pick="w", me="w", lastGrade=null, gradeToken=0, line=[];
@@ -756,6 +761,7 @@ function click(r,c){
   if(free&&shEdit){shToggle(r,c);return;}
   if(free){freeClick(r,c);return;}
   if(over||busy)return;
+  if(RAI&&S.turn!==me)return;
   if(mode==="net"&&S.turn!==me)return;
   if(skT){skillTarget(r,c);return;}
   if(gbT){gangTarget(r,c);return;}
@@ -868,6 +874,7 @@ function doMove(m,promo,remote,failArg){
   maybeAI();
 }
 function maybeAI(){
+  if(RAI&&isRace()&&!over&&S.turn!==me&&!busy){busy=true;$("#status").textContent="컴퓨터 생각 중…";setTimeout(raiMove,700);return;}
   if(mode==="ai"&&!over&&S.turn!==me&&!busy){busy=true;$("#status").textContent="컴퓨터 생각 중…";setTimeout(aiMove,350);}
 }
 
@@ -875,7 +882,8 @@ function maybeAI(){
 /* ---------- 종족전 스킬 (요정) ---------- */
 const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
 const nm=c=>isRace()?RACES[rOf(c)].name:(c==="w"?"백":"흑");
-const mirror=()=>isRace()&&rOf("w")===rOf("b");
+let bwOn=(()=>{try{return localStorage.getItem("fc_bw")==="1";}catch(e){return false;}})();
+const mirror=()=>isRace()&&(bwOn||rOf("w")===rOf("b"));
 const tmn=c=>mirror()?(c==="w"?"흰색":"검정"):RACES[rOf(c)].cn;
 let toastT=null;
 function toast(t,img){const e=$("#toast");e.innerHTML=(img?`<img class="tsimg" src="${img}" onerror="this.remove()">`:"")+`<span></span>`;e.lastChild.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),1800);}
@@ -908,6 +916,9 @@ function sfx(k){if(!sndOn)return;
 function voice(f){if(!sndOn)return;try{const a=new Audio(f);a.play().catch(()=>{});}catch(e){}}
 function sndBtn(){$("#snd").textContent=sndOn?"효과음 켬":"효과음 끔";}
 $("#mSet").onclick=()=>showPg("pgSet");
+function bwBtn(){$("#bwBtn").textContent=bwOn?"흑백 모드 켬":"흑백 모드 끔";$("#bwBtn").classList.toggle("on",bwOn);}
+bwBtn();
+$("#bwBtn").onclick=()=>{bwOn=!bwOn;try{localStorage.setItem("fc_bw",bwOn?"1":"0");}catch(e){}bwBtn();try{render();}catch(e){}};
 $("#snd").onclick=()=>{sndOn=!sndOn;localStorage.setItem("fc_snd",sndOn?"1":"0");sndBtn();if(sndOn){actx();sfx("chime");}};
 sndBtn();
 function sqEl(r,c){return document.querySelector(`#board .sq[data-r="${r}"][data-c="${c}"]`);}
@@ -1038,7 +1049,7 @@ function commitSkill(n,title,ln,info,img,cls,remote){
     $("#info").textContent=info||"";
     render();shieldFx(nl,CIC[cls]||"#46beff");if(tpx)portalFx(tpx);if(swx)swapFx(swx);if(zpx)zapFx(zpx);
     if(sn){const pe=sqEl(sn.r,sn.c)&&sqEl(sn.r,sn.c).querySelector(".piece");if(pe){pe.animate([{transform:"translateY(-320%) scale(1.5)",opacity:0},{transform:"translateY(0) scale(1)",opacity:1}],{duration:520,easing:"cubic-bezier(.3,1.5,.5,1)"});sfx("cap");}}
-    setTimeout(()=>{busy=false;render();},nl.length*180+800+(tpx?1500:0)+(swx?1500:0)+(zpx?1100:0));
+    setTimeout(()=>{busy=false;render();maybeAI();},nl.length*180+800+(tpx?1500:0)+(swx?1500:0)+(zpx?1100:0));
   }
 }
 function skillTarget(r,c){
@@ -1514,6 +1525,7 @@ function skUI(){
 }
 $("#skBtn").onclick=e=>{
   const c=SIDE();
+  if(RAI&&S.turn!==me&&!e.target.closest(".cinfo"))return;
   if(rOf(c)==="g"&&isRace()){
     if(e.target.closest(".cinfo")){showSkInfo(SIDE(),false);return;}
     if(S.turn!==c||crT===7)return;
@@ -1554,6 +1566,7 @@ $("#skBtn").onclick=e=>{
 };
 $("#gbBtn").onclick=e=>{
   const c=SIDE();
+  if(RAI&&S.turn!==me&&!e.target.closest(".cinfo"))return;
   if(rOf(c)==="g"&&isRace()){
     if(e.target.closest(".cinfo")){showSkInfo(SIDE(),false);return;}
     if(S.turn!==c||crT===7||busy)return;
@@ -1609,6 +1622,29 @@ function search(s,d,a,b){
     if(v>a)a=v;
   }
   return a;
+}
+function raiMove(){
+  if(over||S.turn===me){busy=false;return;}
+  const side=S.turn,P=S.sk.P[side];busy=false;
+  try{
+  if(!inCheck(S,side)&&TEAM[side].r==="f"){
+    if(P.cdG===0){const g=gangTargets();if(g.length){g.sort((a,b)=>b.v-a.v);gangTarget(g[0].r,g[0].c);return;}}
+    const sk=TEAM[side].s;
+    if(sk===1&&P.cd1===0){
+      let best=null,bv=0;
+      for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(!p||col(p)!==side||typ(p)==="K"||S.sk.sh[r][c])continue;
+        const at=attackersOf(S,r,c,opp(side));if(!at.length)continue;const df=attackersOf(S,r,c,side).length;
+        const minA=Math.min(...at.map(([ar,ac])=>VAL[typ(S.b[ar][ac])]||900));
+        const v=VAL[typ(p)]/100*(df?0.5:1)+(VAL[typ(p)]>minA?2:0);if(v>bv){bv=v;best=[r,c];}}
+      if(best&&bv>=2){skillTarget(best[0],best[1]);return;}
+    }
+    if(sk===2&&P.cd2===0&&P.st<3&&(S.lg||[]).length>6){useSkill2();return;}
+  }
+  }catch(e){}
+  const ms=allMoves(S);if(!ms.length)return;
+  ms.sort(()=>Math.random()-.5);let best=null,bs=-1e9;
+  for(const m of order(S,ms)){const v=-search(apply(S,m),1,-1e9,1e9);if(v>bs){bs=v;best=m;}}
+  doMove(best);
 }
 function aiMove(){
   const ms=allMoves(S);
@@ -1949,7 +1985,7 @@ $("#undo").onclick=()=>{
   if(mode==="net"){netDraw();return;}
   if(busy&&(mode==="ai"||isRace()))return;
   let h=hist.pop();if(!h)return;
-  if(mode==="ai"){while(h.S.turn!==me&&hist.length)h=hist.pop();}
+  if(mode==="ai"||RAI){while(h.S.turn!==me&&hist.length)h=hist.pop();}
   S=h.S;skT=false;gbT=false;crT=false;lastMove=h.last;line=h.line===undefined?null:h.line;lastGrade=null;gradeToken++;fsel=null;sel=null;legalCache=[];over=false;arrow=null;busy=false;hintToken++;$("#info").textContent="";render();
   maybeAI();
 };
@@ -1979,7 +2015,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.4.7";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.4.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2195,13 +2231,14 @@ async function loadRooms(){
 $("#nRef").onclick=loadRooms;
 setInterval(()=>{if(!$("#pgNet").hidden&&$("#menu").style.display!=="none")loadRooms();},4000);
 function start(m,l){
-  mode=m;if(l)level=l;
+  mode=m;if(l)level=l;if(m!=="race")RAI=false;
   if(m!=="net")NETEND="";netBtns();
   $("#hint").style.display=m==="lab"?"":"none";
   $("#bar2").classList.toggle("on",m==="lab"||m==="rlab");document.body.classList.toggle("rlab",m==="rlab");
   $("#menu").style.display="none";$("#lvls").classList.remove("on");document.body.classList.toggle("racem",m==="race"||m==="rlab"||(m==="net"&&!NET.classic));
   reset();
   if(isRace()&&mode!=="rlab")showFirst();
+  if(RAI)setTimeout(maybeAI,3600);
 }
 let coinTm=0;
 function showFirst(){
@@ -2245,7 +2282,7 @@ let P2={r:"m",s:1},P2MODE=false,P2T="race";
 function curSel(r){return P2MODE&&P2.r===r?P2.s:SEL[r];}
 function skRender(){
   const d=RD[skRace],esc=t=>t.replace(/</g,"&lt;"),cur=curSel(skRace);
-  $("#skTitle").textContent=(P2MODE?"2P ":"")+d.name+" 스킬";
+  $("#skTitle").textContent=(P2MODE?(P2T==="rai"?"컴퓨터 ":"2P "):"")+d.name+" 스킬";
   $("#skList").innerHTML=d.sk.map((x,i)=>`<button class="skopt${cur===i+1?" on":""}" data-s="${i+1}"><img src="${x[2]}" onerror="this.style.visibility='hidden'"><div class="tx"><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div></button>`).join("")
    +d.ex.map(x=>`<div class="skopt ex"><img src="${x[2]}" onerror="this.style.visibility='hidden'"><div class="tx"><em>${x[0]}</em><b>${x[1]}</b><span>${esc(x[3])}</span></div></div>`).join("");
   document.querySelectorAll("#skList button.skopt").forEach(b=>b.onclick=()=>{setSel(skRace,+b.dataset.s);});
@@ -2263,8 +2300,8 @@ function raceRender(){
 }
 function miniUpd(){document.querySelectorAll(".rbtn .mini").forEach(e=>{const r=e.dataset.r;e.src=RD[r].sk[curSel(r)-1][2];});}
 function raceUI(){
-  $("#raceT").textContent=P2MODE?"2P 종족 선택":"종족전";
-  $("#rNet").style.display=P2MODE?"none":"";$("#rBtns").style.display=P2MODE?"none":"";$("#rGo").style.display=P2MODE?"":"none";
+  $("#raceT").textContent=P2MODE?(P2T==="rai"?"컴퓨터 종족 선택":"2P 종족 선택"):"종족전";
+  $("#rNet").style.display=P2MODE?"none":"";$("#rAi").style.display=P2MODE?"none":"";$("#rBtns").style.display=P2MODE?"none":"";$("#rGo").style.display=P2MODE?"":"none";
 }
 function enterP2(t){P2T=t;P2MODE=true;P2.r=RORDER.find(x=>x!==myRace);P2.s=SEL[P2.r];raceUI();raceRender();}
 $("#pgPrev").onclick=()=>{racePg=0;raceRender();};$("#pgNext").onclick=()=>{racePg=1;raceRender();};
@@ -2275,7 +2312,8 @@ function setSel(r,x){
 }
 $("#rStart").onclick=()=>enterP2("race");
 $("#rPrac").onclick=()=>enterP2("rlab");
-$("#rGo").onclick=()=>{actx();P2MODE=false;raceUI();start(P2T);};
+$("#rGo").onclick=()=>{actx();P2MODE=false;raceUI();RAI=(P2T==="rai");start(P2T==="rai"?"race":P2T);};
+$("#rAi").onclick=()=>enterP2("rai");
 $("#mRace").onclick=()=>{P2MODE=false;raceUI();raceRender();showPg("pgRace");};
 $("#pgRace .back").onclick=()=>{if(P2MODE){P2MODE=false;raceUI();raceRender();return;}showPg("pgMain");};
 S=newState(false);render();
