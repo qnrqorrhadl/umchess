@@ -327,7 +327,7 @@ body.racem #info{display:none}
 .piece.gst{opacity:.55;filter:drop-shadow(0 0 6px #ff7ac8)}
 .piece.n{box-shadow:none!important;border-radius:0;background:none}
 .piece.n img{border-radius:0;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
-.ptl{position:absolute;inset:4%;pointer-events:none;z-index:0}.ptl img{width:100%;height:100%;object-fit:contain;animation:ptspin 7s linear infinite}.ptl.ptx img{filter:hue-rotate(-70deg) saturate(1.3)}.ptl i{position:absolute;left:2px;top:0;font:900 12px/1 Jua,sans-serif;font-style:normal;color:#fff;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000}@keyframes ptspin{to{transform:rotate(360deg)}}
+.ptl{position:absolute;inset:-14%;pointer-events:none;z-index:0}.ptl img{width:100%;height:100%;object-fit:contain}.ptl.ptx img{filter:hue-rotate(-70deg) saturate(1.3)}.ptl i{position:absolute;left:2px;top:0;font:900 12px/1 Jua,sans-serif;font-style:normal;color:#fff;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000}@keyframes ptspin{to{transform:rotate(360deg)}}
 .dur{position:absolute;right:5px;bottom:1px;font:900 13px/1 Jua,sans-serif;color:var(--dc,#fff);z-index:8;pointer-events:none;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 0 3px #000}
 #sidlg{position:fixed;inset:0;z-index:61;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
 #sidlg[hidden]{display:none}
@@ -576,7 +576,7 @@ function pts(s,side){let t=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=s.
 function wAdj(s,c){c=c||s.turn;const d=pts(s,c)-pts(s,opp(c));return d<=-3?1:d>=5?-1:0;}
 function apply0(s,m,promo,nb,hold){
   const n=clone(s),p=n.b[m.fr][m.fc],me=col(p);
-  if(m.pt){n.tele={fr:m.tr,fc:m.tc,tr:m.pt[0],tc:m.pt[1]};m={...m,tr:m.pt[0],tc:m.pt[1],dbl:false,pt:null};}
+  if(m.pt){n.tele={fr:m.tr,fc:m.tc,tr:m.pt[0],tc:m.pt[1],sr:m.fr,sc:m.fc};m={...m,tr:m.pt[0],tc:m.pt[1],dbl:false,pt:null};}
   if(m.rng){const K=n.sk,tg=n.b[m.tr][m.tc];n.ep=null;n.turn=hold?me:opp(me);
     if(K.sh[m.tr][m.tc]>0){K.sh[m.tr][m.tc]--;if(K.sh[m.tr][m.tc]===0){K.shT[m.tr][m.tc]=0;K.rs[m.tr][m.tc]=0;}n.bl={r:m.tr,c:m.tc,st:false};}
     else{
@@ -869,7 +869,7 @@ function doMove(m,promo,remote,failArg){
   if(S.bl)breakFx(S.bl.r,S.bl.c);
   else if(fin.bx){busy=true;cartFx(fin.bx,()=>{S=fin;busy=false;render();
     if(!free&&inCheck(S,S.turn)){const mt=over&&!dead(S);setTimeout(()=>sfx(mt?"mate":"check"),180);}});}
-  else{if(fin.tele)portalFx(fin.tele);else slideFx(m);sfx((before.b[m.tr][m.tc]||m.ep)?"cap":"move");
+  else{if(fin.tele)enterFx(fin.tele);else slideFx(m);sfx((before.b[m.tr][m.tc]||m.ep)?"cap":"move");
     if(!free&&inCheck(S,S.turn)){const mt=over&&!dead(S);setTimeout(()=>sfx(mt?"mate":"check"),180);}}
   if(mode==="lab"){
     if(bk){gradeToken++;analyze(clone(S)).catch(()=>{});}
@@ -1220,7 +1220,7 @@ function portalMark(q,r,c){const k=S.sk,id=r*8+c;
   for(const sd of["w","b"]){const P=k.P[sd];if(!P||!(P.pe>=0))continue;
     const ent=P.pe===id,ex=P.px>=0&&P.px===id;if(!ent&&!ex)continue;
     const d=document.createElement("div");d.className="ptl"+(ex?" ptx":"");
-    d.innerHTML='<img src="gPortal2.png" alt=""><i>'+(ex?"출":"입")+(P.pt>0?P.pt:"")+'</i>';q.insertBefore(d,q.firstChild);return;}}
+    d.innerHTML='<img src="gPortal2.png" alt=""><i>'+(P.pt>0?P.pt:"")+'</i>';q.insertBefore(d,q.firstChild);return;}}
 function ghTeleTarget(r,c){
   const a=S.turn,P=S.sk.P[a];
   if(!portalSqs(S,a).some(q=>q[0]===r&&q[1]===c)){crT=false;sel=null;legalCache=[];render();return;}
@@ -1330,6 +1330,17 @@ function swapFx(g,mute){
     e.animate([{opacity:1},{opacity:1,offset:.9},{opacity:0}],{duration:380,delay:1330,fill:"both"}).onfinish=()=>e.remove();};
   lift(sa,ea);lift(sb,eb);
   [pa,pb].forEach(p=>p.animate([{opacity:0},{opacity:1}],{duration:200,delay:1400,fill:"both"}).onfinish=()=>{p.style.opacity="";});
+}
+function enterFx(g){
+  const s0=sqEl(g.sr,g.sc),a=sqEl(g.fr,g.fc),b=sqEl(g.tr,g.tc);if(!a||!b)return;
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),cs=ra.width,pe=b.querySelector(".piece");if(!pe)return;
+  const rs=s0?s0.getBoundingClientRect():ra,dx=rs.left-ra.left,dy=rs.top-ra.top;
+  pe.style.opacity="0";
+  const gh=pe.cloneNode(true);gh.style.cssText="position:fixed;left:"+ra.left+"px;top:"+ra.top+"px;width:"+cs+"px;height:"+cs+"px;margin:0;z-index:46;pointer-events:none";
+  document.body.appendChild(gh);
+  const sl=gh.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"translate(0,0)"}],{duration:200,easing:"ease-out",fill:"both"});
+  gh.animate([{transform:"rotate(0) scale(1)",opacity:1},{transform:"rotate(300deg) scale(.05)",opacity:.1}],{duration:520,delay:200,easing:"ease-in",fill:"both"}).onfinish=()=>gh.remove();
+  pe.animate([{transform:"rotate(-300deg) scale(.05)",opacity:.1},{transform:"rotate(0) scale(1)",opacity:1}],{duration:520,delay:760,easing:"ease-out",fill:"both"}).onfinish=()=>{pe.style.opacity="";};
 }
 function portalFx(g){
   const a=sqEl(g.fr,g.fc),b=sqEl(g.tr,g.tc);if(!a||!b)return;
