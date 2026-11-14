@@ -2029,7 +2029,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.4.25";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.4.27";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2064,21 +2064,33 @@ function fbConn(code,role,hk){
     else if(a[0]==="m"){if(a.length===1){if(d&&typeof d==="object")Object.keys(d).sort().forEach(k=>msg(k,d[k]));}else msg(a[1],d);}
     else if(a[0]==="p"){if(a.length===1){if(d&&typeof d==="object")Object.keys(d).forEach(r=>pres(r,d[r]));}else pres(a[1],d);}
   };
-  const es=new EventSource(gUrl(code));o.es=es;
-  es.addEventListener("open",()=>{if(hk.open)hk.open();});
-  es.addEventListener("put",e=>{try{const j=JSON.parse(e.data);walk(j.path,j.data);}catch(_){}});
-  es.addEventListener("patch",e=>{try{const j=JSON.parse(e.data);if(j.data&&typeof j.data==="object")Object.keys(j.data).forEach(k=>walk(String(j.path).replace(/\/$/,"")+"/"+k,j.data[k]));}catch(_){}});
+  let es;
+  const openES=()=>{
+    try{if(es)es.close();}catch(_){}
+    es=new EventSource(gUrl(code));o.es=es;
+    es.addEventListener("open",()=>{if(hk.open)hk.open();});
+    es.addEventListener("put",e=>{try{const j=JSON.parse(e.data);walk(j.path,j.data);}catch(_){}});
+    es.addEventListener("patch",e=>{try{const j=JSON.parse(e.data);if(j.data&&typeof j.data==="object")Object.keys(j.data).forEach(k=>walk(String(j.path).replace(/\/$/,"")+"/"+k,j.data[k]));}catch(_){}});
+  };
+  openES();
   const pump=()=>{
     if(o.busy||!o.out.length||o.closed)return;o.busy=true;
-    fetch(gUrl(code,"/m"),{method:"POST",body:JSON.stringify(o.out[0])}).then(r=>{if(!r.ok)throw 0;o.out.shift();o.busy=false;pump();}).catch(()=>{o.busy=false;setTimeout(pump,1500);});
+    const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{try{if(ac)ac.abort();}catch(_){}},8000);
+    fetch(gUrl(code,"/m"),{method:"POST",body:JSON.stringify(o.out[0]),signal:ac?ac.signal:undefined}).then(r=>{clearTimeout(tm);if(!r.ok)throw 0;o.out.shift();o.busy=false;pump();}).catch(()=>{clearTimeout(tm);o.busy=false;setTimeout(pump,1500);});
   };
   const ping=()=>{if(o.closed)return;fetch(gUrl(code,"/p/"+role),{method:"PUT",body:String(++o.pn)}).catch(()=>{});};
   o.pt=setInterval(ping,8000);ping();
-  o.st=setInterval(()=>{if(o.got&&!o.stale&&Date.now()-o.lp.at>40000){o.stale=true;if(hk.lost)hk.lost();}},5000);
+  o.ro=0;
+  o.st=setInterval(()=>{
+    if(o.got&&!o.stale&&Date.now()-o.lp.at>60000){o.stale=true;o.ro=Date.now();openES();if(hk.lost)hk.lost();}
+    else if(o.stale&&Date.now()-o.ro>20000){o.ro=Date.now();openES();}
+  },5000);
+  const vis=()=>{if(!document.hidden&&!o.closed){openES();ping();pump();}};
+  document.addEventListener("visibilitychange",vis);
   o.send=obj=>{o.out.push({s:role,c:o.cid,q:++o.q,d:JSON.stringify(obj),t:Date.now()});pump();};
   o.close=leave=>{
     if(o.closed)return;
-    const fin=()=>{o.closed=true;try{es.close();}catch(_){}clearInterval(o.pt);clearInterval(o.st);if(role==="h"){try{fetch(gUrl(code),{method:"DELETE",keepalive:true}).catch(()=>{});}catch(_){}}};
+    const fin=()=>{o.closed=true;document.removeEventListener("visibilitychange",vis);try{es.close();}catch(_){}clearInterval(o.pt);clearInterval(o.st);if(role==="h"){try{fetch(gUrl(code),{method:"DELETE",keepalive:true}).catch(()=>{});}catch(_){}}};
     if(leave){o.send({t:"leave"});setTimeout(fin,900);}else fin();
   };
   return o;
@@ -2110,8 +2122,14 @@ function updateRes(){
   else if(NET.rm){b.disabled=true;b.textContent="상대를 기다려요...";}
   else{b.disabled=false;b.textContent=NET.rmOpp?"다시하기 (상대가 원해요)":"다시하기";}
 }
+function statInc(race,key){try{fetch(FB_URL.replace(/\/$/,"")+"/stats/"+race+"/"+key+".json",{method:"PUT",body:JSON.stringify({".sv":{"increment":1}}),keepalive:true}).catch(()=>{});}catch(e){}}
+function recordStat(k){
+  if(mode!=="net"||!isRace()||k!=="win"||NET.statDone)return;
+  NET.statDone=true;const w=rOf(me),l=rOf(opp(me));
+  if(!w||!l)return;statInc(w,"wins");statInc(w,"games");statInc(l,"games");
+}
 function showRes(){
-  const k=resKind(),r=$("#res"),im=$("#resImg"),tx=$("#resTxt");
+  const k=resKind();recordStat(k);const r=$("#res"),im=$("#resImg"),tx=$("#resTxt");
   r.className="on "+k;r.style.setProperty("--hc",k==="win"?"#ffd24a":"#fff");
   const T={win:"WIN",lose:"LOSE",draw:"DRAW"}[k];
   tx.textContent=T;tx.style.display="none";im.style.display="";
@@ -2141,14 +2159,14 @@ function vsThen(n1,i1,n2,i2,cb){
   setTimeout(()=>{v.classList.remove("on");cb();},2300);
 }
 function netGo(hc,tr,ts){
-  NETEND="";NET.classic=false;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
+  NETEND="";NET.statDone=false;NET.classic=false;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:opp(hc);NET.first="w";NET.dead=false;NET.q=[];
   TEAM[NET.me]={r:myRace,s:SEL[myRace]};
   TEAM[opp(NET.me)]={r:RD[tr]?tr:"f",s:+ts===2?2:1};
   start("net");
 }
 function netGoC(hc){
-  NETEND="";NET.classic=true;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
+  NETEND="";NET.statDone=false;NET.classic=true;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:(hc==="w"?"b":"w");NET.first="w";NET.dead=false;NET.q=[];
   start("net");
 }
@@ -2175,7 +2193,7 @@ function netRecv(msg){
 function netPump(){
   if(mode!=="net"||busy||!NET.q.length)return;
   const m=NET.q.shift();
-  if(m.t==="mv"){const mv=legal(S,m.fr,m.fc).find(x=>x.tr===m.tr&&x.tc===m.tc);if(mv)doMove(mv,m.promo||undefined,true,m.fail);}
+  if(m.t==="mv"){const mv=legal(S,m.fr,m.fc).find(x=>x.tr===m.tr&&x.tc===m.tc);if(mv)doMove(mv,m.promo||undefined,true,m.fail);else toast("판이 어긋났어요 — 상대의 수를 적용하지 못했어요");}
   else if(m.t==="sk"){commitSkill(JSON.parse(m.S),...m.a,true);}
   else if(m.t==="gang"){gangTarget(m.r,m.c,true);}
 }
