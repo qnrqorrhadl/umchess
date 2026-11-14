@@ -1043,7 +1043,8 @@ function commitSkill(n,title,ln,info,img,cls,remote){
   const rl=n.rl;delete n.rl;
   const go1=()=>cutIn(img,title,ln,cls,()=>{const px=n.pfx;delete n.pfx;if(px)punchFx(px,go);else go();});
   if(rl)rouletteFx(rl,go1);else go1();
-  function go(){
+  function go(){try{go0();}catch(err){busy=false;try{render();}catch(_){}toast("스킬 처리 중 오류: "+(err&&err.message));console.error(err);}}
+  function go0(){
     hist.push({S:clone(S),last:lastMove,line:line});
     const old=S;
     const mv=old.turn,inst=n.inst;delete n.inst;delete n.nolg;delete n.lgT;n.ep=null;
@@ -2029,7 +2030,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.4.27";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
