@@ -708,7 +708,7 @@ function render(){
     if(vc===0){const k=document.createElement("span");k.className="crd rk";k.textContent=8-r;q.appendChild(k);}
     if(vr===7){const k=document.createElement("span");k.className="crd fl";k.textContent="abcdefgh"[c];q.appendChild(k);}
     if(S.b[r][c]){const ic0=S.sk&&S.sk.cv[r][c]>0?opp(col(S.b[r][c])):null,pe=pieceEl(S.b[r][c],false,ic0,(S.sk&&isRace()&&typ(S.b[r][c])==="K"&&!ic0&&rOf(col(S.b[r][c]))==="s"&&S.sk.P[col(S.b[r][c])].kq>0)?"dr":!!(S.sk&&S.sk.ev[r][c]&&isRace()&&rOf(ic0||col(S.b[r][c]))==="s"));
-      if(S.sk&&S.b[r][c]&&typ(S.b[r][c])==="K"&&rOf(col(S.b[r][c]))==="f"&&S.sk.P[col(S.b[r][c])].st>=3){pe.classList.add("evo");pe.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";pe.firstChild.onerror=null;pe.firstChild.src="wK_evo.png";}
+      if(S.sk&&S.b[r][c]&&typ(S.b[r][c])==="K"&&rOf(col(S.b[r][c]))==="f"&&S.sk.P[col(S.b[r][c])].st>=5){pe.classList.add("evo");pe.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";pe.firstChild.onerror=null;pe.firstChild.src="wK_evo.png";}
       if(bonk){const vc=x=>flip()?7-x:x;
         const bi=bonk.list.findIndex(a=>a[0]===r&&a[1]===c);
         if(bi>=0){pe.classList.add("bonk");pe.style.setProperty("--dx",vc(bonk.tc)-vc(c));pe.style.setProperty("--dy",vc(bonk.tr)-vc(r));pe.style.setProperty("--dl",(bi*.4)+"s");}
@@ -887,7 +887,7 @@ function maybeAI(){
 
 
 /* ---------- 종족전 스킬 (요정) ---------- */
-const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
+const ST2=["내 왕국에 불을 질렀겠다!!","전후좌우 120도를 유지해라!","전후좌우 120도를 유지해라!","전후좌우 120도를 유지해라!","내 왕국을 난장판으로 만든 죗값을 치르라고!"];
 const nm=c=>isRace()?RACES[rOf(c)].name:(c==="w"?"백":"흑");
 let bwOn=(()=>{try{return localStorage.getItem("fc_bw")==="1";}catch(e){return false;}})();
 const mirror=()=>isRace()&&(bwOn||rOf("w")===rOf("b"));
@@ -1065,20 +1065,22 @@ function commitSkill(n,title,ln,info,img,cls,remote){
 function skillTarget(r,c){
   const p=S.b[r][c],a=S.turn;
   if(p&&col(p)===a&&typ(p)!=="K"&&!S.sk.sh[r][c]){
-    const n=clone(S);n.sk.sh[r][c]=1;n.sk.rs[r][c]=1;n.sk.P[a].cd1=10;n.sk.P[a].kb=2;
-    commitSkill(n,"빠아아아앙!!!","이거 다 인형 아니지? 전부 빵 맞지?!","방어막 완료! 막으면 공격한 기물이 1턴 스턴, 다음 턴 킹은 한 칸 더 움직여요","skill1.png","c1");
+    const n=clone(S);n.sk.sh[r][c]=1;n.sk.rs[r][c]=1;n.sk.P[a].cd1=10;
+    commitSkill(n,"빠아아아앙!!!","이거 다 인형 아니지? 전부 빵 맞지?!","방어막 완료! 막으면 공격한 기물이 1턴 스턴","skill1.png","c1");
   }else{skT=false;render();}
 }
 function useSkill2(){
   const a=S.turn;
-  if(!canSkill()||S.sk.P[a].cd2>0||S.sk.P[a].st>=3)return;
+  if(!canSkill()||S.sk.P[a].cd2>0||S.sk.P[a].st>=5)return;
   const n=clone(S),k=n.sk,P=k.P[a],st=P.st+1;P.st=st;P.cd2=8;
   const give=(ok,cnt)=>{const c=[];for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=n.b[r][cc];if(p&&col(p)===a&&ok(typ(p))&&!k.sh[r][cc])c.push([r,cc]);}
     for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];}
     const g=c.slice(0,cnt);g.forEach(([r,cc])=>k.sh[r][cc]=1);return g.length;};
   let info;
-  if(st===1)info="폰 "+give(t=>t==="P",2)+"개에 방어막!";
-  else if(st===2)info="룩·나이트·비숍 "+give(t=>t==="R"||t==="N"||t==="B",3)+"개에 방어막!";
+  if(st===1)info="아무 일도 일어나지 않았어요...";
+  else if(st===2)info="폰 "+give(t=>t==="P",2)+"개에 방어막!";
+  else if(st===3){const nb=give(t=>t==="B",1),nn=give(t=>t==="N",1);info="비숍 "+nb+"개·나이트 "+nn+"개에 방어막!";}
+  else if(st===4)info="룩 "+give(t=>t==="R",2)+"개에 방어막!";
   else{const[kr,kc]=findKing(n.b,a);k.sh[kr][kc]=2;P.qk=1;info="킹: 방어막 2회 + 퀸처럼 이동!";}
   commitSkill(n,"에르피엔 전통 해결법",ST2[st-1],info,"skill2_"+st+".png","c"+st);
 }
@@ -1096,7 +1098,7 @@ function attackersOf(s,r,c,by){
   }
   return out;
 }
-const gangNeed=()=>S.sk&&S.sk.P[S.turn].st>=3?2:3;
+const gangNeed=()=>S.sk&&S.sk.P[S.turn].st>=5?2:3;
 function gangTargets(){
   const out=[];if(!S.sk)return out;
   const a=S.turn;
@@ -1124,11 +1126,11 @@ function gangTarget(r,c,remote){
   },1950);
 }
 const skIcon=(st,c)=>skOf(c)===1?"skill1.png":"skill2_"+st+".png";
-const STD=["무작위 폰 2개에 방어막","룩·나이트·비숍 무작위 3개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 조건 2기물로 완화"];
-const GDESC="요정 공용 스킬 다구리: 3기물(3단계 후 2기물)이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
+const STD=["아무 일도 일어나지 않아요","무작위 폰 2개에 방어막","비숍·나이트 무작위 1개씩에 방어막","룩 무작위 2개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 조건 2기물로 완화"];
+const GDESC="요정 공용 스킬 다구리: 3기물(5단계 후 2기물)이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
 function skDesc(c){const k=S.sk.P[c];
-  if(skOf(c)===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴";
-  if(k.st>=3)return "에르피엔 전통 해결법: 진화 완료";
+  if(skOf(c)===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) · 쿨 10턴";
+  if(k.st>=5)return "에르피엔 전통 해결법: 진화 완료";
   return "에르피엔 "+(k.st+1)+"단계: "+STD[k.st]+" · 쿨 8턴";}
 function cardHTML(img,name,base,cd){
   return (img&&skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
@@ -1521,7 +1523,7 @@ function skUI(){
   }
   let name,base,cd,img,done=false;
   if(sk===1){name="빠아아아앙!!!";base=10;cd=P.cd1;img="skill1.png";}
-  else if(P.st>=3){name="에르피엔 전통 해결법";base="MAX";cd=0;img="skill2_3.png";done=true;}
+  else if(P.st>=5){name="에르피엔 전통 해결법";base="MAX";cd=0;img="skill2_5.png";done=true;}
   else{name="에르피엔 전통 해결법";base=8;cd=P.cd2;img=skIcon(P.st+1,c);}
   const off=!mine||done||cd>0||!canSkill();
   b.className="skcard"+(off?" off":"")+(cd>0?" cd":"")+(skT?" tgt":"");
@@ -1650,7 +1652,7 @@ function raiMove(){
         const v=VAL[typ(p)]/100*(df?0.5:1)+(VAL[typ(p)]>minA?2:0);if(v>bv){bv=v;best=[r,c];}}
       if(best&&bv>=2){skillTarget(best[0],best[1]);return;}
     }
-    if(sk===2&&P.cd2===0&&P.st<3&&(S.lg||[]).length>6){useSkill2();return;}
+    if(sk===2&&P.cd2===0&&P.st<5&&(S.lg||[]).length>6){useSkill2();return;}
   }
   }catch(e){}
   const ms=allMoves(S);if(!ms.length)return;
@@ -2027,7 +2029,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.4.21";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.4.24";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2276,7 +2278,7 @@ $("#nick").oninput=()=>{try{localStorage.setItem("fc_nick",$("#nick").value.trim
 $("#mClassic").onclick=()=>showPg("pgClassic");
 document.querySelectorAll("#menu .back").forEach(b=>b.onclick=()=>showPg(b.dataset.to));
 
-const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) + 다음 턴 킹이 1칸 더 이동 · 쿨 10턴",2:"쓸 때마다 3단계까지 진화 (쿨 8턴). 1단계 폰 방어막 2개, 2단계 룩·나이트·비숍 방어막 3개, 3단계 킹 강화 + 다구리 조건 완화"};
+const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) · 쿨 10턴",2:"쓸 때마다 5단계까지 진화 (쿨 8턴). 1단계 아무 일도 없음, 2단계 폰 방어막 2개, 3단계 비숍·나이트 방어막 1개씩, 4단계 룩 방어막, 5단계 킹 강화 + 다구리 조건 완화"};
 const WDESC2={1:"퀸·룩·킹을 뺀 기물 1개를 고서 상태로 만들어요. 4턴 안에 잡으면 주변 1칸이 폭발해요 (킹 제외, 내 기물 포함). 4턴이 지나면 풀려요. 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
 const RD={
  f:{name:"요정",king:"wK.png",sk:[["빠아아아앙!!!",FDESC[1],"skill1.png"],["에르피엔 전통 해결법",FDESC[2],"skill2_1.png"]],
