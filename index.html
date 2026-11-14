@@ -147,7 +147,8 @@ body.freeon .tray{outline:2px dashed #c9892b}
 #menu .npw{border:0;border-radius:12px;padding:10px;font-size:18px;text-align:center;background:#fff;color:#164a25}
 .nlh{display:flex;justify-content:space-between;align-items:center;color:#2b5a35}
 .nlh button{flex:none;width:96px;padding:6px;font-size:14px}
-#nList{display:flex;flex-direction:column;gap:6px;max-height:190px;overflow:auto}
+#nList{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+#rmPager{margin-top:6px}
 #nList .rm{display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:8px 10px;text-align:left;color:#164a25;font-weight:700;font-size:15px}
 #nList .rm span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #nList .rm .rmk{flex:none;width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ffd24a}
@@ -410,6 +411,7 @@ body.racem #info{display:none}
     <button id="nMake">방 만들기</button>
     <div class="nlh"><b>열린 방</b><button id="nRef">새로고침</button></div>
     <div id="nList"></div>
+    <div class="pager" id="rmPager" hidden><button id="rmPrev">◀</button><b id="rmNum">1 / 1</b><button id="rmNext">▶</button></div>
     <input id="nCode" type="hidden">
     <div class="joinrow" id="nPwRow" style="display:none"><input id="nPwIn" maxlength="8" placeholder="비밀번호" autocomplete="off"><button id="nJoin">들어가기</button></div>
     <div id="nStat"></div>
@@ -2030,7 +2032,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2242,6 +2244,20 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 let SKEW=0,RSEEN={};
 function srvNow(){return Date.now()+SKEW;}
 function setSkew(r){try{const d=r.headers.get("date");if(d){const t=new Date(d).getTime();if(t>0)SKEW=t-Date.now();}}catch(e){}}
+let ROOMS=[],roomPg=0;const RM_PER=5;
+function renderRooms(){
+  const L=$("#nList"),rooms=ROOMS,pg=$("#rmPager");
+  if(!rooms.length){L.innerHTML='<div class="none">열린 방이 없어요. 직접 만들어 보세요</div>';pg.hidden=true;roomPg=0;return;}
+  const tot=Math.ceil(rooms.length/RM_PER);if(roomPg>=tot)roomPg=tot-1;if(roomPg<0)roomPg=0;
+  pg.hidden=tot<2;$("#rmNum").textContent=(roomPg+1)+" / "+tot;
+  L.innerHTML="";
+  rooms.slice(roomPg*RM_PER,roomPg*RM_PER+RM_PER).forEach(([k,v])=>{const d2=document.createElement("div");d2.className="rm";
+    const rk=Object.values(RACES).find(x=>x.name===v.r);
+    d2.innerHTML=`<span>${esc(String(v.n||"교주").slice(0,12))} · ${v.k==="classic"?"클래식":"종족전"}</span>${v.k!=="classic"&&rk?`<img class="rmk" src="${rk.img}K.png" alt="">`:""}${v.l?"<i>비밀번호</i>":""}<button>입장</button>`;
+    d2.querySelector("button").onclick=()=>{$("#nCode").value=k;if(v.l){$("#nPwRow").style.display="";$("#nPwIn").focus();netStat("비밀번호를 입력하고 들어가기를 눌러요");}else{$("#nPwIn").value="";joinRoom(k,"");}};
+    L.appendChild(d2);});
+}
+$("#rmPrev").onclick=()=>{roomPg--;renderRooms();};$("#rmNext").onclick=()=>{roomPg++;renderRooms();};
 async function loadRooms(){
   const L=$("#nList");
   if(!FB_URL){L.innerHTML='<div class="none">방 목록 서버가 아직 연결되지 않았어요. 코드로 들어갈 수 있어요</div>';return;}
@@ -2252,13 +2268,7 @@ async function loadRooms(){
       if(!v||!/^\d{5}$/.test(k))return false;
       const o=RSEEN[k];if(!o||o.t!==v.t)RSEEN[k]={t:v.t,at:loc};
       return now-(+v.t||0)<75000&&loc-RSEEN[k].at<60000;}).sort((a,b)=>b[1].t-a[1].t);
-    if(!rooms.length){L.innerHTML='<div class="none">열린 방이 없어요. 직접 만들어 보세요</div>';return;}
-    L.innerHTML="";
-    rooms.forEach(([k,v])=>{const d2=document.createElement("div");d2.className="rm";
-      const rk=Object.values(RACES).find(x=>x.name===v.r);
-      d2.innerHTML=`<span>${esc(String(v.n||"교주").slice(0,12))} · ${v.k==="classic"?"클래식":"종족전"}</span>${v.k!=="classic"&&rk?`<img class="rmk" src="${rk.img}K.png" alt="">`:""}${v.l?"<i>비밀번호</i>":""}<button>입장</button>`;
-      d2.querySelector("button").onclick=()=>{$("#nCode").value=k;if(v.l){$("#nPwRow").style.display="";$("#nPwIn").focus();netStat("비밀번호를 입력하고 들어가기를 눌러요");}else{$("#nPwIn").value="";joinRoom(k,"");}};
-      L.appendChild(d2);});
+    ROOMS=rooms;renderRooms();
   }catch(e){L.innerHTML='<div class="none">목록을 불러오지 못했어요</div>';}
 }
 $("#nRef").onclick=loadRooms;
