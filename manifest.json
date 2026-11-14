@@ -1,6 +1,6 @@
 {
-  "name": "얼굴 체스",
-  "short_name": "얼굴체스",
+  "name": "트릭컬 체스",
+  "short_name": "트릭컬체스",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
