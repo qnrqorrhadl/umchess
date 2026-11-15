@@ -250,6 +250,31 @@ body.racem #info{display:none}
 @keyframes pop{0%{opacity:0;transform:scale(.2)}30%{opacity:1;transform:scale(1.5)}100%{opacity:0;transform:scale(2)}}
 .sq.gt{box-shadow:inset 0 0 0 4px rgba(230,50,50,.95);background:#ffd9d9!important}
 #toast .tsimg{height:44px;width:44px;border-radius:10px;object-fit:cover;vertical-align:middle;margin-right:8px}
+#gd{position:fixed;inset:0;z-index:95;pointer-events:none}
+#gd[hidden]{display:none}
+#gd .gb{position:fixed;z-index:1;background:rgba(0,0,0,.58);pointer-events:auto;display:block}
+#gd .gr{position:fixed;z-index:2;border:3px solid #ffd24a;border-radius:12px;pointer-events:none;box-shadow:0 0 0 3px rgba(255,210,74,.35);animation:gpulse 1s ease-in-out infinite}
+@keyframes gpulse{50%{box-shadow:0 0 0 9px rgba(255,210,74,.15)}}
+#gd .gbub{position:fixed;z-index:3;opacity:1;width:min(300px,88vw);background:#fff;border-radius:14px;padding:12px 14px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);pointer-events:auto;color:#164a25}
+#gd #gtx{font-size:15px;font-weight:700;line-height:1.45;white-space:pre-line}
+#gd .gbt{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+#gd #gNext{width:auto;min-width:0;border:0;border-radius:10px;padding:7px 16px;font-size:14px;font-weight:900;background:#5fb36b;color:#fff}
+#gd #gSkip{border:0;background:none;box-shadow:none;color:#7b9b82;font-size:13px;font-weight:700;margin:0 0 0 auto;width:auto;min-width:0;padding:6px 8px}
+#tut{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}
+#tut[hidden]{display:none}
+#tut .tbox{position:relative;background:#fff;border-radius:18px;padding:18px 18px 14px;width:min(340px,90vw);max-height:86vh;overflow:auto;color:#164a25}
+#tut .tn{font-size:12px;font-weight:800;color:#5b7f62;text-align:center}
+#tut h2{margin:4px 0 10px;font-size:20px;font-weight:900;text-align:center}
+#tut .tb{display:flex;flex-direction:column;gap:8px;font-size:15px;font-weight:600;line-height:1.45}
+#tut .tb p{margin:0}#tut .tb b{font-weight:900;color:#2f7a3d}
+#tut .tb .it{background:#e4f3e1;border-radius:12px;padding:8px 10px}
+#tut .tb .it em{font-style:normal;font-weight:900;display:block;margin-bottom:2px}
+#tut .tdots{display:flex;gap:6px;justify-content:center;margin:12px 0 8px}
+#tut .tdots i{width:8px;height:8px;border-radius:50%;background:#cfe5cc}#tut .tdots i.on{background:#4fa860}
+#tut .tbtns{display:flex;gap:10px}
+#tut .tbtns button{flex:1;border:0;border-radius:12px;padding:11px;font-size:16px;font-weight:900;background:#5fb36b;color:#fff}
+#tut .tbtns button:disabled{opacity:.35}
+#tut .tskip{display:block;margin:8px auto 0;border:0;background:none;color:#7b9b82;font-size:13px;font-weight:700}
 #dlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
 #dlg[hidden]{display:none}
 #dlg .dbox{background:#fff;border-radius:16px;padding:22px 20px 16px;width:min(300px,82vw);text-align:center}
@@ -387,6 +412,8 @@ body.racem #info{display:none}
 </div>
 <div id="res"><div class="rc"><img id="resImg" alt=""><div id="resTxt"></div><div id="resWhy"></div><div class="resb"><button id="resAgain">다시하기</button><button id="resMenu">메뉴</button></div></div></div>
 <div id="vs"></div>
+<div id="gd" hidden><i class="gb" id="gb1"></i><i class="gb" id="gb2"></i><i class="gb" id="gb3"></i><i class="gb" id="gb4"></i><i class="gb" id="gb5"></i><i class="gr" id="gr"></i><div class="gbub" id="gbub"><div id="gtx"></div><div class="gbt"><button id="gNext">다음</button><button id="gSkip">건너뛰기</button></div></div></div>
+<div id="tut" hidden><div class="tbox"><div class="tn" id="tN"></div><h2 id="tT"></h2><div class="tb" id="tB"></div><div class="tdots" id="tD"></div><div class="tbtns"><button id="tPrev">이전</button><button id="tNext">다음</button></div><button class="tskip" id="tSkip">건너뛰기</button></div></div>
 <div id="coin"><div class="rays"></div><div class="cn"><i class="sl" style="transform:translateZ(-4px)"></i><i class="sl" style="transform:translateZ(-2px)"></i><i class="sl" style="transform:translateZ(0)"></i><i class="sl" style="transform:translateZ(2px)"></i><i class="sl" style="transform:translateZ(4px)"></i><img class="cf" alt=""><img class="cb" alt=""></div></div>
 <div id="menu"><div class="box">
   <div class="pg" id="pgMain">
@@ -401,6 +428,7 @@ body.racem #info{display:none}
     <input id="nick" maxlength="10" placeholder="닉네임 (비우면 교주)" autocomplete="off">
     <button id="snd">효과음 켬</button>
     <button id="bwBtn">흑백 모드 끔</button>
+    <button id="tutBtn">도움말 (사용법 가이드)</button>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
   <div class="pg" id="pgRace" hidden>
@@ -1651,6 +1679,28 @@ function search(s,d,a,b){
   }
   return a;
 }
+/* 컴퓨터(마녀) 스킬 판단 */
+function witchAI(side,P){
+  const sk=TEAM[side].s,en=opp(side),V=p=>(VAL[typ(p)]||0)/100;
+  if(P.wcC===0){ // UFC 당근튀김: 공격받는 비싼 기물에 방어막
+    let best=null,bv=0;
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(!p||col(p)!==side||typ(p)==="K"||S.sk.sh[r][c]||S.sk.gs[r][c])continue;
+      const at=attackersOf(S,r,c,en);if(!at.length)continue;
+      const minA=Math.min(...at.map(([ar,ac])=>V(S.b[ar][ac])||9)),df=attackersOf(S,r,c,side).length;
+      const v=V(p);if(v>=3&&(!df||v>minA)&&v>bv){bv=v;best=[r,c];}}
+    if(best){crT=false;carrotTarget(best[0],best[1]);return true;}
+  }
+  if(sk===1&&P.wc1===0){ // 고.서.카.트.다아아!: 주변에 적이 많고 잡힐 만한 졸·나이트·비숍
+    let best=null,bv=0;
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(!p||col(p)!==side||!"PNB".includes(typ(p))||S.sk.gs[r][c])continue;
+      let v=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const rr=r+dr,cc=c+dc;if(rr<0||rr>7||cc<0||cc>7)continue;
+        const q=S.b[rr][cc];if(!q||typ(q)==="K")continue;v+=col(q)===en?V(q):-V(q);}
+      if(attackersOf(S,r,c,en).length)v+=1;if(v>bv){bv=v;best=[r,c];}}
+    if(best&&bv>=3){gosoTarget(best[0],best[1]);return true;}
+  }
+  if(sk===2&&P.wc2===0&&(S.lg||[]).length>6&&Math.random()<.5){useWitch2();return true;}
+  return false;
+}
 function raiMove(){
   if(over||S.turn===me){busy=false;return;}
   const side=S.turn,P=S.sk.P[side];busy=false;
@@ -1667,7 +1717,7 @@ function raiMove(){
       if(best&&bv>=2){skillTarget(best[0],best[1]);return;}
     }
     if(sk===2&&P.cd2===0&&P.st<5&&(S.lg||[]).length>6){useSkill2();return;}
-  }
+  }else if(!inCheck(S,side)&&TEAM[side].r==="m"&&witchAI(side,P))return;
   }catch(e){}
   const ms=allMoves(S);if(!ms.length)return;
   ms.sort(()=>Math.random()-.5);let best=null,bs=-1e9;
@@ -2045,7 +2095,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.12";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2379,6 +2429,90 @@ function skRender(){
   document.querySelectorAll("#skList .mo").forEach(u=>u.onclick=ev=>{ev.stopPropagation();const t=u.parentNode;t.classList.toggle("open");u.textContent=t.classList.contains("open")?"▲ 접기":"▼ 자세히";});
   document.querySelectorAll("#skList button.skopt").forEach(b=>b.onclick=()=>{setSel(skRace,+b.dataset.s);});
 }
+/* ---------- 가이드 튜토리얼 ---------- */
+const TUT=[
+ {t:"온라인 대전 하는 법",b:`<div class="it"><em>1. 방 고르기</em>메인 화면 <b>줘팸터 들어가기</b>에서 직접 방을 만들거나, 열린 방의 <b>입장</b>을 눌러요. 방이 5개를 넘으면 ◀ ▶로 넘겨요.</div><div class="it"><em>2. 방 만들기</em>방식(종족전/클래식), <b>시간(없음/3/5/10분)</b>, 비밀번호방을 고르고 방을 만들어요. 상대를 기다리는 동안 연습할 수 있어요.</div>`},
+ {t:"시간제",b:`<p>시계는 <b>내 차례에만</b> 줄고, 스킬 연출 중에는 멈춰요.</p><p>3분 방은 10초, 5분·10분 방은 1분이 남으면 시계가 <b>빨갛게</b> 바뀌어요. 시간이 0이 되면 패배해요.</p>`},
+ {t:"연결이 끊기면?",b:`<p>상대 연결이 불안정하다는 안내가 뜬 뒤 <b>1분</b> 안에 돌아오지 않으면 내 승리예요.</p><p>이긴 판은 종족·스킬별 승률에 기록돼요 (온라인 대전만).</p>`}
+];
+let tutI=0;
+function tutShow(i){tutI=Math.max(0,Math.min(TUT.length-1,i));const d=TUT[tutI];
+  $("#tN").textContent=(tutI+1)+" / "+TUT.length;$("#tT").textContent=d.t;$("#tB").innerHTML=d.b;
+  $("#tD").innerHTML=TUT.map((_,k)=>`<i class="${k===tutI?"on":""}"></i>`).join("");
+  $("#tPrev").disabled=tutI===0;$("#tNext").textContent=tutI===TUT.length-1?"끝":"다음";}
+function tutOpen(){tutShow(0);$("#tut").hidden=false;}
+function tutClose(){$("#tut").hidden=true;}
+$("#tPrev").onclick=()=>tutShow(tutI-1);
+$("#tNext").onclick=()=>{if(tutI>=TUT.length-1)tutClose();else tutShow(tutI+1);};
+$("#tSkip").onclick=tutClose;
+const GUIDE=[
+ {t:"#mRace",x:"종족전 버튼을 눌러 보세요"},
+ {t:"#races2 .rbtn",x:"종족을 눌러서 그 종족의 스킬을 확인해요"},
+ {t:"#skList .mo",x:"▼ 자세히를 누르면 전체 설명이 펼쳐져요"},
+ {t:"#skList button.skopt",x:"메인 스킬은 종족마다 2개 중 1개를 골라요.\n눌러서 선택해 보세요"},
+ {t:"#skList .skopt.ex",x:"공용 스킬과 패시브는 고르지 않아도\n종족마다 자동으로 정해져요.\n패시브는 조건이 맞으면 저절로 발동해요",next:1},
+ {t:"#pgSk .back",x:"뒤로 돌아가요"},
+ {t:"#rPrac",x:"연습하기에서 직접 스킬을 써 볼 수 있어요"},
+ {t:"#rGo",x:"시작을 눌러요"},
+ {t:"#skBtn .cinfo",x:"스킬 카드의 i 버튼을 누르면\n내 메인·공용·패시브 설명이 나와요",wait:7000},
+ {t:"#sic",x:"닫기를 눌러요"},
+ {t:"#oppSk",x:"상대 스킬 보기 버튼이에요.\n상대가 스킬을 쓰면 그 설명을 읽을 수 있어요"},
+ {t:"#sic",x:"닫기를 눌러요"},
+ {t:"#skBtn",x:"스킬 카드를 누르면 사용 모드가 되고, 대상 칸을 누르면 발동해요.\n카드 위 숫자는 남은 쿨타임(턴)이에요.\n연습에서는 쿨타임 없이 마음껏 써 보세요",next:1},
+ {t:null,x:"메인 화면의 설정에서 닉네임, 효과음, 흑백 모드를 바꿀 수 있고,\n이 가이드도 다시 볼 수 있어요.\n\n다음은 온라인 대전 하는 법이에요",next:1,end:1}
+];
+let gI=-1,gOn=false,gTimer=0,gLast="",gNextAt=0,gFound=0;
+const gq=sel=>{const a=[...document.querySelectorAll(sel)];return a.find(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2&&getComputedStyle(e).visibility!=="hidden";});};
+function gSet(el,l,t,w,h){el.style.left=l+"px";el.style.top=t+"px";el.style.width=Math.max(0,w)+"px";el.style.height=Math.max(0,h)+"px";}
+function gPlace(r,st){
+  const W=innerWidth,H=innerHeight,p=6;
+  if(!r){for(const i of [1,2,3,4])gSet($("#gb"+i),0,0,0,0);gSet($("#gb5"),0,0,W,H);$("#gr").style.display="none";
+    const b=$("#gbub");b.style.left=Math.max(8,(W-b.offsetWidth)/2)+"px";b.style.top=Math.max(8,(H-b.offsetHeight)/2)+"px";return;}
+  const x=Math.max(0,r.left-p),y=Math.max(0,r.top-p),x2=Math.min(W,r.right+p),y2=Math.min(H,r.bottom+p);
+  gSet($("#gb1"),0,0,W,y);gSet($("#gb2"),0,y2,W,H-y2);gSet($("#gb3"),0,y,x,y2-y);gSet($("#gb4"),x2,y,W-x2,y2-y);
+  if(st.next)gSet($("#gb5"),x,y,x2-x,y2-y);else gSet($("#gb5"),0,0,0,0);
+  const g=$("#gr");g.style.display="";gSet(g,x,y,x2-x,y2-y);
+  const b=$("#gbub"),bh=b.offsetHeight,bw=b.offsetWidth;
+  let top=y2+10;if(top+bh>H-8)top=Math.max(8,y-bh-10);
+  b.style.top=top+"px";b.style.left=Math.max(8,Math.min(W-bw-8,(x+x2)/2-bw/2))+"px";
+}
+function gStep(i){
+  gI=i;gFound=0;gNextAt=Date.now();gLast="";
+  if(i>=GUIDE.length){gEnd(true);return;}
+  const st=GUIDE[i];$("#gtx").textContent=st.x;$("#gNext").style.display=st.next?"":"none";
+  $("#gNext").textContent=st.end?"다음":"확인";
+}
+function gLoop(){
+  if(!gOn)return;
+  const st=GUIDE[gI];
+  if(st){
+    if(!st.t){gPlace(null,st);}
+    else{const el=gq(st.t);
+      if(el){gFound=1;const r=el.getBoundingClientRect();const k=[r.left|0,r.top|0,r.width|0,r.height|0].join();if(k!==gLast){gLast=k;gPlace(r,st);}}
+      else if(!gFound&&Date.now()-gNextAt>(st.wait||2500)){gStep(gI+1);}
+      else if(!gFound){for(const i of [1,2,3,4])gSet($("#gb"+i),0,0,0,0);gSet($("#gb5"),0,0,innerWidth,innerHeight);$("#gr").style.display="none";}
+    }
+  }
+  gTimer=requestAnimationFrame(gLoop);
+}
+function gClick(e){
+  if(!gOn)return;const st=GUIDE[gI];if(!st||!st.t||st.next)return;
+  if(e.target.closest(st.t)){const k=gI;setTimeout(()=>{if(gOn&&gI===k)gStep(k+1);},280);}
+}
+function gStart(){
+  if(gOn)return;gOn=true;$("#tut").hidden=true;$("#gd").hidden=false;showPg("pgMain");
+  document.addEventListener("click",gClick,true);gStep(0);gLoop();
+}
+function gEnd(done){
+  gOn=false;cancelAnimationFrame(gTimer);document.removeEventListener("click",gClick,true);$("#gd").hidden=true;
+  try{localStorage.setItem("fc_tut","1");}catch(e){}
+  if(done)tutOpen();
+}
+$("#gNext").onclick=()=>{const st=GUIDE[gI];if(st&&st.end){gEnd(true);}else gStep(gI+1);};
+$("#gSkip").onclick=()=>gEnd(false);
+$("#tutBtn").onclick=()=>{if(mode==="net"||$("#menu").style.display==="none")return;gStart();};
+try{if(localStorage.getItem("fc_tut")!=="1")setTimeout(gStart,700);}catch(e){}
+
 let racePg=0;
 function raceRender(){
   const a=$("#races2");a.innerHTML="";
