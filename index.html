@@ -175,6 +175,13 @@ body.freeon .tray{outline:2px dashed #c9892b}
 .skopt .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
 .skopt b{font-size:16px;font-weight:900}
 .skopt span{font-size:13px;font-weight:600;line-height:1.3;white-space:pre-line}
+.skopt .fu{display:none;flex-direction:column;gap:4px}
+.skopt .fu p{margin:0;font-size:13px;font-weight:600;line-height:1.3;padding-left:12px;position:relative}
+.skopt .fu p::before{content:"•";position:absolute;left:2px}
+.skopt .fu .cdc{font-style:normal;font-size:12px;font-weight:900;background:#5fb36b;color:#fff;border-radius:8px;padding:1px 8px;align-self:flex-start}
+#menu .skopt.on .fu .cdc{background:#fff;color:#2f7a3d}
+.skopt .tx.open .fu{display:flex}.skopt .tx.open .sh{display:none}
+.skopt .mo{font-size:12px;font-weight:800;text-decoration:none;opacity:.75;align-self:flex-start;padding:2px 0;cursor:pointer}
 .skopt em{font-style:normal;font-size:12px;font-weight:900;background:#5fb36b;color:#fff;border-radius:8px;padding:1px 7px;align-self:flex-start}
 #menu .skopt.on{background:#4fa860;color:#fff}
 #menu .skopt.on::after{content:"✓";position:absolute;right:8px;top:6px;color:#4fa860;background:#fff;width:22px;height:22px;border-radius:50%;font-size:14px;display:flex;align-items:center;justify-content:center}
@@ -1129,8 +1136,8 @@ function gangTarget(r,c,remote){
   },1950);
 }
 const skIcon=(st,c)=>skOf(c)===1?"skill1.png":"skill2_"+st+".png";
-const STD=["아무 일도 일어나지 않아요","무작위 폰 2개에 방어막","비숍·나이트 무작위 1개씩에 방어막","룩 무작위 2개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 조건 2기물로 완화"];
-const GDESC="요정 공용 스킬 다구리: 3기물(5단계 후 2기물)이 노리는 상대 기물을 잡아요 · 내 턴 종료 · 쿨 5턴";
+const STD=["아무 일도 일어나지 않는다","무작위 폰 2개에 방어막","비숍·나이트 무작위 1개씩에 방어막","룩 무작위 2개에 방어막","킹 방어막 2회 + 퀸처럼 이동 + 다구리 조건 2기물로 완화"];
+const GDESC="요정 공용 스킬 다구리: 3기물(5단계 후 2기물)이 노리는 상대 기물을 잡는다 · 내 턴 종료 · 쿨 5턴";
 function skDesc(c){const k=S.sk.P[c];
   if(skOf(c)===1)return "빠아아아앙!!!: 기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) · 쿨 10턴";
   if(k.st>=5)return "에르피엔 전통 해결법: 진화 완료";
@@ -1138,9 +1145,9 @@ function skDesc(c){const k=S.sk.P[c];
 function cardHTML(img,name,base,cd){
   return (img&&skImgOk?`<img class="cimg" src="${img}" onerror="skImgOk=false;this.remove()">`:"")+`<span class="cbadge">${base}</span><span class="cinfo">i</span><div class="cname">${name}</div><div class="cov">${cd>0?cd:""}</div>`;}
 const SNAME={1:"무식은 힘으로 커버한다!",2:"1마력 펀치~!"};
-const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 폰만 두 번 움직일 수 있어요 · 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없어요 · 이 스킬로는 체크를 걸 수 없어요 · 쿨 10턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있어요 · 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아가요 (킹 제외, 방어막은 방어막만 소모, 내 기물도 날아가요) · 퀸은 1턴 스턴 · 스턴된 퀸은 체크로 치지 않아요 · 쿨 8턴"};
-const KDESC="대리 촌장: 3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴";
-const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요\n나이트: 킹처럼도 움직여요\n비숍: 기물 1개를 뛰어넘어 잡을 수 있어요 (체크는 불가능)\n룩: 방어막 1개를 얻어요";
+const SDESC={1:"무식은 힘으로 커버한다!: 즉발 · 이번 턴에 폰만 두 번 움직일 수 있다 · 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없다 · 이 스킬로는 체크를 걸 수 없다 · 쿨 10턴",2:"1마력 펀치~!: 즉발 · 퀸만 쓸 수 있다 · 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아간다 (킹 제외, 방어막은 방어막만 소모, 내 기물도 날아간다) · 퀸은 1턴 스턴 · 스턴된 퀸은 체크로 치지 않는다 · 쿨 8턴"};
+const KDESC="대리 촌장: 3턴 동안 킹이 퀸처럼 움직인다 · 내 턴 소모 · 쿨 10턴";
+const SPDESC="사료스탕스: 나이트·비숍·룩이 상대 기물을 2개 잡으면 강화된다\n나이트: 킹처럼도 움직인다\n비숍: 기물 1개를 뛰어넘어 잡을 수 있다 (체크는 불가능)\n룩: 방어막 1개를 얻는다";
 function suFirst(a){return false;}
 function canSu(){return canWitch()&&S.sk.P[S.turn].dm===0&&!suFirst(S.turn);}
 function pawnMoves(a){for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(p&&col(p)===a&&typ(p)==="P"&&legal(S,r,c).length)return true;}return false;}
@@ -1203,8 +1210,8 @@ function evoFx(e){
 
 /* ===== 유령 ===== */
 const GNAME={1:"불좀 꺼줄래?",2:"마.탄.의.사.수"};
-const GDESCS={1:"불좀 꺼줄래?: 내 턴 소모 · 처음 쓰면 빈칸에 차원문 입구를 만들어요(쿨 5턴) · 다시 쓰면 빈칸에 출구를 만들어요(쿨 12턴) · 출구를 만들면 차원문이 계속 유지돼요 · 내 기물이 입구 칸으로 이동하면 출구로 나와요 · 잡으면서 들어갈 수는 없고, 출구는 비어 있어야 해요 · 상대 기물이 입구나 출구에 올라가 있으면 차원문을 쓸 수 없어요 · 새로 입구를 만들면 이전 차원문은 사라져요 · 강화된 상태에서 출구를 만들면 푸른 차원문이 되어, 출구 위의 상대 기물도 잡을 수 있어요",2:"마.탄.의.사.수: 내 비숍 1개를 5턴 동안 강화해요 · 비숍 이동에 앞쪽 직선(룩)이 더해지고, 잡을 때는 이동하지 않고 공격해요 · 앞의 기물을 무시하고 바로 뒤의 기물도 공격할 수 있어요 · 체크를 걸 수 있어요(대각선·앞쪽 직선) · 공격하면 비숍이 2턴 기절 · 강화되면 기절이 1턴으로 줄어요 · 쿨 12턴"};
-const GCDESC="차원의 틈: 내 턴을 소모하고 5개 효과 중 하나가 랜덤으로 나와요 · 쓸 때마다 효과가 +1씩 늘어요(1번째 1개 → 2번째 2개 → 3번째 3개 …, 부족하면 가능한 만큼만) · 스핔이가 떨어짐 / 내 기물 감전(1턴) / 내 기물끼리 자리 바뀜(킹 제외) / 메인 스킬 강화+쿨 4턴 감소(쓸수록 +1, 최대 6턴) / 내 기물(킹 제외)이 3턴 동안 공격받지 않는 고스트 상태(체크 불가) · 쿨 5턴";
+const GDESCS={1:"불좀 꺼줄래?: 내 턴 소모 · 처음 쓰면 빈칸에 차원문 입구를 만든다(쿨 5턴) · 다시 쓰면 빈칸에 출구를 만든다(쿨 12턴) · 출구를 만들면 차원문이 계속 유지된다 · 내 기물이 입구 칸으로 이동하면 출구로 나온다 · 잡으면서 들어갈 수는 없고, 출구는 비어 있어야 한다 · 상대 기물이 입구나 출구에 올라가 있으면 차원문을 쓸 수 없다 · 새로 입구를 만들면 이전 차원문은 사라진다 · 강화된 상태에서 출구를 만들면 푸른 차원문이 되어, 출구 위의 상대 기물도 잡을 수 있다",2:"마.탄.의.사.수: 내 비숍 1개를 5턴 동안 강화한다 · 비숍 이동에 앞쪽 직선(룩)이 더해지고, 잡을 때는 이동하지 않고 공격한다 · 앞의 기물을 무시하고 바로 뒤의 기물도 공격할 수 있다 · 체크를 걸 수 있다(대각선·앞쪽 직선) · 공격하면 비숍이 2턴 기절 · 강화되면 기절이 1턴으로 줄어든다 · 쿨 12턴"};
+const GCDESC="차원의 틈: 내 턴을 소모하고 5개 효과 중 하나가 랜덤으로 나온다 · 쓸 때마다 효과가 +1씩 늘어난다(1번째 1개 → 2번째 2개 → 3번째 3개 …, 부족하면 가능한 만큼만) · 스핔이가 떨어짐 / 내 기물 감전(1턴) / 내 기물끼리 자리 바뀜(킹 제외) / 메인 스킬 강화+쿨 4턴 감소(쓸수록 +1, 최대 6턴) / 내 기물(킹 제외)이 3턴 동안 공격받지 않는 고스트 상태(체크 불가) · 쿨 5턴";
 const GRES=[
  {t:"스핔이 네르지 마세요!",l:"흐에엥!",i:"gh_e1.jpg",inf:"스핔이가 떨어졌어요! 뽑을수록 더 많이 떨어져요 (움직이지도 공격하지도 못하고, 누가 공격하면 날아가요)",c:"X_Sp"},
  {t:"라이카-노바 테이저 건-2000",l:"유령들에게 아주 잘 먹힌다더니..",i:"gh_e2.jpg",inf:"내 기물이 1턴 동안 감전됐어요! 뽑을수록 더 많아져요 (움직일 수 없어요)",c:"X_Zap"},
@@ -1410,7 +1417,7 @@ function rngFx(g,vp){
 }
 const GT=5;
 const WNAME={1:"고.서.카.트.다아아!",2:"궁정 마녀들"};
-const WDESC={1:"고.서.카.트.다아아!: 퀸·룩·킹 제외 기물 1개를 고서 상태로 · 4턴 안에 잡으면 주변 1칸 폭발 · 쿨 10턴 · 폰은 한 칸 더 전진",2:"궁정 마녀들: 룩·비숍·퀸 중 랜덤 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
+const WDESC={1:"고.서.카.트.다아아!: 퀸·룩·킹 제외 기물 1개를 고서 상태로 · 4턴 안에 잡으면 주변 1칸 폭발 · 쿨 10턴 · 폰은 한 칸 더 전진",2:"궁정 마녀들: 룩·비숍·퀸 중 랜덤 · 쿨 10턴\n룩: 고서 상태가 된다. 잡아도 룩은 살아남는다\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 된다 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
 const CDESC="UFC 당근튀김: 킹 제외 내 기물 1개에 방어막 1회 (내 턴 2번 동안) · 쿨 8턴";
 const PDESC="마녀적 사고방식: 기물 점수가 상대보다 3점 이상 낮으면 쿨타임 +1, 5점 이상 높으면 -1";
 function canWitch(){return isRace()&&S.sk&&!over&&!busy&&!free&&!inCheck(S,S.turn);}
@@ -2032,7 +2039,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2308,26 +2315,34 @@ $("#mClassic").onclick=()=>showPg("pgClassic");
 document.querySelectorAll("#menu .back").forEach(b=>b.onclick=()=>showPg(b.dataset.to));
 
 const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) · 쿨 10턴",2:"쓸 때마다 5단계까지 진화 (쿨 8턴). 1단계 아무 일도 없음, 2단계 폰 방어막 2개, 3단계 비숍·나이트 방어막 1개씩, 4단계 룩 방어막, 5단계 킹 강화 + 다구리 조건 완화"};
-const WDESC2={1:"퀸·룩·킹을 뺀 기물 1개를 고서 상태로 만들어요. 4턴 안에 잡으면 주변 1칸이 폭발해요 (킹 제외, 내 기물 포함). 4턴이 지나면 풀려요. 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 돼요. 잡아도 룩은 살아남아요\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 돼요 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
+const WDESC2={1:"퀸·룩·킹을 뺀 기물 1개를 고서 상태로 만든다. 4턴 안에 잡으면 주변 1칸이 폭발한다 (킹 제외, 내 기물 포함). 4턴이 지나면 풀린다. 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 된다. 잡아도 룩은 살아남는다\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 된다 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
 const RD={
  f:{name:"요정",king:"wK.png",sk:[["빠아아아앙!!!",FDESC[1],"skill1.png"],["에르피엔 전통 해결법",FDESC[2],"skill2_1.png"]],
     ex:[["공용","다구리","skill_dagu.png",GDESC.replace(/^요정 공용 스킬 다구리: /,"")]]},
  m:{name:"마녀",king:"bK.png",sk:[["고.서.카.트.다아아!",WDESC2[1],"skill_goseo.jpg"],["궁정 마녀들",WDESC2[2],"witch_court.jpg"]],
     ex:[["공용","UFC 당근튀김","skill_carrot.jpg",CDESC.replace(/^UFC 당근튀김: /,"")],["패시브","마녀적 사고방식","witch_passive.jpg",PDESC.replace(/^마녀적 사고방식: /,"")]]}};
-const SDESC2={1:"즉발 · 이번 턴에 폰만 두 번 움직일 수 있어요. 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없어요 · 이 스킬로는 체크를 걸 수 없어요 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있어요. 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아가요. 킹은 안 날아가고 방어막은 방어막만 소모돼요. 내 기물도 날아가고 퀸은 1턴 스턴이에요 · 스턴된 퀸은 체크로 치지 않아요 · 쿨 8턴"};
+const SDESC2={1:"즉발 · 이번 턴에 폰만 두 번 움직일 수 있다. 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없다 · 이 스킬로는 체크를 걸 수 없다 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있다. 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아간다. 킹은 안 날아가고 방어막은 방어막만 소모된다. 내 기물도 날아가고 퀸은 1턴 스턴이다 · 스턴된 퀸은 체크로 치지 않는다 · 쿨 8턴"};
 RD.s={name:"수인",king:"sK.png",sk:[[SNAME[1],SDESC2[1],"skill_su1.jpg"],[SNAME[2],SDESC2[2],"skill_su2.jpg"]],
- ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직여요 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
+ ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직인다 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
 RD.g={name:"유령",king:"gK.png",sk:[[GNAME[1],GDESCS[1].replace(/^[^:]*: /,""),"skill_gh1.jpg"],[GNAME[2],GDESCS[2].replace(/^[^:]*: /,""),"skill_gh2.jpg"]],
  ex:[["공용","차원의 틈","skill_gh0.jpg",GCDESC.replace(/^[^:]*: /,"")]]};
 const RORDER=["f","m","s","g"];
 let skRace="f",myRace=(()=>{try{const v=localStorage.getItem("fc_myrace");return v==="w"||v==="m"?"m":(v==="s"?"s":(v==="g"?"g":"f"));}catch(e){return "f";}})();
 let P2={r:"m",s:1},P2MODE=false,P2T="race";
 function curSel(r){return P2MODE&&P2.r===r?P2.s:SEL[r];}
+const SHORT={"빠아아아앙!!!":"기물 1개에 방어막 · 막으면 공격한 기물 스턴 · 쿨 10","에르피엔 전통 해결법":"쓸 때마다 5단계 진화 · 마지막에 킹 강화 · 쿨 8","다구리":"노리는 상대 기물을 잡는다 · 쿨 5",
+"고.서.카.트.다아아!":"기물 1개를 고서로 · 4턴 안에 잡으면 폭발 · 쿨 10","궁정 마녀들":"룩·비숍·퀸 중 하나가 랜덤 발동 · 쿨 10","UFC 당근튀김":"킹 제외 기물 1개 방어막 · 쿨 8","마녀적 사고방식":"기물 점수 차이에 따라 쿨타임이 변한다 (패시브)",
+"무식은 힘으로 커버한다!":"이번 턴 폰만 두 번 이동 · 쿨 10","1마력 펀치~!":"퀸이 잡으면 뒤쪽 3칸 기물이 날아간다 · 쿨 8","대리 촌장":"3턴 동안 킹이 퀸처럼 이동 · 쿨 10","사료스탕스":"상대 기물 2개를 잡으면 나이트·비숍·룩 강화 (패시브)",
+"불좀 꺼줄래?":"빈칸에 입구·출구 차원문을 만들어 순간이동 · 쿨 5/12","마.탄.의.사.수":"비숍 5턴 강화 · 룩처럼 멀리 공격 · 쿨 12","차원의 틈":"랜덤 효과 발동 · 쓸수록 늘어난다 · 쿨 5"};
+function skTx(title,full,pre){const sh=SHORT[title];const e=t=>t.replace(/</g,"&lt;");
+  if(!sh)return `${pre}<span>${e(full)}</span>`;
+  return `${pre}<span class="sh">${e(sh)}</span><div class="fu">${full.split(/ · |\n/).filter(Boolean).map(p=>/^쿨 ?\d/.test(p)?`<i class="cdc">${e(p)}</i>`:`<p>${e(p)}</p>`).join("")}</div><u class="mo" role="button">▼ 자세히</u>`;}
 function skRender(){
   const d=RD[skRace],esc=t=>t.replace(/</g,"&lt;"),cur=curSel(skRace);
   $("#skTitle").textContent=(P2MODE?(P2T==="rai"?"컴퓨터 ":"2P "):"")+d.name+" 스킬";
-  $("#skList").innerHTML=d.sk.map((x,i)=>`<button class="skopt${cur===i+1?" on":""}" data-s="${i+1}"><img src="${x[2]}" onerror="this.style.visibility='hidden'"><div class="tx"><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div></button>`).join("")
-   +d.ex.map(x=>`<div class="skopt ex"><img src="${x[2]}" onerror="this.style.visibility='hidden'"><div class="tx"><em>${x[0]}</em><b>${x[1]}</b><span>${esc(x[3])}</span></div></div>`).join("");
+  $("#skList").innerHTML=d.sk.map((x,i)=>`<button class="skopt${cur===i+1?" on":""}" data-s="${i+1}"><img src="${x[2]}" onerror="this.style.visibility='hidden'"><div class="tx"><b>${esc(x[0])}</b>${skTx(x[0],x[1],"")}</div></button>`).join("")
+   +d.ex.map(x=>`<div class="skopt ex"><img src="${x[2]}" onerror="this.style.visibility='hidden'"><div class="tx"><em>${x[0]}</em><b>${x[1]}</b>${skTx(x[1],x[3],"")}</div></div>`).join("");
+  document.querySelectorAll("#skList .mo").forEach(u=>u.onclick=ev=>{ev.stopPropagation();const t=u.parentNode;t.classList.toggle("open");u.textContent=t.classList.contains("open")?"▲ 접기":"▼ 자세히";});
   document.querySelectorAll("#skList button.skopt").forEach(b=>b.onclick=()=>{setSel(skRace,+b.dataset.s);});
 }
 let racePg=0;
