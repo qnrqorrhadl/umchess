@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>승률</title>
+<style>
+body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#eaf6e7;color:#164a25}
+h1{font-size:20px;margin:4px 0 12px;text-align:center}
+.r{background:#fff;border-radius:14px;padding:10px 12px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.h{display:flex;justify-content:space-between;align-items:baseline;font-weight:900;font-size:18px}
+.h small{font-weight:600;font-size:13px;color:#5b7f62}
+.bar{height:8px;background:#d8ecd5;border-radius:6px;margin:6px 0 4px;overflow:hidden}.bar i{display:block;height:100%;background:#4fa860}
+.s{display:flex;justify-content:space-between;font-size:14px;padding:3px 0 3px 10px;border-top:1px dashed #cfe5cc;margin-top:4px}
+.s b{font-weight:800}
+.n{text-align:center;color:#5b7f62;font-size:12px;margin-top:10px}
+</style></head><body>
+<h1>종족·스킬 승률</h1><div id="o">불러오는 중…</div>
+<div class="n">온라인 대전만 집계 · 스킬별 기록은 업데이트 이후부터 쌓여요</div>
+<script>
+const FB="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
+const R=[["f","요정",["빠아아아앙!!!","에르피엔 전통 해결법"]],["m","마녀",["고.서.카.트.다아아!","궁정 마녀들"]],["s","수인",["무식은 힘으로 커버한다!","1마력 펀치~!"]],["g","유령",["불좀 꺼줄래?","마.탄.의.사.수"]]];
+const pct=(w,g)=>g>0?Math.round(w/g*1000)/10:null,fmt=(w,g)=>g>0?pct(w,g)+"%":"-";
+fetch(FB+"/stats.json").then(r=>r.json()).then(d=>{d=d||{};const o=document.getElementById("o");o.innerHTML="";
+ R.forEach(([k,n,sk])=>{const x=d[k]||{},w=+x.wins||0,g=+x.games||0;
+  const e=document.createElement("div");e.className="r";
+  let h=`<div class="h"><span>${n}</span><span>${fmt(w,g)} <small>${w}승 / ${g}판</small></span></div><div class="bar"><i style="width:${pct(w,g)||0}%"></i></div>`;
+  sk.forEach((t,i)=>{const y=x["s"+(i+1)]||{},ww=+y.wins||0,gg=+y.games||0;h+=`<div class="s"><span>${t}</span><b>${fmt(ww,gg)} <small>(${ww}/${gg})</small></b></div>`;});
+  e.innerHTML=h;o.appendChild(e);});
+}).catch(()=>{document.getElementById("o").textContent="불러오지 못했어요 (규칙에서 stats 읽기가 열려 있는지 확인)";});
+</script></body></html>
