@@ -2039,7 +2039,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.6";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2137,6 +2137,7 @@ function recordStat(k){
   if(mode!=="net"||!isRace()||k!=="win"||NET.statDone)return;
   NET.statDone=true;const w=rOf(me),l=rOf(opp(me));
   if(!w||!l)return;statInc(w,"wins");statInc(w,"games");statInc(l,"games");
+  const sw="s"+(skOf(me)===2?2:1),sl="s"+(skOf(opp(me))===2?2:1);statInc(w,sw+"/wins");statInc(w,sw+"/games");statInc(l,sl+"/games");
 }
 function showRes(){
   const k=resKind();recordStat(k);const r=$("#res"),im=$("#resImg"),tx=$("#resTxt");
