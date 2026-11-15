@@ -2045,7 +2045,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2061,6 +2061,7 @@ async function keepAwake(on){try{if(on&&navigator.wakeLock){wkl=await navigator.
 function hostAlive(){if(!NET.waiting)return;fbPut();if(!NET.hb)NET.hb=setInterval(fbPut,20000);keepAwake(true);}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)hostAlive();});
 function netClose(){
+  clearTimeout(NET.awT);
   fbDel();keepAwake(false);NET.pw="";NET.bad=false;NET.waiting=false;NET.guest="";
   try{if(NET.conn)NET.conn.close(mode==="net");}catch(e){}
   NET.conn=null;NET.q=[];NET.dead=false;NET.classic=false;
@@ -2111,8 +2112,10 @@ function fbConn(code,role,hk){
   };
   return o;
 }
-const netLost=()=>{if(mode==="net"){NET.dead=true;toast("상대 연결이 불안정해요. 잠시 기다려 볼게요");updateRes();}};
-const netBack=()=>{if(mode==="net"){NET.dead=false;toast("상대가 다시 연결됐어요");updateRes();}};
+let AWAY_MS=60000;
+const netLost=()=>{if(mode==="net"){NET.dead=true;toast("상대 연결이 불안정해요. 1분 안에 돌아오지 않으면 내 승리예요");updateRes();
+  clearTimeout(NET.awT);NET.awT=setTimeout(()=>{if(mode==="net"&&NET.dead&&!over)netEnd("상대가 자리를 비웠어요 — 내 승리","win");},AWAY_MS);}};
+const netBack=()=>{if(mode==="net"){clearTimeout(NET.awT);NET.dead=false;toast("상대가 다시 연결됐어요");updateRes();}};
 function ask(msg,yes,no,cb){
   $("#dmsg").textContent=msg;$("#dyes").textContent=yes;$("#dno").textContent=no;$("#dlg").hidden=false;
   const fin=v=>{$("#dlg").hidden=true;$("#dyes").onclick=$("#dno").onclick=null;cb(v);};
@@ -2231,7 +2234,7 @@ function clkTick(){
   if(over||busy||NET.dead||!S)return;
   const sig=S.turn+":"+hist.length;if(sig!==k.sig){k.sig=sig;k.idle=0;}
   k[S.turn]-=dt;k.idle+=dt;clkPaint();
-  const bad=k[S.turn]<=0?"time":(k.idle>=60000?"idle":"");if(!bad){if(k.gr){clearTimeout(k.gr);k.gr=0;}return;}
+  const bad=k[S.turn]<=0?"time":"";if(!bad){if(k.gr){clearTimeout(k.gr);k.gr=0;}return;}
   if(S.turn===NET.me){netSend({t:"flag",w:bad});netEnd(bad==="idle"?"1분 동안 수를 두지 않아 패배했어요":"시간이 다 돼서 패배했어요","lose");}
   else if(!k.gr){k.gr=setTimeout(()=>{k.gr=0;if(!over&&mode==="net"&&S.turn!==NET.me&&(k[S.turn]<=0||k.idle>=60000))netEnd("상대가 "+(bad==="idle"?"1분 동안 수를 두지 않았어요":"시간이 다 됐어요")+" — 내 승리","win");},3000);}
 }
