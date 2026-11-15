@@ -122,6 +122,9 @@ body{-webkit-user-select:none;user-select:none}
 .tray .tp{position:relative;width:38px;height:38px;cursor:pointer}
 .tray .tp .piece{width:100%;height:100%}
 .tray .tp.sel .piece{outline:3px solid #f6e05e}
+.tray .clk{margin-left:auto;font-weight:900;font-size:14px;font-variant-numeric:tabular-nums;color:#164a25;background:#e4f3e1;border-radius:7px;padding:1px 6px;min-width:42px;text-align:center}
+.tray .clk.on{background:#4fa860;color:#fff}.tray .clk.low{background:#e0453a;color:#fff}
+.tray .clk+.sc{margin-left:8px}
 .tray .sc{margin-left:auto;font-weight:900;color:#f6e05e;font-size:18px}
 .tray .pa{display:inline-flex;align-items:center;gap:3px;margin-left:6px}
 .tray .pa:only-child,.tray .tp+.pa{margin-left:auto}
@@ -413,6 +416,7 @@ body.racem #info{display:none}
   <div class="pg" id="pgNet" hidden>
     <h1>줘팸터 들어가기</h1>
     <div class="colors" id="nKind"><span>방식</span><button data-k="race">종족전</button><button data-k="classic">클래식</button></div>
+    <div class="colors" id="nTime"><span>시간</span><button data-t="0">없음</button><button data-t="180">3분</button><button data-t="300">5분</button><button data-t="600">10분</button></div>
     <div class="colors" id="nVis"><span>방 종류</span><button data-v="0">공개방</button><button data-v="1">비밀번호방</button></div>
     <input id="nPw" class="npw" maxlength="8" placeholder="비밀번호 (4~8자)" style="display:none" autocomplete="off">
     <button id="nMake">방 만들기</button>
@@ -847,7 +851,7 @@ function slideFx(m){
 function doMove(m,promo,remote,failArg){
   let fail=false;
   if(S.sk&&S.sk.el&&S.sk.el[m.fr][m.fc]>0&&S.sk.el[m.fr][m.fc]<10&&!inCheck(S,S.turn)){fail=remote?!!failArg:Math.random()<.2;}
-  if(mode==="net"&&!remote)netSend({t:"mv",fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc,promo:promo||null,fail:fail?1:0});
+  if(mode==="net"&&!remote)netSend({t:"mv",fr:m.fr,fc:m.fc,tr:m.tr,tc:m.tc,promo:promo||null,fail:fail?1:0,tl:clkLeft()});
   if(fail){
     const before=clone(S);hist.push({S:before,last:lastMove,line:line});
     const n=clone(S),side=S.turn;tickSide(n,side);n.ep=null;n.turn=opp(side);n.lg=(before.lg||[]).concat([{s:side,t:"N_"+sqNm(m.fr,m.fc)}]);
@@ -1047,7 +1051,7 @@ function markUsed(n){try{const a=S.turn,P=n.sk&&n.sk.P[a],O=S.sk&&S.sk.P[a];if(!
 function commitSkill(n,title,ln,info,img,cls,remote){
   markUsed(n);
   if(!remote&&!n.nolg)n.lg=(S.lg||[]).concat([{s:S.turn,t:n.lgT||skText(S,n,title)}]);
-  if(mode==="net"&&!remote)netSend({t:"sk",S:JSON.stringify(n),a:[title,ln,info,img,cls]});
+  if(mode==="net"&&!remote)netSend({t:"sk",S:JSON.stringify(n),a:[title,ln,info,img,cls],tl:clkLeft()});
   busy=true;skT=false;crT=false;sel=null;legalCache=[];arrow=null;render();
   const rl=n.rl;delete n.rl;
   const go1=()=>cutIn(img,title,ln,cls,()=>{const px=n.pfx;delete n.pfx;if(px)punchFx(px,go);else go();});
@@ -1120,7 +1124,7 @@ function canGang(){return canSkill()&&S.sk.P[S.turn].cdG===0;}
 function gangTarget(r,c,remote){
   const g=gangTargets().find(x=>x.r===r&&x.c===c);
   if(!g){gbT=false;render();return;}
-  if(mode==="net"&&!remote)netSend({t:"gang",r,c});
+  if(mode==="net"&&!remote)netSend({t:"gang",r,c,tl:clkLeft()});
   hist.push({S:clone(S),last:lastMove,line:line});
   gbT=false;busy=true;sel=null;legalCache=[];
   const shielded=S.sk.sh[g.r][g.c]>0;
@@ -1860,6 +1864,7 @@ function renderTrays(){
       if(free&&fsel&&fsel.t==="tray"&&fsel.c===c&&fsel.i===i)d.classList.add("sel");
       d.appendChild(pieceEl(p));el.appendChild(d);
     }
+    if(mode==="net"&&NET.tc>0&&NET.clk){const k=document.createElement("span"),cs=id==="#trayT"?(flip()?"w":"b"):(flip()?"b":"w");k.className="clk";k.dataset.s=cs;el.appendChild(k);}
     const lead=c==="w"?-wl:wl;
     if(lead>0){const s=document.createElement("span");s.className="sc";s.textContent="+"+lead;el.appendChild(s);}
   }
@@ -1869,6 +1874,7 @@ function renderTrays(){
     const t=document.createElement("b");t.textContent=(adj>0?"+":"")+adj;pa.appendChild(t);
     const el=$((flip()?[["#trayT","b"],["#trayB","w"]]:[["#trayT","w"],["#trayB","b"]]).find(x=>x[1]===wc)[0]);
     const sc=el.querySelector(".sc");if(sc)sc.after(pa);else el.appendChild(pa);}
+  clkPaint();
   $("#turnBtn").textContent="차례: "+(S.turn==="w"?"백":"흑");
   $("#turnBtn").disabled=!free;
 }
@@ -2039,13 +2045,13 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.6";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
-const NET={res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
+const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
 function netSend(o){try{if(NET.conn)NET.conn.send(o);}catch(e){}}
 function fbUrl(c){return FB_URL.replace(/\/$/,"")+"/rooms"+(c?"/"+c:"")+".json";}
-function fbPut(){if(!FB_URL||!NET.code)return;const o={n:getNick(),k:NET.kind,r:RACES[myRace].name,l:NET.pw?1:0,t:{".sv":"timestamp"}};
+function fbPut(){if(!FB_URL||!NET.code)return;const o={n:getNick(),k:NET.kind,r:RACES[myRace].name,l:NET.pw?1:0,tc:NET.tc|0,t:{".sv":"timestamp"}};
   try{fetch(fbUrl(NET.code),{method:"PUT",body:JSON.stringify(o)}).catch(()=>{});}catch(e){}}
 function fbDel(){clearInterval(NET.hb);NET.hb=0;if(!FB_URL||!NET.code)return;const u=fbUrl(NET.code),del=()=>{try{fetch(u,{method:"DELETE",keepalive:true}).catch(()=>{});}catch(e){}};
   del();setTimeout(del,1500);setTimeout(del,6000);}
@@ -2160,8 +2166,8 @@ $("#resAgain").onclick=()=>{
 function tryRematch(){if(NET.rm&&NET.rmOpp&&NET.host){clearTimeout(NET.rmT);hostBegin();}}
 function hostBegin(){
   const hc=Math.random()<.5?"w":"b",g=NET.gi||{};
-  if(NET.kind==="classic"){netSend({t:"go",to:NET.guest,kind:"c",hc,n:getNick()});NET.oppN=g.n||"";vsThen(getNick(),"",NET.oppN,"",()=>netGoC(hc));}
-  else{netSend({t:"go",to:NET.guest,hc,r:myRace,s:SEL[myRace],n:getNick()});NET.oppN=g.n||"";
+  if(NET.kind==="classic"){netSend({t:"go",to:NET.guest,kind:"c",hc,n:getNick(),tc:NET.tc|0});NET.oppN=g.n||"";vsThen(getNick(),"",NET.oppN,"",()=>netGoC(hc));}
+  else{netSend({t:"go",to:NET.guest,hc,r:myRace,s:SEL[myRace],n:getNick(),tc:NET.tc|0});NET.oppN=g.n||"";
     vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[g.r]||RACES.f).img+"K.png",()=>netGo(hc,g.r,g.s));}
 }
 function vsThen(n1,i1,n2,i2,cb){
@@ -2174,12 +2180,12 @@ function netGo(hc,tr,ts){
   NET.me=NET.host?hc:opp(hc);NET.first="w";NET.dead=false;NET.q=[];
   TEAM[NET.me]={r:myRace,s:SEL[myRace]};
   TEAM[opp(NET.me)]={r:RD[tr]?tr:"f",s:+ts===2?2:1};
-  start("net");
+  clkInit();start("net");
 }
 function netGoC(hc){
   NETEND="";NET.statDone=false;NET.classic=true;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:(hc==="w"?"b":"w");NET.first="w";NET.dead=false;NET.q=[];
-  start("net");
+  clkInit();start("net");
 }
 function netRecv(msg){
   if(!msg||!msg.t)return;
@@ -2192,10 +2198,11 @@ function netRecv(msg){
   if(msg.t==="rematch"){NET.rmOpp=true;updateRes();tryRematch();return;}
   if(msg.t==="rmcancel"){NET.rmOpp=false;updateRes();return;}
   if(msg.t==="hi"&&NET.host){NET.gi={r:msg.r,s:msg.s,n:cleanN(msg.n)};hostBegin();
-  }else if(msg.t==="go"&&!NET.host){NET.oppN=cleanN(msg.n);if(msg.kind==="c")vsThen(getNick(),"",NET.oppN,"",()=>netGoC(msg.hc));else vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[msg.r]||RACES.f).img+"K.png",()=>netGo(msg.hc,msg.r,msg.s));}
+  }else if(msg.t==="go"&&!NET.host){NET.tc=[0,180,300,600].includes(+msg.tc)?+msg.tc:0;NET.oppN=cleanN(msg.n);if(msg.kind==="c")vsThen(getNick(),"",NET.oppN,"",()=>netGoC(msg.hc));else vsThen(getNick(),RACES[myRace].img+"K.png",NET.oppN,(RACES[msg.r]||RACES.f).img+"K.png",()=>netGo(msg.hc,msg.r,msg.s));}
   else if(msg.t==="mv"||msg.t==="sk"||msg.t==="gang"){NET.q.push(msg);}
   else if(mode==="net"&&!over){
-    if(msg.t==="resign")netEnd(oppN()+"님이 기권했어요 — 내 승리","win");
+    if(msg.t==="flag")netEnd(oppN()+"님이 "+(msg.w==="idle"?"1분 동안 수를 두지 않았어요":"시간이 다 됐어요")+" — 내 승리","win");
+    else if(msg.t==="resign")netEnd(oppN()+"님이 기권했어요 — 내 승리","win");
     else if(msg.t==="draw")ask(oppN()+"님이 무승부를 제안했어요","받기","거절",ok=>{if(over)return;netSend({t:ok?"drawok":"drawno"});if(ok)netEnd("무승부 합의","draw");});
     else if(msg.t==="drawok")netEnd("무승부 합의","draw");
     else if(msg.t==="drawno")toast(oppN()+"님이 무승부를 거절했어요");
@@ -2203,16 +2210,39 @@ function netRecv(msg){
 }
 function netPump(){
   if(mode!=="net"||busy||!NET.q.length)return;
-  const m=NET.q.shift();
+  const m=NET.q.shift();clkAdopt(m);
   if(m.t==="mv"){const mv=legal(S,m.fr,m.fc).find(x=>x.tr===m.tr&&x.tc===m.tc);if(mv)doMove(mv,m.promo||undefined,true,m.fail);else toast("판이 어긋났어요 — 상대의 수를 적용하지 못했어요");}
   else if(m.t==="sk"){commitSkill(JSON.parse(m.S),...m.a,true);}
   else if(m.t==="gang"){gangTarget(m.r,m.c,true);}
 }
 setInterval(netPump,120);
+/* ---------- 시간제 (온라인 전용) ---------- */
+function clkInit(){NET.clk=NET.tc>0?{w:NET.tc*1000,b:NET.tc*1000,last:performance.now(),idle:0,sig:"",gr:0}:null;}
+function clkLeft(){return NET.clk?Math.max(0,Math.round(NET.clk[NET.me])):0;}
+function clkAdopt(m){if(NET.clk&&m&&typeof m.tl==="number")NET.clk[opp(NET.me)]=Math.max(0,m.tl);}
+function clkAdd(side,sec){if(NET.clk)NET.clk[side]+=sec*1000;} // 나중에 종족 스킬로 시간 추가할 때 이 함수를 부르면 돼요
+function clkFmt(ms){const t=Math.ceil(Math.max(0,ms)/1000);return Math.floor(t/60)+":"+String(t%60).padStart(2,"0");}
+function clkPaint(){const k=NET.clk;if(!k)return;const th=NET.tc===180?10000:60000;
+  document.querySelectorAll(".tray .clk").forEach(e=>{const sd=e.dataset.s,v=k[sd];e.textContent=clkFmt(v);
+    e.classList.toggle("on",!over&&S.turn===sd);e.classList.toggle("low",v<=th&&v>0||v<=0);});}
+function clkTick(){
+  const k=NET.clk;if(!k||mode!=="net"||NET.tc<=0)return;
+  const now=performance.now(),dt=Math.min(now-k.last,1000);k.last=now;
+  if(over||busy||NET.dead||!S)return;
+  const sig=S.turn+":"+hist.length;if(sig!==k.sig){k.sig=sig;k.idle=0;}
+  k[S.turn]-=dt;k.idle+=dt;clkPaint();
+  const bad=k[S.turn]<=0?"time":(k.idle>=60000?"idle":"");if(!bad){if(k.gr){clearTimeout(k.gr);k.gr=0;}return;}
+  if(S.turn===NET.me){netSend({t:"flag",w:bad});netEnd(bad==="idle"?"1분 동안 수를 두지 않아 패배했어요":"시간이 다 돼서 패배했어요","lose");}
+  else if(!k.gr){k.gr=setTimeout(()=>{k.gr=0;if(!over&&mode==="net"&&S.turn!==NET.me&&(k[S.turn]<=0||k.idle>=60000))netEnd("상대가 "+(bad==="idle"?"1분 동안 수를 두지 않았어요":"시간이 다 됐어요")+" — 내 승리","win");},3000);}
+}
+setInterval(clkTick,200);
+
+function setNetTime(t){NET.tc=t;document.querySelectorAll("#nTime button").forEach(b=>b.classList.toggle("on",+b.dataset.t===t));}
+document.querySelectorAll("#nTime button").forEach(b=>b.onclick=()=>setNetTime(+b.dataset.t));
 function setNetKind(k){NET.kind=k;document.querySelectorAll("#nKind button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));}
 document.querySelectorAll("#nKind button").forEach(b=>b.onclick=()=>setNetKind(b.dataset.k));
 function openNet(from,k){netStat("");$("#nPwIn").value="";$("#nPwRow").style.display="none";loadRooms();if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
-setNetKind("race");
+setNetKind("race");setNetTime(0);
 $("#mNet").onclick=()=>openNet("pgMain");
 $("#rNet").onclick=()=>openNet("pgRace","race");
 $("#cNet").onclick=()=>openNet("pgClassic","classic");
@@ -2223,7 +2253,7 @@ $("#nMake").onclick=async()=>{
   const pw=nVis?$("#nPw").value.trim():"";
   if(nVis&&(pw.length<4||pw.length>8)){netStat("비밀번호는 4~8자로 정해 주세요");return;}
   if(!FB_URL){netStat("서버 주소가 아직 없어요");return;}
-  netClose();NET.host=true;NET.pw=pw;netStat("방을 만드는 중...");
+  netClose();NET.host=true;NET.pw=pw;{const tb=document.querySelector("#nTime button.on");NET.tc=tb?+tb.dataset.t:0;}netStat("방을 만드는 중...");
   let code="";
   try{for(let i=0;i<6&&!code;i++){const c=String(Math.floor(10000+Math.random()*90000));const rr=await fetch(fbUrl(c));setSkew(rr);const v=await rr.json();if(!v||srvNow()-(+v.t||0)>75000)code=c;}}
   catch(e){netStat("연결에 문제가 생겼어요. 다시 시도해 주세요");return;}
@@ -2261,7 +2291,7 @@ function renderRooms(){
   L.innerHTML="";
   rooms.slice(roomPg*RM_PER,roomPg*RM_PER+RM_PER).forEach(([k,v])=>{const d2=document.createElement("div");d2.className="rm";
     const rk=Object.values(RACES).find(x=>x.name===v.r);
-    d2.innerHTML=`<span>${esc(String(v.n||"교주").slice(0,12))} · ${v.k==="classic"?"클래식":"종족전"}</span>${v.k!=="classic"&&rk?`<img class="rmk" src="${rk.img}K.png" alt="">`:""}${v.l?"<i>비밀번호</i>":""}<button>입장</button>`;
+    d2.innerHTML=`<span>${esc(String(v.n||"교주").slice(0,12))} · ${v.k==="classic"?"클래식":"종족전"}${+v.tc>0?" · "+(v.tc/60)+"분":""}</span>${v.k!=="classic"&&rk?`<img class="rmk" src="${rk.img}K.png" alt="">`:""}${v.l?"<i>비밀번호</i>":""}<button>입장</button>`;
     d2.querySelector("button").onclick=()=>{$("#nCode").value=k;if(v.l){$("#nPwRow").style.display="";$("#nPwIn").focus();netStat("비밀번호를 입력하고 들어가기를 눌러요");}else{$("#nPwIn").value="";joinRoom(k,"");}};
     L.appendChild(d2);});
 }
