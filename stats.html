@@ -16,7 +16,7 @@ h1{font-size:20px;margin:4px 0 12px;text-align:center}
 <div class="n">온라인 대전만 집계 · 스킬별 기록은 업데이트 이후부터 쌓여요</div>
 <script>
 const FB="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
-const R=[["f","요정",["빠아아아앙!!!","에르피엔 전통 해결법"]],["m","마녀",["고.서.카.트.다아아!","궁정 마녀들"]],["s","수인",["무식은 힘으로 커버한다!","1마력 펀치~!"]],["g","유령",["불좀 꺼줄래?","마.탄.의.사.수"]]];
+const R=[["f","요정",["빠아아아앙!!!","에르피엔 전통 해결법"]],["m","마녀",["고.서.카.트.다아아!","궁정 마녀들"]],["s","수인",["무식은 힘으로 커버한다!","1마력 펀치~!"]],["g","유령",["불좀 꺼줄래?","마.탄.의.사.수"]],["e","엘프",["공기까스 진짜 별로네","타임 브레이크"]]];
 const pct=(w,g)=>g>0?Math.round(w/g*1000)/10:null,fmt=(w,g)=>g>0?pct(w,g)+"%":"-";
 fetch(FB+"/stats.json").then(r=>r.json()).then(d=>{d=d||{};const o=document.getElementById("o");o.innerHTML="";
  R.forEach(([k,n,sk])=>{const x=d[k]||{},w=+x.wins||0,g=+x.games||0;
