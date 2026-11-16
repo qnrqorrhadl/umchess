@@ -514,7 +514,7 @@ function newState(withSk){
   for(let c=0;c<8;c++){b[0][c]="b"+back[c];b[1][c]="bP";b[6][c]="wP";b[7][c]="w"+back[c];}
   return {b,lg:[],turn:"w",cast:{wK:1,wQ:1,bK:1,bQ:1},ep:null,tray:{w:[],b:[]},sk:withSk?{P:{w:mkP(),b:mkP()},sh:Array.from({length:8},()=>Array(8).fill(0)),shT:Array.from({length:8},()=>Array(8).fill(0)),gs:g8(),gt:g8(),cn:g8(),ev:g8(),ic:g8(),cv:g8(),rs:g8(),fz:g8(),qy:g8(),gh:g8(),mt:g8(),mx:g8(),el:g8(),tg:g8()}:null};
 }
-const clone=s=>({b:s.b.map(r=>r.slice()),lg:s.lg||[],turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w,pl:(s.sk.P.w.pl||[]).slice()},b:{...s.sk.P.b,pl:(s.sk.P.b.pl||[]).slice()}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),cn:(s.sk.cn||g8()).map(r=>r.slice()),ev:(s.sk.ev||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice()),gh:(s.sk.gh||g8()).map(r=>r.slice()),mt:(s.sk.mt||g8()).map(r=>r.slice()),mx:(s.sk.mx||g8()).map(r=>r.slice()),el:(s.sk.el||g8()).map(r=>r.slice()),tg:(s.sk.tg||g8()).map(r=>r.slice())}:null});
+const clone=s=>({b:s.b.map(r=>r.slice()),lg:s.lg||[],turn:s.turn,cast:{...s.cast},ep:s.ep?{...s.ep}:null,tray:{w:s.tray.w.slice(),b:s.tray.b.slice()},sk:s.sk?{...s.sk,P:{w:{...s.sk.P.w,pl:(s.sk.P.w.pl||[]).slice()},b:{...s.sk.P.b,pl:(s.sk.P.b.pl||[]).slice()}},sh:s.sk.sh.map(r=>r.slice()),shT:s.sk.shT.map(r=>r.slice()),gs:s.sk.gs.map(r=>r.slice()),gt:(s.sk.gt||g8()).map(r=>r.slice()),cn:(s.sk.cn||g8()).map(r=>r.slice()),ev:(s.sk.ev||g8()).map(r=>r.slice()),ic:s.sk.ic.map(r=>r.slice()),cv:s.sk.cv.map(r=>r.slice()),rs:s.sk.rs.map(r=>r.slice()),fz:s.sk.fz.map(r=>r.slice()),qy:s.sk.qy.map(r=>r.slice()),gh:(s.sk.gh||g8()).map(r=>r.slice()),mt:(s.sk.mt||g8()).map(r=>r.slice()),mx:(s.sk.mx||g8()).map(r=>r.slice()),el:(s.sk.el||g8()).map(r=>r.slice()),tg:(s.sk.tg||g8()).map(r=>r.slice()),bkl:(s.sk.bkl||[]).map(x=>({...x}))}:null});
 const QK=(s,by)=>!!(s.sk&&(s.sk.P[by].qk||s.sk.P[by].kq>0));
 const KJ=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 function QN(s,by){if(!s.sk)return null;const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(s.sk.qy[r][c]>0&&s.b[r][c]===by+"Q")o.push([r,c]);else if(s.sk.ev[r][c]&&s.b[r][c]===by+"N"&&rOf(by)==="s")o.push([r,c,1]);}return o.length?o:null;}
@@ -685,7 +685,8 @@ function apply0(s,m,promo,nb,hold){
   if(n.sk&&capd&&n.sk.cv[m.tr][m.tc]===1&&n.b[m.tr][m.tc]){n.b[m.tr][m.tc]=opp(me)+typ(n.b[m.tr][m.tc]);n.sk.cv[m.tr][m.tc]=0;n.sk.fz[m.tr][m.tc]=1;n.cvr={r:m.tr,c:m.tc};}
   if(n.sk&&capd&&rOf(me)==="s"&&"NBR".includes(typ(p))&&n.b[m.tr][m.tc]===p){const K=n.sk;K.cn[m.tr][m.tc]++;
     if(K.cn[m.tr][m.tc]>=EVN&&!K.ev[m.tr][m.tc]){K.ev[m.tr][m.tc]=1;if(typ(p)==="R"&&!K.sh[m.tr][m.tc]){K.sh[m.tr][m.tc]=1;K.shT[m.tr][m.tc]=0;K.rs[m.tr][m.tc]=0;}n.evo={r:m.tr,c:m.tc,t:typ(p)};K.P[me].us=(K.P[me].us|0)|64;}}
-  if(n.sk)stepTrap(n,m.tr,m.tc,me,hold?2:3);
+  if(n.sk)bkMove(n,m);
+  if(n.sk){if(m.stp){n.sk.tg[m.tr][m.tc]=0;n.trapfx=(n.trapfx||[]).concat([{r:m.tr,c:m.tc,k:"hit"}]);}else stepTrap(n,m.tr,m.tc,me,hold?1:2);}
   if(n.sk){n.sk.P[me].tp=0;const kp=findKing(n.b,opp(me));if(kp&&n.sk.fz[kp[0]][kp[1]]>0&&inCheck(n,opp(me)))n.sk.fz[kp[0]][kp[1]]=0;}
   n.turn=hold?me:opp(me);
   if(!hold){if(me==="w")tick(n);else tickB(n);}
@@ -705,6 +706,10 @@ function apply(s,m,promo,nb){
   return n;
 }
 function anySecond(n){for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(n.b[r][c]&&col(n.b[r][c])===n.turn&&legal(n,r,c).length)return true;return false;}
+function bkBan(s,r,c,tr,tc){const L=s.sk&&s.sk.bkl;if(!L||!L.length)return false;const el=s.sk.el[r][c];if(!(el>0&&el<10))return false;
+  return L.some(e=>e.r===r&&e.c===c&&e.or===tr&&e.oc===tc);}
+function bkMove(n,m){const L=n.sk&&n.sk.bkl;if(!L||!L.length)return;
+  n.sk.bkl=L.filter(e=>!(e.r===m.tr&&e.c===m.tc&&!(e.r===m.fr&&e.c===m.fc))).map(e=>(e.r===m.fr&&e.c===m.fc?{...e,r:m.tr,c:m.tc}:e)).filter(e=>n.b[e.r][e.c]&&n.sk.el[e.r][e.c]>0&&n.sk.el[e.r][e.c]<10);}
 function legal(s,r,c){
   const p=s.b[r][c];if(!p||col(p)!==s.turn)return[];
   const P=s.sk&&s.sk.P[s.turn],two=P&&P.dm===1;
@@ -712,6 +717,7 @@ function legal(s,r,c){
   if(P&&P.dm>0&&typ(p)!=="P")return[];
   return pseudo(s,r,c).filter(m=>{
     if(s.sk&&typ(p)==="P"&&s.sk.cv[r][c]>0&&m.tr===(col(p)==="w"?0:7))return false;
+    if(bkBan(s,r,c,m.tr,m.tc))return false;
     if(two&&(s.b[m.tr][m.tc]||m.ep))return false;
     const ap=apply(s,m);
     if(inCheck(ap,col(p)))return false;
@@ -906,6 +912,7 @@ function doMove(m,promo,remote,failArg){
     if(pe)pe.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(-5px)"},{transform:"translateX(5px)"},{transform:"translateX(-2px)"},{transform:"translateX(0)"}],{duration:110,iterations:4});
     sfx("land");maybeAI();return;
   }
+  m=trapStop(S,m);
   const before=clone(S),prev=lastMove;
   hist.push({S:before,last:lastMove,line:line});
   S=apply(S,m,promo);lastMove=S.tele?{...m,tr:S.tele.tr,tc:S.tele.tc}:m;lastGrade=null;sel=null;legalCache=[];arrow=null;hintToken++;
@@ -1531,11 +1538,21 @@ function elfFx(x){const bd=$("#board");if(!bd)return;
     ov.animate([{opacity:0},{opacity:1,offset:.15},{opacity:1,offset:.75},{opacity:0}],{duration:1000}).onfinish=()=>{ov.remove();if(q)q.style.zIndex="";};
     sfx("cut");
   }}
+function trapStop(s,m){
+  if(!s.sk||!s.sk.tg||m.cs||m.ep||m.pt||m.rng)return m;
+  const p=s.b[m.fr][m.fc];if(!p||typ(p)==="N"||typ(p)==="K")return m;
+  const dr=Math.sign(m.tr-m.fr),dc=Math.sign(m.tc-m.fc),ar=Math.abs(m.tr-m.fr),ac=Math.abs(m.tc-m.fc);
+  if(!(ar===0||ac===0||ar===ac))return m;
+  const mc=col(p),L=Math.max(ar,ac);
+  for(let i=1;i<L;i++){const r=m.fr+dr*i,c=m.fc+dc*i,v=s.sk.tg[r][c];
+    if(v>0&&(v>10?"b":"w")!==mc)return{...m,tr:r,tc:c,dbl:false,stp:true};}
+  return m;
+}
 function stepTrap(n,r,c,mc,stv){
   const K=n.sk;if(!K||!K.tg||!n.b[r][c])return;const v=K.tg[r][c];if(!(v>0))return;
   const ow=v>10?"b":"w";K.tg[r][c]=0;
   if(ow===mc){const P=K.P[mc];for(const f of["cd1","cd2","cdG"])P[f]=Math.max(0,(P[f]|0)-2);n.trapfx=(n.trapfx||[]).concat([{r,c,k:"mine"}]);}
-  else{K.fz[r][c]=Math.max(K.fz[r][c],stv);n.trapfx=(n.trapfx||[]).concat([{r,c,k:"hit"}]);}
+  else{const zp=K.el[r][c]>0&&K.el[r][c]<10?1:0;K.fz[r][c]=Math.max(K.fz[r][c],stv+zp);n.trapfx=(n.trapfx||[]).concat([{r,c,k:"hit"}]);}
 }
 function trapSpots(s,a){const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(!s.b[r][c]&&!(s.sk.tg[r][c]>0))o.push([r,c]);return o;}
 function elfTrap(){
@@ -1583,7 +1600,7 @@ function elfTb(r,c){
 function tbExec(fr,fc,tr,tc){
   const a=S.turn,e=opp(a),n=clone(S),K=n.sk;
   const egg=Math.random()<.15;
-  moveRaw(n,fr,fc,tr,tc);K.P[a].cd2=12;stepTrap(n,tr,tc,e,2);n.fxl=[[tr,tc]];n.nolg=true;
+  moveRaw(n,fr,fc,tr,tc);K.el[tr][tc]=Math.max(K.el[tr][tc],3);K.bkl=(K.bkl||[]).concat([{r:tr,c:tc,or:fr,oc:fc}]);K.P[a].cd2=12;stepTrap(n,tr,tc,e,1);n.fxl=[[tr,tc]];n.nolg=true;
   const ln=egg?"슝좍 슝좍좍좍 더 월드!!":"시간을 멈춰서라도..! 널 멈추겠어!";
   commitSkill(n,"타임 브레이크",ln,"상대 기물을 옮겼어요",egg?"skill_e2b.jpg":"skill_e2.jpg","c2");
 }
@@ -2234,7 +2251,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.20";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.22";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2555,8 +2572,8 @@ RD.s={name:"수인",king:"sK.png",sk:[[SNAME[1],SDESC2[1],"skill_su1.jpg"],[SNAM
  ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직인다 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
 RD.g={name:"유령",king:"gK.png",sk:[[GNAME[1],GDESCS[1].replace(/^[^:]*: /,""),"skill_gh1.jpg"],[GNAME[2],GDESCS[2].replace(/^[^:]*: /,""),"skill_gh2.jpg"]],
  ex:[["공용","차원의 틈","skill_gh0.jpg",GCDESC.replace(/^[^:]*: /,"")]]};
-const ELDESC={1:"빈칸 3곳에 덫(공기까스)을 몰래 뿌린다. 2~3개는 상대 진영 쪽에 떨어진다 · 덫은 5턴 동안 남고 상대 눈에는 보이지 않는다 · 상대 기물이 밟으면 2턴 기절, 내 기물이 밟으면 엘프 스킬 쿨타임이 모두 2턴 줄어든다 · 내 턴 소모 · 쿨 10턴",
- 2:"상대 기물 1개(킹 제외)를 골라, 그 기물의 행마법대로 원하는 빈칸으로 옮긴다 · 잡기·캐슬링·앙파상·승급 칸은 안 되고, 내 킹이 체크당하게 되는 이동도 안 된다 · 내 턴 소모 · 쿨 12턴"};
+const ELDESC={1:"빈칸 3곳에 덫(공기까스)을 몰래 뿌린다. 2~3개는 상대 진영 쪽에 떨어진다 · 덫은 5턴 동안 남고 상대 눈에는 보이지 않는다 · 상대 기물이 밟으면 1턴 기절(저림 상태면 2턴), 지나가기만 해도 그 칸에 멈춘다 · 내 기물이 밟으면 엘프 스킬 쿨타임이 모두 2턴 줄어든다 · 내 턴 소모 · 쿨 10턴",
+ 2:"상대 기물 1개(킹 제외)를 골라, 그 기물의 행마법대로 원하는 빈칸으로 옮긴다 · 옮겨진 기물은 3턴 동안 저림 상태가 되고 원래 자리로 돌아갈 수 없다 · 잡기·캐슬링·앙파상·승급 칸은 안 되고, 내 킹이 체크당하게 되는 이동도 안 된다 · 내 턴 소모 · 쿨 12턴"};
 RD.e={name:"엘프",king:"eK.png",sk:[["공기까스 진짜 별로네",ELDESC[1],"skill_e1.jpg"],["타임 브레이크",ELDESC[2],"skill_e2.jpg"]],
  ex:[["공용","라이카-노바 테이저 건-2000","skill_et.jpg","상대 기물 1개를 감전시킨다 · 1턴 기절한 뒤 3턴 동안 움직일 때마다 30% 확률로 저려서 움직이지 못한다 · 내 턴 소모 · 쿨 8턴"],
  ["패시브","배신의 종족","skill_ep.jpg","무승부를 신청할 수도, 받을 수도 없다 · 어떤 방식으로든 무승부가 되면 엘프가 승리한다 (엘프끼리는 무승부)"]]};
@@ -2564,7 +2581,7 @@ const RORDER=["f","m","s","g","e"];
 let skRace="f",myRace=(()=>{try{const v=localStorage.getItem("fc_myrace");return v==="w"||v==="m"?"m":(v==="s"?"s":(v==="g"?"g":(v==="e"?"e":"f")));}catch(e){return "f";}})();
 let P2={r:"m",s:1},P2MODE=false,P2T="race";
 function curSel(r){return P2MODE&&P2.r===r?P2.s:SEL[r];}
-const SHORT={"공기까스 진짜 별로네":"빈칸 3곳에 보이지 않는 덫 · 밟은 상대는 2턴 기절 · 쿨 10","타임 브레이크":"상대 기물(킹 제외)을 그 기물의 행마법대로 원하는 빈칸에 옮긴다 · 쿨 12","라이카-노바 테이저 건-2000":"상대 기물 감전 · 1턴 기절 후 30% 저림 · 쿨 8","배신의 종족":"무승부 불가 · 무승부가 되면 엘프 승리 (패시브)","빠아아아앙!!!":"기물 1개에 방어막 · 막으면 공격한 기물 스턴 · 쿨 10","에르피엔 전통 해결법":"쓸 때마다 5단계 진화 · 마지막에 킹 강화 · 쿨 8","다구리":"노리는 상대 기물을 잡는다 · 쿨 5",
+const SHORT={"공기까스 진짜 별로네":"빈칸 3곳에 보이지 않는 덫 · 밟으면 1턴 기절(저림이면 2턴), 지나가면 멈춤 · 쿨 10","타임 브레이크":"상대 기물(킹 제외)을 그 기물의 행마법대로 빈칸에 옮기고 3턴 저림 · 원위치 복귀 불가 · 쿨 12","라이카-노바 테이저 건-2000":"상대 기물 감전 · 1턴 기절 후 30% 저림 · 쿨 8","배신의 종족":"무승부 불가 · 무승부가 되면 엘프 승리 (패시브)","빠아아아앙!!!":"기물 1개에 방어막 · 막으면 공격한 기물 스턴 · 쿨 10","에르피엔 전통 해결법":"쓸 때마다 5단계 진화 · 마지막에 킹 강화 · 쿨 8","다구리":"노리는 상대 기물을 잡는다 · 쿨 5",
 "고.서.카.트.다아아!":"기물 1개를 고서로 · 4턴 안에 잡으면 폭발 · 쿨 10","궁정 마녀들":"룩·비숍·퀸 중 하나가 랜덤 발동 · 쿨 10","UFC 당근튀김":"킹 제외 기물 1개 방어막 · 쿨 8","마녀적 사고방식":"기물 점수 차이에 따라 쿨타임이 변한다 (패시브)",
 "무식은 힘으로 커버한다!":"이번 턴 폰만 두 번 이동 · 쿨 10","1마력 펀치~!":"퀸이 잡으면 뒤쪽 3칸 기물이 날아간다 · 쿨 8","대리 촌장":"3턴 동안 킹이 퀸처럼 이동 · 쿨 10","사료스탕스":"상대 기물 2개를 잡으면 나이트·비숍·룩 강화 (패시브)",
 "불좀 꺼줄래?":"빈칸에 입구·출구 차원문을 만들어 순간이동 · 쿨 5/12","마.탄.의.사.수":"비숍 5턴 강화 · 룩처럼 멀리 공격 · 쿨 12","차원의 틈":"랜덤 효과 발동 · 쓸수록 늘어난다 · 쿨 5"};
