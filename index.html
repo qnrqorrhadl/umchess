@@ -1000,25 +1000,28 @@ bwBtn();
 $("#bwBtn").onclick=()=>{bwOn=!bwOn;try{localStorage.setItem("fc_bw",bwOn?"1":"0");}catch(e){}bwBtn();try{render();}catch(e){}};
 const BGM={main:["기본 테마","bgm_main.mp3"],f:["요정 테마","bgm_f.mp3"],m:["마녀 테마","bgm_m.mp3"],g:["유령 테마","bgm_g.mp3"],s:["수인 테마","bgm_s.mp3"],e:["엘프 테마","bgm_e.mp3"]};
 let bgmOn=localStorage.getItem("fc_bgm")!=="0",bgmVol=(()=>{const v=localStorage.getItem("fc_bgmv");return v===null?.5:Math.min(1,Math.max(0,+v||0));})(),bgmUnl=false,bgmCur=null;
-const bgmEl=new Audio();bgmEl.loop=true;bgmEl.preload="auto";
+const bgmPool={};let bgmEl=null;
+function bgmAud(k){if(!bgmPool[k]){const a=new Audio(BGM[k][1]);a.loop=true;a.preload="auto";bgmPool[k]=a;}return bgmPool[k];}
+function bgmPre(){Object.keys(BGM).forEach(k=>{const a=bgmAud(k);try{a.load();}catch(e){}});}
 const bgmPick=r=>{const v=localStorage.getItem("fc_bgm_"+r);return BGM[v]?v:r;};
 function bgmWant(){
   if($("#menu").style.display!=="none"||!S||!isRace())return"main";
   const r=mode==="net"||RAI?rOf(me):rOf("w");return bgmPick(r);}
 function bgmSync(){
-  try{if(!bgmOn||!bgmUnl||document.hidden){if(!bgmEl.paused)bgmEl.pause();return;}
-    const src=BGM[bgmWant()][1];if(bgmCur!==src){bgmCur=src;bgmEl.src=src;}
-    bgmEl.volume=bgmVol;if(bgmEl.paused)bgmEl.play().catch(()=>{});}catch(e){}}
+  try{if(!bgmOn||!bgmUnl||document.hidden){if(bgmEl&&!bgmEl.paused)bgmEl.pause();return;}
+    const k=bgmWant(),a=bgmAud(k);
+    if(bgmEl&&bgmEl!==a){bgmEl.pause();try{bgmEl.currentTime=0;}catch(e){}}
+    bgmEl=a;bgmCur=BGM[k][1];a.volume=bgmVol;if(a.paused)a.play().catch(()=>{});}catch(e){}}
 function bgmBtn(){$("#bgmBtn").textContent=bgmOn?"배경음악 켬":"배경음악 끔";}
 (function(){
   bgmBtn();const vs=$("#bgmVol");vs.value=Math.round(bgmVol*100);
-  vs.oninput=()=>{bgmVol=vs.value/100;localStorage.setItem("fc_bgmv",bgmVol);bgmEl.volume=bgmVol;};
+  vs.oninput=()=>{bgmVol=vs.value/100;localStorage.setItem("fc_bgmv",bgmVol);if(bgmEl)bgmEl.volume=bgmVol;};
   $("#bgmBtn").onclick=()=>{bgmOn=!bgmOn;localStorage.setItem("fc_bgm",bgmOn?"1":"0");bgmBtn();bgmUnl=true;bgmSync();};
   const sel=$("#bgmSel");["f","m","s","g","e"].forEach(r=>{const row=document.createElement("div");row.className="bgr";const l=document.createElement("span");l.textContent={f:"요정",m:"마녀",s:"수인",g:"유령",e:"엘프"}[r];
     const se=document.createElement("select");Object.keys(BGM).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=BGM[k][0];se.appendChild(o);});
     se.value=bgmPick(r);se.onchange=()=>{localStorage.setItem("fc_bgm_"+r,se.value);bgmSync();};row.appendChild(l);row.appendChild(se);sel.appendChild(row);});
-  const un=()=>{bgmUnl=true;bgmSync();};document.addEventListener("pointerdown",un,{once:true});document.addEventListener("keydown",un,{once:true});
-  document.addEventListener("visibilitychange",bgmSync);setInterval(bgmSync,1000);
+  const un=()=>{bgmUnl=true;bgmSync();bgmPre();};document.addEventListener("pointerdown",un,{once:true});document.addEventListener("keydown",un,{once:true});
+  document.addEventListener("visibilitychange",bgmSync);setInterval(bgmSync,250);
 })();
 $("#snd").onclick=()=>{sndOn=!sndOn;localStorage.setItem("fc_snd",sndOn?"1":"0");sndBtn();if(sndOn){actx();sfx("chime");}};
 sndBtn();
@@ -2255,8 +2258,8 @@ $("#undo").onclick=()=>{
 };
 $("#new").onclick=()=>{if(mode==="net"){netResign();return;}if(busy&&(mode==="ai"||isRace()))return;reset();};
 $("#hint").onclick=hint;
-function showPg(id){document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
-function goHome(){if(mode==="net"||NET.waiting)netClose();if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";}
+function showPg(id){setTimeout(bgmSync,0);document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
+function goHome(){setTimeout(bgmSync,60);if(mode==="net"||NET.waiting)netClose();if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";}
 $("#home").onclick=()=>{if(mode==="net"&&!NET.dead&&!over){ask("대결을 끝내고 나갈까요?","나가기","계속하기",ok=>{if(ok)goHome();});return;}goHome();};
 function shToggle(r,c){
   const p=S.b[r][c];if(!p||!S.sk)return;
@@ -2279,7 +2282,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.5.23";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.5.26";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2560,7 +2563,7 @@ function start(m,l){
   $("#hint").style.display=m==="lab"?"":"none";
   $("#bar2").classList.toggle("on",m==="lab"||m==="rlab");document.body.classList.toggle("rlab",m==="rlab");
   $("#menu").style.display="none";$("#lvls").classList.remove("on");document.body.classList.toggle("racem",m==="race"||m==="rlab"||(m==="net"&&!NET.classic));
-  reset();
+  reset();setTimeout(bgmSync,60);
   if(isRace()&&mode!=="rlab")showFirst();
   if(RAI)setTimeout(maybeAI,3600);
 }
