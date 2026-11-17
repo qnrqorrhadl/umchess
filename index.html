@@ -268,7 +268,12 @@ body.racem #info{display:none}
 .tbgo{position:absolute;left:0;right:0;top:40%;text-align:center;font-size:40px;font-weight:900;color:#ffd84a;-webkit-text-stroke:2px #5a3b00;letter-spacing:4px;animation:tbg 1s ease-out forwards}
 @keyframes tbg{0%{transform:scale(.6);opacity:0}25%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
 #ldg{position:fixed;inset:0;z-index:99;background:linear-gradient(160deg,#d9f3ff 0%,#e6f9d8 55%,#c9f0a8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#ldg[hidden]{display:none}#ldg img{width:min(60vw,260px)}
+#ldg[hidden]{display:none}
+#tapov{position:fixed;inset:0;z-index:98;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#tapov[hidden]{display:none}#tapov img{width:min(66vw,300px);opacity:0;transform:translateY(90vh);transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .6s;filter:drop-shadow(0 4px 12px rgba(0,0,0,.35))}
+#tapov.up img{opacity:1;transform:none}.tapt{font-weight:900;font-size:18px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.55);opacity:0;transition:opacity .5s .9s}
+#tapov.up .tapt{opacity:1;animation:ldblink 1.3s ease-in-out 1.4s infinite alternate}@keyframes ldblink{from{opacity:.45}to{opacity:1}}
+body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opacity .5s}
 .ldt{font-weight:800;font-size:16px;color:#2f6b3a}.ldb{width:min(70vw,300px);height:12px;border-radius:8px;background:rgba(255,255,255,.7);box-shadow:inset 0 1px 3px rgba(40,120,80,.25);overflow:hidden}
 .ldb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,#8bdc5c);transition:width .2s}@keyframes ldpulse{from{width:20%}to{width:90%}}
 .ldn{font-size:13px;color:#4a8a55}
@@ -433,7 +438,8 @@ body.racem #info{display:none}
 <div id="res"><div class="rc"><img id="resImg" alt=""><div id="resTxt"></div><div id="resWhy"></div><div class="resb"><button id="resAgain">다시하기</button><button id="resMenu">메뉴</button></div></div></div>
 <div id="vs"></div>
 <div id="gd" hidden><i class="gb" id="gb1"></i><i class="gb" id="gb2"></i><i class="gb" id="gb3"></i><i class="gb" id="gb4"></i><i class="gb" id="gb5"></i><i class="gr" id="gr"></i><div class="gbub" id="gbub"><div id="gtx"></div><div class="gbt"><button id="gNext">다음</button><button id="gSkip">건너뛰기</button></div></div></div>
-<div id="ldg" hidden><img src="logo.png" alt=""><div class="ldt">새 버전을 준비하는 중…</div><div class="ldb"><i id="ldBar"></i></div><div class="ldn" id="ldNum">0%</div></div>
+<div id="tapov" hidden><img src="logo.png" alt=""><div class="tapt">화면을 눌러 시작하기</div></div>
+<div id="ldg" hidden><div class="ldt">새 버전을 준비하는 중…</div><div class="ldb"><i id="ldBar"></i></div><div class="ldn" id="ldNum">0%</div></div>
 <div id="tut" hidden><div class="tbox"><div class="tn" id="tN"></div><h2 id="tT"></h2><div class="tb" id="tB"></div><div class="tdots" id="tD"></div><div class="tbtns"><button id="tPrev">이전</button><button id="tNext">다음</button></div><button class="tskip" id="tSkip">건너뛰기</button></div></div>
 <div id="coin"><div class="rays"></div><div class="cn"><i class="sl" style="transform:translateZ(-4px)"></i><i class="sl" style="transform:translateZ(-2px)"></i><i class="sl" style="transform:translateZ(0)"></i><i class="sl" style="transform:translateZ(2px)"></i><i class="sl" style="transform:translateZ(4px)"></i><img class="cf" alt=""><img class="cb" alt=""></div></div>
 <div id="menu"><div class="box">
@@ -1008,11 +1014,17 @@ const BGM={main:["기본 테마","bgm_main.mp3"],f:["요정 테마","bgm_f.mp3"]
 let bgmOn=localStorage.getItem("fc_bgm")!=="0",bgmVol=(()=>{const v=localStorage.getItem("fc_bgmv");return v===null?.25:Math.min(1,Math.max(0,+v||0));})(),bgmUnl=false,bgmCur=null;
 /* ---------- 로딩창 (처음·업데이트 때만) ---------- */
 window.addEventListener("DOMContentLoaded",function(){
+  try{bgmPre();}catch(e){}
   let seen="";try{seen=localStorage.getItem("fc_ldv")||"";}catch(e){}
   if(seen===VER)return;
   const L=["Jua.woff2", "bB.png", "bgm_main.mp3", "bgm_f.mp3", "bgm_m.mp3", "bgm_g.mp3", "bgm_s.mp3", "bgm_e.mp3", "trap.png", "eB.png", "eK.png", "eN.png", "eP.png", "eQ.png", "eR.png", "skill_e1.jpg", "skill_e1b.jpg", "skill_e2b.jpg", "skill_e2.jpg", "skill_et.jpg", "skill_ep.jpg", "bK.png", "bN.png", "bP.png", "bQ.png", "bR.png", "bg1.jpg", "bg2.jpg", "bg3.jpg", "dagu_hit.wav", "gB.png", "gBullet.png", "gGun.png", "gK.png", "gN.png", "gP.png", "gPortal.png", "gPortal2.png", "gQ.png", "gR.png", "gSpic.png", "gh_e1.jpg", "gh_e2.jpg", "gh_e3.jpg", "gh_e4.jpg", "gh_e5.jpg", "icon-192.png", "icon-512.png", "logo.png", "manifest.json", "res_draw.png", "res_lose.png", "res_win.png", "sB.png", "sB_evo.png", "sK.png", "sK_dr.png", "sN.png", "sN_evo.png", "sP.png", "sQ.png", "sR.png", "sR_evo.png", "skill1.png", "skill2_1.png", "skill2_2.png", "skill2_3.png", "skill2_4.png", "skill2_5.png", "skill_carrot.jpg", "skill_dagu.png", "skill_gh0.jpg", "skill_gh1.jpg", "skill_gh2.jpg", "skill_goseo.jpg", "skill_su1.jpg", "skill_su2.jpg", "skill_su_k.jpg", "skill_su_p.jpg", "spk_cry.mp3", "spk_dont.mp3", "stun.png", "wB.png", "wK.png", "wK_evo.png", "wN.png", "wP.png", "wQ.png", "wR.png", "witch_bishop.jpg", "witch_cart.png", "witch_court.jpg", "witch_passive.jpg", "witch_queen.jpg", "witch_rook.jpg", "zap.mp3"],box=$("#ldg"),bar=$("#ldBar"),num=$("#ldNum");let done=0,fin=false;
   box.hidden=false;
-  const end=()=>{if(fin)return;fin=true;try{localStorage.setItem("fc_ldv",VER);}catch(e){}box.style.transition="opacity .35s";box.style.opacity="0";setTimeout(()=>{box.hidden=true;},380);};
+  const t0=Date.now();const end=()=>{if(fin)return;const w=1800-(Date.now()-t0);if(w>0){setTimeout(end,w);return;}fin=true;try{localStorage.setItem("fc_ldv",VER);}catch(e){}const hideLd=()=>{box.style.transition="opacity .45s";box.style.opacity="0";setTimeout(()=>{box.hidden=true;},480);};
+    const go=()=>{bgmUnl=true;bgmSync();};
+    if(bgmOn&&!bgmUnl){const tp=$("#tapov");document.body.classList.add("tapwait");tp.hidden=false;tp.classList.remove("up");hideLd();
+      setTimeout(()=>tp.classList.add("up"),520);
+      tp.onclick=()=>{go();tp.style.transition="opacity .35s";tp.style.opacity="0";document.body.classList.remove("tapwait");setTimeout(()=>{tp.hidden=true;},380);};}
+    else{go();hideLd();}};
   const step=()=>{done++;const p=Math.round(done/L.length*100);bar.style.width=p+"%";num.textContent=p+"%";if(done>=L.length)setTimeout(end,250);};
   const tot=L.filter(f=>!/^bgm_/.test(f)).length+Object.keys(BGM).length;
   const step2=()=>{done++;const p=Math.min(100,Math.round(done/tot*100));bar.style.width=p+"%";num.textContent=p+"%";if(done>=tot)setTimeout(end,250);};
@@ -1028,17 +1040,27 @@ const bgmPick=r=>{const v=localStorage.getItem("fc_bgm_"+r);return BGM[v]?v:r;};
 function bgmWant(){
   if($("#menu").style.display!=="none"||!S||!isRace())return"main";
   const r=mode==="net"||RAI?rOf(me):rOf("w");return bgmPick(r);}
+let bgmX=null;
 function bgmSync(){
-  try{if(!bgmOn||!bgmUnl||document.hidden){Object.values(bgmPool).forEach(a=>{if(!a.paused)a.pause();});return;}
+  try{if(!bgmOn||!bgmUnl||document.hidden){Object.values(bgmPool).forEach(a=>{if(!a.paused)a.pause();});bgmX=null;return;}
     const k=bgmWant(),a=bgmAud(k);
-    if(bgmEl!==a){bgmEl=a;bgmCur=BGM[k][1];}
-    if(a.paused){if(a.volume>.001&&a.volume===bgmVol)a.volume=0;a.play().catch(()=>{});}}catch(e){}}
+    if(bgmEl!==a){
+      const cur=bgmEl;
+      if(cur&&!cur.paused&&cur.duration&&cur.duration-cur.currentTime<6)return;
+      const olds=Object.values(bgmPool).filter(x=>x!==a&&!x.paused&&x.volume>.001).map(x=>({a:x,v:x.volume}));
+      bgmEl=a;bgmCur=BGM[k][1];
+      if(!olds.length){a.volume=bgmVol;}
+      else{a.volume=0;bgmX={t:performance.now(),olds};}
+    }
+    if(a.paused)a.play().catch(()=>{});}catch(e){}}
 function bgmFade(){
-  try{if(!bgmOn||!bgmUnl||document.hidden)return;const st=Math.max(.01,bgmVol)*60/1500;
-    for(const a of Object.values(bgmPool)){
-      const tg=a===bgmEl?bgmVol:0,v=a.volume;
-      if(Math.abs(v-tg)<=st)a.volume=tg;else a.volume=Math.max(0,Math.min(1,v+(v<tg?st:-st)));
-      if(a!==bgmEl&&a.volume===0&&!a.paused){a.pause();try{a.currentTime=0;}catch(e){}}}}catch(e){}}
+  try{if(!bgmOn||!bgmUnl||document.hidden)return;
+    if(bgmX){const p=Math.min(1,(performance.now()-bgmX.t)/2500),sn=Math.sin(p*Math.PI/2),cs=Math.cos(p*Math.PI/2);
+      if(bgmEl)bgmEl.volume=bgmVol*sn;
+      bgmX.olds.forEach(o=>{if(o.a!==bgmEl)o.a.volume=o.v*cs;});
+      if(p>=1){bgmX.olds.forEach(o=>{if(o.a!==bgmEl){o.a.pause();o.a.volume=0;}});bgmX=null;}
+    }else if(bgmEl&&!bgmEl.paused&&Math.abs(bgmEl.volume-bgmVol)>.005){bgmEl.volume=bgmVol;}
+  }catch(e){}}
 function bgmBtn(){$("#bgmBtn").textContent=bgmOn?"배경음악 켬":"배경음악 끔";}
 (function(){
   bgmBtn();const vs=$("#bgmVol");vs.value=Math.round(bgmVol*100);
@@ -2309,7 +2331,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.6.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.4";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
