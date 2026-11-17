@@ -1041,6 +1041,8 @@ window.addEventListener("DOMContentLoaded",function(){
   setTimeout(end,180000);
 });
 /* 배경음악: 웹 오디오(끊김 없는 반복) */
+const BGML={main:0.3,f:0.3,m:16.68,g:15.12,s:6.88,e:26.64};
+const bgmAt=(n,t)=>{const e=n.off+(t-n.t0);return e<n.dur?e:n.ls+((e-n.ls)%(n.dur-n.ls));};
 let bgmCtx=null,bgmMaster=null;const bgmBuf={},bgmP={},bgmNodes={},bgmPos={};let bgmCurK=null;
 function bgmC(){if(!bgmCtx){const C=window.AudioContext||window.webkitAudioContext;bgmCtx=new C();bgmMaster=bgmCtx.createGain();bgmMaster.gain.value=bgmVol;bgmMaster.connect(bgmCtx.destination);}return bgmCtx;}
 function bgmLoad(k){
@@ -1055,18 +1057,18 @@ function bgmWant(){
 function bgmFadeOut(k,now,len){
   const n=bgmNodes[k];if(!n)return;const g=n.g.gain,v=g.value;
   try{g.cancelScheduledValues(now);g.setValueAtTime(v,now);const c=new Float32Array(48);for(let i=0;i<48;i++)c[i]=v*Math.cos(i/47*Math.PI/2);g.setValueCurveAtTime(c,now,len);}catch(e){}
-  bgmPos[k]=(n.off+(now+len-n.t0))%n.dur;
+  bgmPos[k]=bgmAt(n,now+len);
   try{n.src.stop(now+len+.1);}catch(e){}
   delete bgmNodes[k];}
 function bgmStart(k){
   const ctx=bgmC(),buf=bgmBuf[k];if(!buf)return;const now=ctx.currentTime,olds=Object.keys(bgmNodes);
-  const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;const g=ctx.createGain();src.connect(g);g.connect(bgmMaster);
-  const off=(bgmPos[k]||0)%buf.duration;
+  const ls=BGML[k]||0;const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;src.loopStart=ls;src.loopEnd=buf.duration;const g=ctx.createGain();src.connect(g);g.connect(bgmMaster);
+  const off=Math.min(bgmPos[k]||0,buf.duration-.05);
   if(!olds.length)g.gain.value=1;
   else{g.gain.value=0;const c=new Float32Array(48);for(let i=0;i<48;i++)c[i]=Math.sin(i/47*Math.PI/2);g.gain.setValueCurveAtTime(c,now,2.5);}
   src.start(0,off);
   olds.forEach(o=>bgmFadeOut(o,now,2.5));
-  bgmNodes[k]={src,g,t0:now,off,dur:buf.duration};bgmCurK=k;}
+  bgmNodes[k]={src,g,t0:now,off,dur:buf.duration,ls};bgmCurK=k;}
 function bgmSync(){
   try{
     if(!bgmOn||!bgmUnl||document.hidden){if(bgmCtx&&bgmCtx.state==="running")bgmCtx.suspend();return;}
@@ -2345,7 +2347,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.6.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.15";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2663,7 +2665,7 @@ const RD={
     ex:[["공용","UFC 당근튀김","skill_carrot.jpg",CDESC.replace(/^UFC 당근튀김: /,"")],["패시브","마녀적 사고방식","witch_passive.jpg",PDESC.replace(/^마녀적 사고방식: /,"")]]}};
 const SDESC2={1:"즉발 · 이번 턴에 폰만 두 번 움직일 수 있다. 같은 폰은 안 되고, 두 번째 수로는 잡을 수 없다 · 이 스킬로는 체크를 걸 수 없다 · 쿨 10턴",2:"즉발 · 퀸만 쓸 수 있다. 퀸이 평소처럼 움직여 상대 기물을 잡으면, 그 기물 바로 뒤쪽 3칸(옆으로 가면 가로 3칸, 대각선이면 ㄱ자 3칸)의 기물이 날아간다. 킹은 안 날아가고 방어막은 방어막만 소모된다. 내 기물도 날아가고 퀸은 1턴 스턴이다 · 스턴된 퀸은 체크로 치지 않는다 · 쿨 8턴"};
 RD.s={name:"수인",king:"sK.png",sk:[[SNAME[1],SDESC2[1],"skill_su1.jpg"],[SNAME[2],SDESC2[2],"skill_su2.jpg"]],
- ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직인다 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화돼요. 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있고(체크는 불가능), 룩은 방어막 1개를 얻어요"]]};
+ ex:[["공용","대리 촌장","skill_su_k.jpg","3턴 동안 킹이 퀸처럼 움직인다 · 내 턴 소모 · 쿨 10턴"],["패시브","사료스탕스","skill_su_p.jpg","나이트·비숍·룩이 상대 기물을 2개 잡으면 강화된다 · 나이트는 킹처럼도 움직이고, 비숍은 기물 1개를 뛰어넘어 잡을 수 있으며(체크는 불가능), 룩은 방어막 1개를 얻는다"]]};
 RD.g={name:"유령",king:"gK.png",sk:[[GNAME[1],GDESCS[1].replace(/^[^:]*: /,""),"skill_gh1.jpg"],[GNAME[2],GDESCS[2].replace(/^[^:]*: /,""),"skill_gh2.jpg"]],
  ex:[["공용","차원의 틈","skill_gh0.jpg",GCDESC.replace(/^[^:]*: /,"")]]};
 const ELDESC={1:"빈칸 3곳에 덫(공기까스)을 몰래 뿌린다. 2~3개는 상대 진영 쪽에 떨어진다 · 덫은 5턴 동안 남고 상대 눈에는 보이지 않는다 · 상대 기물이 밟으면 1턴 기절(저림 상태면 2턴), 지나가기만 해도 그 칸에 멈춘다 · 내 기물이 밟으면 엘프 스킬 쿨타임이 모두 2턴 줄어든다 · 내 턴 소모 · 쿨 10턴",
