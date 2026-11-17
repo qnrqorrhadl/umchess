@@ -1014,7 +1014,7 @@ const BGM={main:["기본 테마","bgm_main.mp3"],f:["요정 테마","bgm_f.mp3"]
 let bgmOn=localStorage.getItem("fc_bgm")!=="0",bgmVol=(()=>{const v=localStorage.getItem("fc_bgmv");return v===null?.25:Math.min(1,Math.max(0,+v||0));})(),bgmUnl=false,bgmCur=null;
 /* ---------- 로딩창 (처음·업데이트 때만) ---------- */
 window.addEventListener("DOMContentLoaded",function(){
-  try{bgmPre();}catch(e){}
+  try{bgmLoad("main");}catch(e){}
   let seen="";try{seen=localStorage.getItem("fc_ldv")||"";}catch(e){}
   if(seen===VER)return;
   const L=["Jua.woff2", "bB.png", "bgm_main.mp3", "bgm_f.mp3", "bgm_m.mp3", "bgm_g.mp3", "bgm_s.mp3", "bgm_e.mp3", "trap.png", "eB.png", "eK.png", "eN.png", "eP.png", "eQ.png", "eR.png", "skill_e1.jpg", "skill_e1b.jpg", "skill_e2b.jpg", "skill_e2.jpg", "skill_et.jpg", "skill_ep.jpg", "bK.png", "bN.png", "bP.png", "bQ.png", "bR.png", "bg1.jpg", "bg2.jpg", "bg3.jpg", "dagu_hit.wav", "gB.png", "gBullet.png", "gGun.png", "gK.png", "gN.png", "gP.png", "gPortal.png", "gPortal2.png", "gQ.png", "gR.png", "gSpic.png", "gh_e1.jpg", "gh_e2.jpg", "gh_e3.jpg", "gh_e4.jpg", "gh_e5.jpg", "icon-192.png", "icon-512.png", "logo.png", "manifest.json", "res_draw.png", "res_lose.png", "res_win.png", "sB.png", "sB_evo.png", "sK.png", "sK_dr.png", "sN.png", "sN_evo.png", "sP.png", "sQ.png", "sR.png", "sR_evo.png", "skill1.png", "skill2_1.png", "skill2_2.png", "skill2_3.png", "skill2_4.png", "skill2_5.png", "skill_carrot.jpg", "skill_dagu.png", "skill_gh0.jpg", "skill_gh1.jpg", "skill_gh2.jpg", "skill_goseo.jpg", "skill_su1.jpg", "skill_su2.jpg", "skill_su_k.jpg", "skill_su_p.jpg", "spk_cry.mp3", "spk_dont.mp3", "stun.png", "wB.png", "wK.png", "wK_evo.png", "wN.png", "wP.png", "wQ.png", "wR.png", "witch_bishop.jpg", "witch_cart.png", "witch_court.jpg", "witch_passive.jpg", "witch_queen.jpg", "witch_rook.jpg", "zap.mp3"],box=$("#ldg"),bar=$("#ldBar"),num=$("#ldNum");let done=0,fin=false;
@@ -1026,51 +1026,57 @@ window.addEventListener("DOMContentLoaded",function(){
       tp.onclick=()=>{go();tp.style.transition="opacity .35s";tp.style.opacity="0";document.body.classList.remove("tapwait");setTimeout(()=>{tp.hidden=true;},380);};}
     else{go();hideLd();}};
   const step=()=>{done++;const p=Math.round(done/L.length*100);bar.style.width=p+"%";num.textContent=p+"%";if(done>=L.length)setTimeout(end,250);};
-  const tot=L.filter(f=>!/^bgm_/.test(f)).length+Object.keys(BGM).length;
+  const tot=L.filter(f=>!/^bgm_/.test(f)).length+1;
   const step2=()=>{done++;const p=Math.min(100,Math.round(done/tot*100));bar.style.width=p+"%";num.textContent=p+"%";if(done>=tot)setTimeout(end,250);};
   L.filter(f=>!/^bgm_/.test(f)).forEach(f=>{fetch(f).then(r=>r.blob()).catch(()=>{}).then(step2);});
-  Object.keys(BGM).forEach(k=>{const a=bgmAud(k);let ok=false;const fin=()=>{if(ok)return;ok=true;step2();};
-    a.addEventListener("canplaythrough",fin,{once:true});a.addEventListener("error",fin,{once:true});if(a.readyState>=4)fin();try{a.load();}catch(e){fin();}});
+  bgmLoad("main").then(step2);
   setTimeout(end,180000);
 });
-const bgmPool={};let bgmEl=null;
-function bgmAud(k){if(!bgmPool[k]){const a=new Audio(BGM[k][1]);a.loop=true;a.preload="auto";a.volume=0;bgmPool[k]=a;}return bgmPool[k];}
-function bgmPre(){Object.keys(BGM).forEach(k=>{const a=bgmAud(k);try{a.load();}catch(e){}});}
+/* 배경음악: 웹 오디오(끊김 없는 반복) */
+let bgmCtx=null,bgmMaster=null;const bgmBuf={},bgmP={},bgmNodes={},bgmPos={};let bgmCurK=null;
+function bgmC(){if(!bgmCtx){const C=window.AudioContext||window.webkitAudioContext;bgmCtx=new C();bgmMaster=bgmCtx.createGain();bgmMaster.gain.value=bgmVol;bgmMaster.connect(bgmCtx.destination);}return bgmCtx;}
+function bgmLoad(k){
+  if(bgmBuf[k])return Promise.resolve(bgmBuf[k]);
+  if(!bgmP[k])bgmP[k]=fetch(BGM[k][1]).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>{const p=bgmC().decodeAudioData(b,ok,no);if(p&&p.catch)p.catch(no);})).then(buf=>{bgmBuf[k]=buf;bgmEvict();return buf;}).catch(()=>{delete bgmP[k];return null;});
+  return bgmP[k];}
+function bgmEvict(){const ks=Object.keys(bgmBuf).filter(k=>k!=="main"&&k!==bgmCurK&&!bgmNodes[k]);while(ks.length>1){const k=ks.shift();delete bgmBuf[k];delete bgmP[k];}}
 const bgmPick=r=>{const v=localStorage.getItem("fc_bgm_"+r);return BGM[v]?v:r;};
 function bgmWant(){
   if($("#menu").style.display!=="none"||!S||!isRace())return"main";
   const r=mode==="net"||RAI?rOf(me):rOf("w");return bgmPick(r);}
-let bgmX=null;
+function bgmFadeOut(k,now,len){
+  const n=bgmNodes[k];if(!n)return;const g=n.g.gain,v=g.value;
+  try{g.cancelScheduledValues(now);g.setValueAtTime(v,now);const c=new Float32Array(48);for(let i=0;i<48;i++)c[i]=v*Math.cos(i/47*Math.PI/2);g.setValueCurveAtTime(c,now,len);}catch(e){}
+  bgmPos[k]=(n.off+(now+len-n.t0))%n.dur;
+  try{n.src.stop(now+len+.1);}catch(e){}
+  delete bgmNodes[k];}
+function bgmStart(k){
+  const ctx=bgmC(),buf=bgmBuf[k];if(!buf)return;const now=ctx.currentTime,olds=Object.keys(bgmNodes);
+  const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;const g=ctx.createGain();src.connect(g);g.connect(bgmMaster);
+  const off=(bgmPos[k]||0)%buf.duration;
+  if(!olds.length)g.gain.value=1;
+  else{g.gain.value=0;const c=new Float32Array(48);for(let i=0;i<48;i++)c[i]=Math.sin(i/47*Math.PI/2);g.gain.setValueCurveAtTime(c,now,2.5);}
+  src.start(0,off);
+  olds.forEach(o=>bgmFadeOut(o,now,2.5));
+  bgmNodes[k]={src,g,t0:now,off,dur:buf.duration};bgmCurK=k;}
 function bgmSync(){
-  try{if(!bgmOn||!bgmUnl||document.hidden){Object.values(bgmPool).forEach(a=>{if(!a.paused)a.pause();});bgmX=null;return;}
-    const k=bgmWant(),a=bgmAud(k);
-    if(bgmEl!==a){
-      const cur=bgmEl;
-      if(cur&&!cur.paused&&cur.duration&&cur.duration-cur.currentTime<6)return;
-      const olds=Object.values(bgmPool).filter(x=>x!==a&&!x.paused&&x.volume>.001).map(x=>({a:x,v:x.volume}));
-      bgmEl=a;bgmCur=BGM[k][1];
-      if(!olds.length){a.volume=bgmVol;}
-      else{a.volume=0;bgmX={t:performance.now(),olds};}
-    }
-    if(a.paused)a.play().catch(()=>{});}catch(e){}}
-function bgmFade(){
-  try{if(!bgmOn||!bgmUnl||document.hidden)return;
-    if(bgmX){const p=Math.min(1,(performance.now()-bgmX.t)/2500),sn=Math.sin(p*Math.PI/2),cs=Math.cos(p*Math.PI/2);
-      if(bgmEl)bgmEl.volume=bgmVol*sn;
-      bgmX.olds.forEach(o=>{if(o.a!==bgmEl)o.a.volume=o.v*cs;});
-      if(p>=1){bgmX.olds.forEach(o=>{if(o.a!==bgmEl){o.a.pause();o.a.volume=0;}});bgmX=null;}
-    }else if(bgmEl&&!bgmEl.paused&&Math.abs(bgmEl.volume-bgmVol)>.005){bgmEl.volume=bgmVol;}
+  try{
+    if(!bgmOn||!bgmUnl||document.hidden){if(bgmCtx&&bgmCtx.state==="running")bgmCtx.suspend();return;}
+    const ctx=bgmC();if(ctx.state==="suspended")ctx.resume();
+    const k=bgmWant();if(k===bgmCurK)return;
+    if(!bgmBuf[k]){bgmLoad(k).then(()=>bgmSync());return;}
+    bgmStart(k);
   }catch(e){}}
 function bgmBtn(){$("#bgmBtn").textContent=bgmOn?"배경음악 켬":"배경음악 끔";}
 (function(){
   bgmBtn();const vs=$("#bgmVol");vs.value=Math.round(bgmVol*100);
-  vs.oninput=()=>{bgmVol=vs.value/100;localStorage.setItem("fc_bgmv",bgmVol);};
+  vs.oninput=()=>{bgmVol=vs.value/100;localStorage.setItem("fc_bgmv",bgmVol);if(bgmMaster)bgmMaster.gain.setTargetAtTime(bgmVol,bgmCtx.currentTime,.05);};
   $("#bgmBtn").onclick=()=>{bgmOn=!bgmOn;localStorage.setItem("fc_bgm",bgmOn?"1":"0");bgmBtn();bgmUnl=true;bgmSync();};
   const sel=$("#bgmSel");["f","m","s","g","e"].forEach(r=>{const row=document.createElement("div");row.className="bgr";const l=document.createElement("span");l.textContent={f:"요정",m:"마녀",s:"수인",g:"유령",e:"엘프"}[r];
     const se=document.createElement("select");Object.keys(BGM).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=BGM[k][0];se.appendChild(o);});
     se.value=bgmPick(r);se.onchange=()=>{localStorage.setItem("fc_bgm_"+r,se.value);bgmSync();};row.appendChild(l);row.appendChild(se);sel.appendChild(row);});
-  const un=()=>{bgmUnl=true;bgmSync();bgmPre();};document.addEventListener("pointerdown",un,{once:true});document.addEventListener("keydown",un,{once:true});
-  document.addEventListener("visibilitychange",bgmSync);setInterval(bgmSync,250);setInterval(bgmFade,60);
+  const un=()=>{bgmUnl=true;bgmSync();};document.addEventListener("pointerdown",un,{once:true});document.addEventListener("keydown",un,{once:true});
+  document.addEventListener("visibilitychange",bgmSync);setInterval(bgmSync,250);
 })();
 $("#snd").onclick=()=>{sndOn=!sndOn;localStorage.setItem("fc_snd",sndOn?"1":"0");sndBtn();if(sndOn){actx();sfx("chime");}};
 sndBtn();
@@ -2331,7 +2337,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.6.4";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.6";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2790,12 +2796,13 @@ $("#rAi").onclick=()=>enterP2("rai");
 $("#mRace").onclick=()=>{P2MODE=false;raceUI();raceRender();showPg("pgRace");};
 $("#pgRace .back").onclick=()=>{if(P2MODE){P2MODE=false;raceUI();raceRender();return;}showPg("pgMain");};
 S=newState(false);render();
+if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data;if(d&&d.t==="p"&&window.__upd&&!$("#ldg").hidden){const p=Math.round(d.d/d.n*100);$("#ldBar").style.width=p+"%";$("#ldNum").textContent=p+"%";}});
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").then(reg=>{
   reg.addEventListener("updatefound",()=>{
     if(!navigator.serviceWorker.controller)return;
     const idle=!busy&&!(typeof mode!=="undefined"&&mode==="net")&&$("#menu").style.display!=="none";
     if(!idle)return;
-    const box=$("#ldg");if(!box)return;$("#ldBar").style.width="35%";$("#ldBar").style.animation="ldpulse 1.2s ease-in-out infinite alternate";$("#ldNum").textContent="";
+    const box=$("#ldg");if(!box)return;window.__upd=1;$("#ldBar").style.animation="none";$("#ldBar").style.width="0%";$("#ldNum").textContent="0%";
     box.querySelector(".ldt").textContent="새 버전을 받는 중… 잠시만요";box.style.opacity="1";box.hidden=false;
     setTimeout(()=>{if(!window.__rl)box.hidden=true;},40000);
   });
