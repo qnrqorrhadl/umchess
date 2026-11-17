@@ -1004,7 +1004,15 @@ function sfx(k){if(!sndOn)return;
   else if(k==="decide"){[784,1047,1319].forEach((f,i)=>{tone(f,i*.07,.5,"triangle",.1);tone(f*2,i*.07,.3,"sine",.04);});}
   else if(k==="mate"){[523,659,784,1047].forEach((f,i)=>{tone(f,i*.1,.25,"triangle",.12);tone(f*2,i*.1,.12,"sine",.04);});[1047,1319,1568].forEach(f=>tone(f,.45,.7,"triangle",.09));tone(2093,.5,.5,"sine",.05);}
 }
-function voice(f){if(!sndOn)return;try{const a=new Audio(f);a.play().catch(()=>{});}catch(e){}}
+const VBUF={};
+function voice(f){if(!sndOn)return;
+  try{const c=actx();if(!c)return;
+    const go=b=>{const sr=c.createBufferSource();sr.buffer=b;sr.connect(c.destination);sr.start(0);};
+    if(VBUF[f]instanceof AudioBuffer){go(VBUF[f]);return;}
+    if(!VBUF[f])VBUF[f]=fetch(f).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>{const p=c.decodeAudioData(b,ok,no);if(p&&p.catch)p.catch(no);})).then(b=>{VBUF[f]=b;return b;}).catch(()=>{delete VBUF[f];return null;});
+    VBUF[f].then(b=>{if(b)go(b);});
+  }catch(e){}}
+try{if("mediaSession" in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState="none";}}catch(e){}
 function sndBtn(){$("#snd").textContent=sndOn?"효과음 켬":"효과음 끔";}
 $("#mSet").onclick=()=>showPg("pgSet");
 function bwBtn(){$("#bwBtn").textContent=bwOn?"흑백 모드 켬":"흑백 모드 끔";$("#bwBtn").classList.toggle("on",bwOn);}
@@ -2337,7 +2345,7 @@ $("#rlSwap").onclick=()=>{const t=TEAM[S.turn];t.s=t.s===1?2:1;skT=false;gbT=fal
 const getNick=()=>{let n="";try{n=(localStorage.getItem("fc_nick")||"").trim();}catch(e){}return n.slice(0,10)||"교주";};
 const cleanN=n=>String(n||"").replace(/\s+/g," ").trim().slice(0,10)||"교주";
 const oppN=()=>{const o=NET.oppN||"상대",m=getNick();return o===m?o+"(상대)":o;};
-const VER="1.6.7";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
