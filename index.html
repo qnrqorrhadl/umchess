@@ -399,6 +399,7 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #skPv .pw .shd,#skPv .pw .aur{position:absolute}
 #skPv .cap{position:absolute;left:0;right:0;top:.8cqw;text-align:center;color:#fff;font-size:2.4cqw;text-shadow:0 .2cqw .5cqw rgba(0,0,0,.6);opacity:0;transition:opacity .4s;z-index:10;pointer-events:none}
 #skPv .cap.on{opacity:1}
+#skPv .mbd.cb .cap{top:auto!important;bottom:1.2cqw}#skPv .mbd.cb .lab{top:auto!important;bottom:6cqw}
 
 #recNote{display:none}
 #menu .box.bk #pgRec{justify-content:flex-start;gap:2cqw;padding-top:20cqw}
@@ -432,7 +433,7 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #menu .box.bk .rbtn.off i{color:#a8a38c;font-size:3cqw}
 #menu .box.bk .rhint{text-align:center;font-size:3cqw;color:#8a7f5c}
 #menu .box.bk #pgRace>button:not(.back),#menu .box.bk #pgRace .half,#menu .box.bk #skPick{flex:none;width:100%;box-sizing:border-box;padding:2cqw 1cqw;border-radius:4cqw;background:#4FAE3A;color:#fff;font-size:4.4cqw;box-shadow:inset 0 .5cqw 0 rgba(255,255,255,.35);border-bottom:1cqw solid #2F7F22}
-#menu .box.bk #pgRace .half{display:flex;flex-direction:column;gap:1.4cqw;background:none;box-shadow:none;border:0;padding:0}
+#menu .box.bk #pgRace .half{display:flex;flex-direction:column;gap:2cqw;background:none;box-shadow:none;border:0;padding:0}
 #menu .box.bk #pgRace .half button{flex:none;padding:2cqw 1cqw;border-radius:4cqw;background:#4FAE3A;color:#fff;font-size:4.4cqw;border-bottom:1cqw solid #2F7F22;box-shadow:inset 0 .5cqw 0 rgba(255,255,255,.35)}
 #menu .box.bk #rNet,#menu .box.bk #rGo,#menu .box.bk #skPick{background:#F5C443!important;color:#5A3E00!important;border-bottom-color:#C99A1E!important}
 #menu .box.bk .back{flex:none;background:#9aa9a0;color:#fff;border-radius:4cqw;border:0;border-bottom:1cqw solid #7c8a82;font-size:4cqw;padding:1.6cqw 1cqw;box-shadow:none}
@@ -495,12 +496,12 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #menu .box.bk #pgSk .pvl{display:block}
 #menu .box.bk #pgRace .rhint,#menu .box.bk #pgSk .pvl{left:8.7cqw;width:38cqw;top:41.5cqw;font-size:1.4cqw}
 #menu .box.bk #pgRace>button:not(.back),#menu .box.bk #pgRace .half{left:58.4cqw;width:30cqw;font-size:2.3cqw;padding:1.3cqw 0 1.1cqw;border-radius:2.3cqw;border-bottom-width:.55cqw}
-#menu .box.bk #pgRace .half{padding:0;border:0;gap:1.4cqw}
+#menu .box.bk #pgRace .half{padding:0;border:0;gap:1.5cqw}
 #menu .box.bk #pgRace .half button{font-size:2.3cqw;padding:1.3cqw 0 1.1cqw;border-radius:2.3cqw;border-bottom-width:.55cqw}
 #menu .box.bk #rNet,#menu .box.bk #rGo{top:17.2cqw}
-#menu .box.bk #rBtns{top:23.6cqw}
-#menu .box.bk #rAi{top:36.4cqw}
-#menu .box.bk #pgRace .back{left:58.4cqw;width:30cqw;top:43cqw;font-size:1.8cqw;padding:.7cqw 0;border-radius:2cqw;border-bottom-width:.45cqw}
+#menu .box.bk #rBtns{top:24.2cqw}
+#menu .box.bk #rAi{top:38.2cqw}
+#menu .box.bk #pgRace .back{left:58.4cqw;width:30cqw;top:45.2cqw;font-size:1.8cqw;padding:.7cqw 0;border-radius:2cqw;border-bottom-width:.45cqw}
 #menu .box.bk #skPv{display:block;left:10.7cqw;top:15.5cqw;width:34cqw;height:36cqw;border-radius:2cqw;border:.7cqw solid #4FAE3A;overflow:hidden;box-sizing:border-box;background:#ddd}
 #menu .box.bk #skPv>img,#menu .box.bk #skPv>video{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}#skPv video[hidden]{display:none!important}
 #menu .box.bk #pgSk .pvl{left:10.7cqw;width:34cqw;top:52.6cqw}
@@ -2538,7 +2539,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.23";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.25";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2893,7 +2894,7 @@ const DEMO={
 "무식은 힘으로 커버한다!":{pcs:{a:["s","P",1,3],b:["s","P",3,3],e:["f","P",2,1,1]},steps:[[900,[["mv","a",1,2],["cell",1,3,"last"],["cell",1,2,"last"],["tag","a","①"]],"폰 1칸 이동"],[1400,[["mv","b",3,2],["cell",3,3,"last"],["cell",3,2,"last"],["tag","b","②"]],"다른 폰 1칸 이동"],[1500,[],"한 턴에 폰 2번 이동"]]},
 "마녀적 사고방식":{pcs:{k:["m","K",2,4],p1:["m","P",1,3],p2:["m","P",3,3],wr:["m","R",2,3],ek:["f","K",2,2,1],eq:["f","Q",2,1,1]},steps:[[1000,[["op","wr",0],["lab","내 2점 : 상대 9점"]],"기물 점수 3점 이상 열세"],[1700,[["lab","쿨타임 10 → 11"]],"쿨타임 +1"],[1900,[["rm","eq"],["op","wr",1],["lab","내 7점 : 상대 0점"]],"기물 점수 5점 이상 우세"],[1700,[["lab","쿨타임 10 → 9"]],"쿨타임 -1"],[1800,[],""]]},
 "사료스탕스":{pcs:{n:["s","N",0,4],b:["s","B",4,4],r:["s","R",4,2],p1:["f","P",1,2,1],p2:["f","P",3,1,1],bl:["f","P",3,3,1],t:["f","N",2,2,1]},steps:[[1000,[],"나이트·비숍·룩이 2기물 잡으면 강화"],[900,[["mv","n",1,2],["rm","p1"]],"나이트 1기물"],[1100,[["mv","n",3,1],["rm","p2"]],"나이트 2기물"],[800,[["evo","n"]],"강화"],[1100,[["mv","n",2,1]],"나이트: 킹처럼도 이동"],[1500,[["lab","비숍"],["evo","b"]],"비숍 강화"],[900,[["mv","b",2,2],["rm","t"]],"기물 1개 뛰어넘어 잡기"],[1500,[["lab","룩"],["evo","r"],["shd","r"]],"룩 강화: 방어막 1개"],[1800,[],""]]},
-"배신의 종족":{pcs:{ek:["f","K",0,1,1],q:["e","Q",1,3],k:["e","K",3,3]},steps:[[1000,[],"무승부 신청·수락 불가"],[1600,[["lab","스테일메이트"],["cell",0,1,"last"]],"원래는 무승부"],[1700,[["lab","엘프 승리"],["evo","q"],["evo","k"],["rm","ek"]],"무승부가 되면 엘프 승리"],[1800,[],""]]},
+"배신의 종족":{capB:1,pcs:{ek:["e","K",2,0],fp:["f","P",2,1,1],fk:["f","K",2,2,1]},steps:[[1000,[],"무승부 신청·수락 불가"],[1700,[["lab","스테일메이트"],["cell",2,0,"last"]],"엘프 킹이 갇혀 움직일 수 없음"],[1900,[["lab","엘프 승리"],["evo","ek"],["rm","fp"],["rm","fk"]],"무승부가 되면 엘프 승리"],[1800,[],""]]},
 "1마력 펀치~!":{pcs:{q:["s","Q",2,4],e:["f","N",2,2,1],a:["f","P",1,1,1],b:["f","B",2,1,1],c:["f","R",3,1,1],d:["f","P",0,1,1],f:["f","P",4,1,1],g:["f","P",2,0,1]},steps:[[900,[["cell",2,2,"skt"]],"퀸이 기물을 잡으면"],[900,[["punchfx","q","e",["a","b","c"]]],"뒤쪽 ㅡ자 3칸 기물만 날아감"],[1700,[["stun","q",1]],"퀸 1턴 스턴"],[1200,[],""]]},
 "대리 촌장":{pcs:{k:["s","K",0,4],p:["s","P",3,3],e:["f","P",4,1,1]},steps:[[900,[["im","k","sK_dr.png"]],"3턴간 킹이 퀸처럼 이동"],[1500,[["mv","k",3,1],["cell",0,4,"last"],["cell",3,1,"last"],["tag","k","3"]],"한 번에 멀리 이동"],[1500,[],""]]},
 "불좀 꺼줄래?":{pcs:{p:["g","R",1,4],e:["f","P",3,2,1]},steps:[[700,[["ptl",1,2,"in"]],"입구 생성"],[1000,[["ptl",3,1,"out"]],"출구 생성"],[800,[["mv","p",1,2]],"입구 진입"],[400,[["tp","p",3,1]],"출구로 이동"],[1400,[],""]]},
@@ -2906,7 +2907,7 @@ function demoStop(){demoT.forEach(clearTimeout);demoT=[];}
 const SYM5={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 function demoRun(name){
   demoStop();const box=$("#skPv"),bd=box.querySelector(".mbd"),d=DEMO[name];
-  box.classList.toggle("bd",!!d);if(!d)return;
+  box.classList.toggle("bd",!!d);if(!d)return;bd.classList.toggle("cb",!!d.capB);
   const build=()=>{
     let h="";for(let y=0;y<5;y++)for(let x=0;x<5;x++)h+=`<div class="sq ${(x+y)%2?"d":"l"}" data-x="${x}" data-y="${y}"></div>`;
     Object.entries(d.pcs).forEach(([id,v])=>{
