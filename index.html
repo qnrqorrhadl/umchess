@@ -2538,7 +2538,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.21";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.22";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2891,6 +2891,9 @@ const DEMO={
 "궁정 마녀들":{pcs:{r:["m","R",0,4],n1:["f","N",0,2,1],n2:["f","P",0,1,1],n3:["f","P",1,1,1],n4:["f","P",1,2,1],bp:["m","B",4,4],e2:["f","P",2,2,1],c2:["m","P",3,3],qn:["m","Q",3,4]},steps:[[1000,[["qm",2,3],["op","c2",0]],"룩·비숍·퀸 중 랜덤 1개"],[900,[["qm"],["lab","룩"],["aur","r","red"]],"룩: 고서 상태, 잡으면 주변 폭발"],[1700,[["cartfx","r","n1",["n2","n3","n4"],1]],"잡아도 룩은 살아남음"],[1500,[["lab","비숍"],["aur","bp","ice"],["tag","bp","5"]],"비숍: 5턴 동안 잡은 기물이 마녀 편"],[900,[["mv","bp",2,2],["cell",4,4,"last"],["cell",2,2,"last"]],""],[700,[["rm","e2"],["op","c2",1],["aur","c2","ice"]],"잡은 요정 기물이 마녀 편"],[1500,[["lab","퀸"],["shd","qn"]],"퀸: 3턴 방어막 1회"],[1100,[["mv","qn",4,2],["cell",3,4,"last"],["cell",4,2,"last"]],"나이트 이동 추가"],[1600,[],""]]},
 "UFC 당근튀김":{pcs:{k:["m","K",2,4],n:["m","N",2,3],r:["f","R",2,0,1]},steps:[[1000,[["shd","n"]],"킹 제외 기물에 방어막"],[1300,[["mv","r",2,2]],"공격을 받으면"],[600,[["unshd","n"]],""],[900,[["mv","r",2,0]],"공격 막음"],[1500,[],""]]},
 "무식은 힘으로 커버한다!":{pcs:{a:["s","P",1,3],b:["s","P",3,3],e:["f","P",2,1,1]},steps:[[900,[["mv","a",1,2],["cell",1,3,"last"],["cell",1,2,"last"],["tag","a","①"]],"폰 1칸 이동"],[1400,[["mv","b",3,2],["cell",3,3,"last"],["cell",3,2,"last"],["tag","b","②"]],"다른 폰 1칸 이동"],[1500,[],"한 턴에 폰 2번 이동"]]},
+"마녀적 사고방식":{pcs:{k:["m","K",2,4],p:["m","P",1,3],ek:["f","K",2,2,1],eq:["f","Q",1,1,1],er:["f","R",3,1,1]},steps:[[1000,[["lab","점수 3점 이상 낮을 때"]],"쿨타임 +1"],[800,[["tag","k","+1"]],""],[1900,[["rm","eq"],["rm","er"],["lab","점수 5점 이상 높을 때"]],"쿨타임 -1"],[900,[["tag","p","-1"]],""],[1800,[],""]]},
+"사료스탕스":{pcs:{n:["s","N",0,4],b:["s","B",4,4],r:["s","R",4,2],p1:["f","P",1,2,1],p2:["f","P",3,1,1],bl:["f","P",3,3,1],t:["f","N",2,2,1]},steps:[[1000,[],"나이트·비숍·룩이 2기물 잡으면 강화"],[900,[["mv","n",1,2],["rm","p1"]],"나이트 1기물"],[1100,[["mv","n",3,1],["rm","p2"]],"나이트 2기물"],[800,[["evo","n"]],"강화"],[1100,[["mv","n",2,1]],"나이트: 킹처럼도 이동"],[1500,[["lab","비숍"],["evo","b"]],"비숍 강화"],[900,[["mv","b",2,2],["rm","t"]],"기물 1개 뛰어넘어 잡기"],[1500,[["lab","룩"],["evo","r"],["shd","r"]],"룩 강화: 방어막 1개"],[1800,[],""]]},
+"배신의 종족":{pcs:{k:["e","K",2,4],ek:["f","K",2,1,1],p:["e","P",1,3]},steps:[[1000,[],"무승부 신청·수락 불가"],[1700,[["lab","무승부"]],"어떤 무승부든"],[1700,[["lab","엘프 승리"],["rm","ek"]],"엘프가 승리"],[1800,[],""]]},
 "1마력 펀치~!":{pcs:{q:["s","Q",2,4],e:["f","N",2,2,1],a:["f","P",1,1,1],b:["f","B",2,1,1],c:["f","R",3,1,1],d:["f","P",0,1,1],f:["f","P",4,1,1],g:["f","P",2,0,1]},steps:[[900,[["cell",2,2,"skt"]],"퀸이 기물을 잡으면"],[900,[["punchfx","q","e",["a","b","c"]]],"뒤쪽 ㅡ자 3칸 기물만 날아감"],[1700,[["stun","q",1]],"퀸 1턴 스턴"],[1200,[],""]]},
 "대리 촌장":{pcs:{k:["s","K",0,4],p:["s","P",3,3],e:["f","P",4,1,1]},steps:[[900,[["im","k","sK_dr.png"]],"3턴간 킹이 퀸처럼 이동"],[1500,[["mv","k",3,1],["cell",0,4,"last"],["cell",3,1,"last"],["tag","k","3"]],"한 번에 멀리 이동"],[1500,[],""]]},
 "불좀 꺼줄래?":{pcs:{p:["g","R",1,4],e:["f","P",3,2,1]},steps:[[700,[["ptl",1,2,"in"]],"입구 생성"],[1000,[["ptl",3,1,"out"]],"출구 생성"],[800,[["mv","p",1,2]],"입구 진입"],[400,[["tp","p",3,1]],"출구로 이동"],[1400,[],""]]},
@@ -2943,7 +2946,7 @@ function demoRun(name){
         else if(k==="unshd"){const e=w(o[1]),d=e.querySelector(".shd");if(d){d.animate([{transform:"scale(1)",opacity:1},{transform:"scale(1.6)",opacity:0}],{duration:400,fill:"both"}).onfinish=()=>d.remove();}}
         else if(k==="aur"){const e=w(o[1]),d=document.createElement("div");d.className="aur "+o[2];e.appendChild(d);}
         else if(k==="mtb")w(o[1]).firstChild.classList.add("mtb");
-        else if(k==="evo"){const e=w(o[1]),pc=e.firstChild;pc.classList.add("evo");pc.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";pc.querySelector("img").src="wK_evo.png";}
+        else if(k==="evo"){const e=w(o[1]),pc=e.firstChild;pc.classList.add("evo");pc.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";{const im=pc.querySelector("img");if(/K\.png$/.test(im.getAttribute("src")))im.src="wK_evo.png";}}
         else if(k==="evoimg"){const e=w(o[1]),pc=e.firstChild;pc.classList.add("evo");pc.querySelector("img").src=o[2];}
         else if(k==="rm"){const e=w(o[1]);e.animate([{opacity:1,transform:"scale(1)"},{opacity:0,transform:"scale(.4)"}],{duration:400,fill:"both"});}
         else if(k==="fly"){const e=w(o[1]);e.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:`translate(${o[2]*100}%,${o[3]*100}%) rotate(540deg) scale(.4)`,opacity:0}],{duration:900,fill:"both",easing:"ease-out"});}
