@@ -399,6 +399,21 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #skPv .pw .shd,#skPv .pw .aur{position:absolute}
 #skPv .cap{position:absolute;left:0;right:0;top:.8cqw;text-align:center;color:#fff;font-size:2.4cqw;text-shadow:0 .2cqw .5cqw rgba(0,0,0,.6);opacity:0;transition:opacity .4s;z-index:10;pointer-events:none}
 #skPv .cap.on{opacity:1}
+
+#recNote{display:none}
+#menu .box.bk #pgRec{justify-content:flex-start;gap:2cqw;padding-top:20cqw}
+#menu .box.bk #recNote{display:block;text-align:center;font-size:3cqw;color:#8a7f5c}
+.rl{display:flex;flex-direction:column;gap:1.4cqw;overflow:auto}
+#menu .box.bk #recR:empty{display:none}
+.rl .re{text-align:center;color:#8a7f5c;font-size:4cqw;padding:10cqw 0}
+.rl .rr{display:flex;align-items:center;gap:1.6cqw;background:#EDE9D8;border-radius:2cqw;padding:1.2cqw 2cqw;color:#5a4a1e;flex:none}
+.rl .rr img{width:7cqw;height:7cqw;border-radius:50%;object-fit:cover;flex:none}
+.rl .rr i{font-style:normal;font-size:3cqw;color:#8a7f5c}
+.rl .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:3.6cqw}
+.rl .rr b{font-size:4cqw;border-radius:999px;padding:.2cqw 2.4cqw;color:#fff;background:#4FAE3A}
+.rl .rr.lose b{background:#d96a5a}.rl .rr.draw b{background:#9aa9a0}
+.rl .rr small{font-size:2.6cqw;color:#8a7f5c}
+#menu .box.bk #pgRec .rl{max-height:76cqw}
 /* ---- 종족전 책 화면 ---- */
 #pgRace .rhint,#pgSk .pvl,#skPv{display:none}
 #menu .box.bk #pgRace .rhint{display:block}
@@ -502,6 +517,19 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #skCard.open .ds{top:22.6cqw;max-height:24cqw}
 #menu .box.bk #pgSk .back{left:58.5cqw;top:53.4cqw;width:11cqw;font-size:1.9cqw;padding:.8cqw 0 .6cqw;border-radius:2cqw;border-bottom-width:.45cqw}
 #menu .box.bk #skPick{left:70.5cqw;top:53.4cqw;width:18.5cqw;font-size:1.9cqw;padding:.8cqw 0 .6cqw;border-radius:2cqw;border-bottom-width:.45cqw}
+
+#menu .box.bk.bt>#pgRec:not([hidden]){padding:0;display:block;position:relative;height:100%}
+#menu .box.bk.bt>#pgRec>*{position:absolute;margin:0}
+#menu .box.bk #pgRec h1{font-size:3cqw;left:7.2cqw;width:41cqw;top:7.2cqw;height:4.6cqw;line-height:4.6cqw}
+#menu .box.bk #recL{left:8.7cqw;width:38cqw;top:15.6cqw;max-height:35cqw;gap:.8cqw}
+#menu .box.bk #recR{left:58.6cqw;width:31cqw;top:15cqw;max-height:42cqw;gap:.6cqw}
+#menu .box.bk #recR:empty{display:none}
+#recR .sh{font-size:1.8cqw;color:#5a4a1e;font-weight:700;margin:.6cqw 0 .2cqw;text-align:center}#recR .sr{display:flex;align-items:center;gap:1cqw;background:#EDE9D8;border-radius:1.2cqw;padding:.4cqw 1.2cqw;flex:none}#recR .sr img{width:3cqw;height:3cqw;border-radius:50%;object-fit:cover;flex:none}#recR .sr u{flex:1;height:1.2cqw;background:#d9d3bb;border-radius:9px;overflow:hidden;text-decoration:none}#recR .sr s{display:block;height:100%;background:#4FAE3A;border-radius:9px;text-decoration:none}#recR .sr b,#recR .sr span{font-size:1.7cqw;color:#5a4a1e;font-weight:700}#recR .sr span{flex:1;text-align:right}
+.rl .rr{border-radius:1.2cqw;padding:.5cqw 1.2cqw;gap:.8cqw}
+.rl .rr img{width:4.2cqw;height:4.2cqw}.rl .rr i{font-size:1.3cqw}.rl .nm{font-size:1.7cqw}.rl .rr b{font-size:1.7cqw;padding:.1cqw 1.2cqw}.rl .rr small{font-size:1.2cqw}
+#menu .box.bk .rl .rr small{font-size:1.2cqw!important;line-height:1.2;white-space:nowrap;margin:0;text-align:right;width:auto}#menu .box.bk .rl .nm{font-size:1.7cqw!important}.rl .re{font-size:2cqw;padding:4cqw 0}
+#menu .box.bk #pgRec #recNote{left:8.7cqw;width:38cqw;top:51cqw;font-size:1.4cqw}
+#menu .box.bk #pgRec .back{left:59.8cqw;top:53.4cqw;width:11cqw;font-size:1.9cqw;padding:.8cqw 0 .6cqw;border-radius:2cqw}
 }
 
 
@@ -640,6 +668,13 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
     <div id="skCard"></div>
     <button class="back" id="skBack">← 뒤로</button>
     <button id="skPick">이 종족으로</button>
+  </div>
+  <div class="pg" id="pgRec" hidden>
+    <h1>내 기록</h1>
+    <div class="rl" id="recL"></div>
+    <div class="rl" id="recR"></div>
+    <small class="rhint" id="recNote">최근 온라인 종족전 · 이 기기에만 저장돼요</small>
+    
   </div>
   <div class="pg" id="pgClassic" hidden>
     <h1>클래식 모드</h1>
@@ -2473,7 +2508,7 @@ $("#undo").onclick=()=>{
 };
 $("#new").onclick=()=>{if(mode==="net"){netResign();return;}if(busy&&(mode==="ai"||isRace()))return;reset();};
 $("#hint").onclick=hint;
-function showPg(id){setTimeout(bgmSync,0);const bx=document.querySelector("#menu .box");if(bx){bx.classList.toggle("bk",id==="pgMain"||id==="pgRace"||id==="pgSk");bx.classList.toggle("bt",true);$("#tbMain").classList.toggle("on",id==="pgMain");$("#tbRace").classList.toggle("on",id!=="pgMain");}document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
+function showPg(id){setTimeout(bgmSync,0);const bx=document.querySelector("#menu .box");if(bx){bx.classList.toggle("bk",id==="pgMain"||id==="pgRace"||id==="pgSk"||id==="pgRec");bx.classList.toggle("bt",true);$("#tbMain").classList.toggle("on",id==="pgMain");$("#tbRace").classList.toggle("on",id!=="pgMain");}document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
 function goHome(){setTimeout(bgmSync,60);if(mode==="net"||NET.waiting)netClose();if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";}
 $("#home").onclick=()=>{if(mode==="net"&&!NET.dead&&!over){ask("대결을 끝내고 나갈까요?","나가기","계속하기",ok=>{if(ok)goHome();});return;}goHome();};
 function shToggle(r,c){
@@ -2503,7 +2538,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.18";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.19";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2612,7 +2647,7 @@ function recordStat(k){
   const sw="s"+(skOf(me)===2?2:1),sl="s"+(skOf(opp(me))===2?2:1);statInc(w,sw+"/wins");statInc(w,sw+"/games");statInc(l,sl+"/games");
 }
 function showRes(){
-  const k=resKind();recordStat(k);const r=$("#res"),im=$("#resImg"),tx=$("#resTxt");
+  const k=resKind();recordMine(k);recordStat(k);const r=$("#res"),im=$("#resImg"),tx=$("#resTxt");
   r.className="on "+k;r.style.setProperty("--hc",k==="win"?"#ffd24a":"#fff");
   const T={win:"WIN",lose:"LOSE",draw:"DRAW"}[k];
   tx.textContent=T;tx.style.display="none";im.style.display="";
@@ -2642,14 +2677,14 @@ function vsThen(n1,i1,n2,i2,cb){
   setTimeout(()=>{v.classList.remove("on");cb();},2300);
 }
 function netGo(hc,tr,ts){
-  NETEND="";NET.statDone=false;NET.classic=false;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
+  NETEND="";NET.statDone=false;NET.mineDone=false;NET.classic=false;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:opp(hc);NET.first="w";NET.dead=false;NET.q=[];
   TEAM[NET.me]={r:myRace,s:SEL[myRace]};
   TEAM[opp(NET.me)]={r:RD[tr]?tr:"f",s:+ts===2?2:1};
   clkInit();start("net");
 }
 function netGoC(hc){
-  NETEND="";NET.statDone=false;NET.classic=true;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
+  NETEND="";NET.statDone=false;NET.mineDone=false;NET.classic=true;NET.rm=false;NET.rmOpp=false;NET.res="";clearTimeout(NET.rmT);
   NET.me=NET.host?hc:(hc==="w"?"b":"w");NET.first="w";NET.dead=false;NET.q=[];
   clkInit();start("net");
 }
@@ -2711,7 +2746,7 @@ document.querySelectorAll("#nKind button").forEach(b=>b.onclick=()=>setNetKind(b
 function openNet(from,k){netStat("");$("#nPwIn").value="";$("#nPwRow").style.display="none";loadRooms();if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
 setNetKind("race");setNetTime(0);
 $("#mNet").onclick=()=>openNet("pgMain");
-$("#tbMain").onclick=()=>{P2MODE=false;raceUI();showPg("pgMain");};$("#tbRace").onclick=()=>$("#mRace").click();$("#tbStat").onclick=()=>{location.href="stats.html";};
+$("#tbMain").onclick=()=>{P2MODE=false;raceUI();showPg("pgMain");};$("#tbRace").onclick=()=>$("#mRace").click();$("#tbStat").onclick=()=>{P2MODE=false;recRender();showPg("pgRec");};
 $("#rNet").onclick=()=>openNet("pgRace","race");
 $("#cNet").onclick=()=>openNet("pgClassic","classic");
 let nVis=0;
@@ -2848,21 +2883,22 @@ function skTx(title,full,pre){const sh=SHORT[title];const e=t=>t.replace(/</g,"&
 const DEMO={
 "타임 브레이크":{pcs:{n:["f","N",1,3,1],k:["e","K",2,4],m:["e","N",3,3]},steps:[[900,[["cell",1,3,"skt"]],"상대 기물 선택"],[1100,[["mv","n",2,1],["cell",1,3,"last"],["cell",2,1,"last"]],"행마법대로 이동"],[900,[["stun","n",3]],"3턴 저림, 복귀 불가"]]},
 "공기까스 진짜 별로네":{pcs:{k:["e","K",2,4],p:["e","P",1,4],a:["t",3,2,5],b:["t",1,1,5],c:["t",2,0,5],r:["f","R",3,4,1]},steps:[[900,[["op","a",1],["op","b",1],["op","c",1]],"빈칸 3곳에 덫 설치"],[1500,[["op","a",.2],["op","b",.2],["op","c",.2]],"상대에게 안 보임"],[1200,[["mv","r",3,2]],"지나가면 그 칸에서 멈춤"],[1000,[["stun","r",1]],"밟으면 1턴 기절"]]},
-"차원의 틈":{pcs:{k:["g","K",0,4],n:["g","N",1,3],b:["g","B",3,3],r:["g","R",2,4]},steps:[[900,[["qm",2,2]],"효과 5개 중 랜덤 1개"],[900,[["qm"],["swap","n","b"]],"자리 바꾸기"],[2100,[["zapfx","r"]],"감전"],[700,[["zap","r",1],["gst","k",3]],"고스트 (공격받지 않음)"],[1000,[["spk",2,1]],"스핔이 낙하"],[1300,[["mtb","n"]],"메인 스킬 강화, 쿨 감소"],[1400,[],""]]},
-"빠아아아앙!!!":{pcs:{k:["f","K",2,4],n:["f","N",2,3],r:["m","R",2,0,1]},steps:[[800,[["shd","n"]],"방어막 1회"],[1000,[["mv","r",2,2]],"공격을 받으면"],[500,[["unshd","n"],["stun","r",1]],"막고, 공격한 기물 1턴 스턴"],[1300,[],""]]},
-"에르피엔 전통 해결법":{pcs:{k:["f","K",2,4],r:["f","R",1,4],b:["f","B",3,4],n:["f","N",0,4],p1:["f","P",1,3],p2:["f","P",3,3]},steps:[[700,[["lab","1단계"]],"쓸 때마다 한 단계씩 진화"],[900,[["lab","2단계"],["shd","p1"],["shd","p2"]],"폰 방어막 2개"],[900,[["lab","3단계"],["shd","n"],["shd","b"]],"비숍·나이트 방어막"],[900,[["lab","4단계"],["shd","r"]],"룩 방어막"],[900,[["lab","5단계"],["evo","k"]],"킹 강화"],[900,[],""]]},
-"다구리":{pcs:{a:["f","N",1,3],b:["f","B",4,3],c:["f","R",2,4],e:["m","P",2,1,1]},steps:[[700,[["cell",2,1,"skt"]],"3기물이 노리는 기물"],[900,[["mv","a",2,1]],"동시 공격"],[500,[["mv","b",2,1]],""],[500,[["mv","c",2,1],["boom",2,1],["rm","e"]],"처치"],[1000,[],""]]},
-"고.서.카.트.다아아!":{pcs:{b:["m","B",2,3],x:["m","P",1,3],y:["m","P",3,4],z:["m","N",3,2],e:["f","N",0,1,1]},steps:[[800,[["aur","b","red"]],"기물 1개를 고서로 변환"],[1600,[["cartfx","e","b",["b","x","y","z"]]],"4턴 안에 잡으면 폭발"],[1000,[],"주변 1칸 기물도 함께 제거"]]},
-"궁정 마녀들":{pcs:{b:["m","B",0,4],e:["f","P",2,2,1],r:["m","R",4,4]},steps:[[800,[["qm",2,0]],"룩·비숍·퀸 중 랜덤 1개"],[900,[["qm"],["mv","b",1,3],["cell",1,3,"last"]],"비숍 발동"],[600,[["conv","e","m"],["aur","e","ice"]],"잡은 기물이 마녀 편"],[1400,[],""]]},
-"UFC 당근튀김":{pcs:{k:["m","K",2,4],n:["m","N",2,3],r:["f","R",2,0,1]},steps:[[800,[["shd","n"]],"킹 제외 기물에 방어막"],[1000,[["mv","r",2,2]],"공격을 받으면"],[500,[["unshd","n"]],"공격 막음"],[1300,[],""]]},
+"차원의 틈":{pcs:{k:["g","K",0,4],n:["g","N",1,3],b:["g","B",3,3],r:["g","R",2,4]},steps:[[1400,[["qm",2,2]],"효과 5개 중 랜덤 1개"],[1500,[["qm"],["swap","n","b"]],"자리 바꾸기"],[2800,[["zapfx","r"]],"감전"],[1300,[["zap","r",1],["gst","k",3]],"고스트 (공격받지 않음)"],[1500,[["spk",2,1]],"스핔이 낙하"],[1900,[["mtb","n"]],"메인 스킬 강화, 쿨 감소"],[1800,[],""]]},
+"빠아아아앙!!!":{pcs:{k:["f","K",2,4],n:["f","N",2,3],r:["m","R",2,0,1]},steps:[[1000,[["shd","n"]],"방어막 1회"],[1300,[["mv","r",2,2]],"공격을 받으면"],[600,[["unshd","n"]],""],[900,[["mv","r",2,0],["stun","r",1]],"막고, 공격한 기물 1턴 스턴"],[1500,[],""]]},
+"에르피엔 전통 해결법":{pcs:{k:["f","K",2,4],r:["f","R",1,4],b:["f","B",3,4],n:["f","N",0,4],p1:["f","P",1,3],p2:["f","P",3,3]},steps:[[1200,[["lab","1단계"]],"쓸 때마다 한 단계씩 진화"],[1900,[["lab","2단계"],["shd","p1"],["shd","p2"]],"폰 방어막 2개"],[1900,[["lab","3단계"],["shd","n"],["shd","b"]],"비숍·나이트 방어막"],[1900,[["lab","4단계"],["shd","r"]],"룩 방어막"],[1900,[["lab","5단계"],["evo","k"]],"킹 강화"],[1800,[],""]]},
+"다구리":{pcs:{a:["f","N",1,3],b:["f","B",4,3],c:["f","R",2,4],e:["m","P",2,1,1]},steps:[[900,[["cell",2,1,"skt"]],"3기물이 노리는 기물"],[1100,[["mv","a",2,1]],"동시 공격"],[600,[["mv","b",2,1]],""],[600,[["mv","c",2,1],["boom",2,1],["rm","e"]],"처치"],[1100,[["mv","a",1,3],["mv","b",4,3],["mv","c",2,4]],"공격한 기물은 제자리로"],[1300,[],""]]},
+"고.서.카.트.다아아!":{pcs:{b:["m","B",0,4],e:["f","N",2,2,1],x:["f","P",1,2,1],y:["f","R",2,1,1],z:["m","P",3,3]},steps:[[1000,[["aur","b","red"]],"기물 1개를 고서로 변환"],[1800,[["cartfx","b","e",["x","y","z"]]],"4턴 안에 잡으면 폭발"],[1600,[],"주변 1칸 기물도 함께 제거 (킹 제외)"]]},
+"궁정 마녀들":{pcs:{b:["m","R",0,4],e1:["f","P",0,2,1],e2:["f","P",1,1,1],e3:["f","P",4,1,1]},steps:[[900,[["qm",2,3]],"룩·비숍·퀸 중 랜덤 1개"],[900,[["qm"],["lab","룩"],["mv","b",0,2],["cell",0,2,"last"]],"잡은 기물이 마녀 편"],[500,[["conv","e1","m"],["aur","e1","ice"]],""],[1300,[["lab","비숍"],["ty","b","B"],["mv","b",1,1],["cell",1,1,"last"]],"잡은 기물이 마녀 편"],[500,[["conv","e2","m"],["aur","e2","ice"]],""],[1300,[["lab","퀸"],["ty","b","Q"],["mv","b",4,1],["cell",4,1,"last"]],"잡은 기물이 마녀 편"],[500,[["conv","e3","m"],["aur","e3","ice"]],""],[1400,[],""]]},
+"UFC 당근튀김":{pcs:{k:["m","K",2,4],n:["m","N",2,3],r:["f","R",2,0,1]},steps:[[1000,[["shd","n"]],"킹 제외 기물에 방어막"],[1300,[["mv","r",2,2]],"공격을 받으면"],[600,[["unshd","n"]],""],[900,[["mv","r",2,0]],"공격 막음"],[1500,[],""]]},
 "무식은 힘으로 커버한다!":{pcs:{a:["s","P",1,3],b:["s","P",3,3],e:["f","P",2,1,1]},steps:[[900,[["mv","a",1,2],["cell",1,3,"last"],["cell",1,2,"last"],["tag","a","①"]],"폰 1칸 이동"],[1400,[["mv","b",3,2],["cell",3,3,"last"],["cell",3,2,"last"],["tag","b","②"]],"다른 폰 1칸 이동"],[1500,[],"한 턴에 폰 2번 이동"]]},
-"1마력 펀치~!":{pcs:{q:["s","Q",2,4],e:["f","P",2,2,1],a:["f","P",2,1,1],b:["f","N",2,0,1]},steps:[[800,[["cell",2,2,"skt"]],"퀸이 기물을 잡으면"],[1000,[["mv","q",2,2],["rm","e"]],""],[300,[["boom",2,2],["fly","a",0,-3],["fly","b",0,-3],["stun","q",1]],"뒤쪽 3칸 기물 제거"],[1500,[],"퀸 1턴 스턴"]]},
-"대리 촌장":{pcs:{k:["s","K",0,4],p:["s","P",3,3],e:["f","P",4,1,1]},steps:[[800,[],"3턴간 킹이 퀸처럼 이동"],[1300,[["mv","k",3,1],["cell",0,4,"last"],["cell",3,1,"last"],["tag","k","3"]],"한 번에 멀리 이동"],[1500,[],""]]},
+"1마력 펀치~!":{pcs:{q:["s","Q",2,4],e:["f","N",2,2,1],a:["f","P",1,1,1],b:["f","B",2,1,1],c:["f","R",3,1,1],d:["f","P",0,1,1],f:["f","P",4,1,1],g:["f","P",2,0,1]},steps:[[900,[["cell",2,2,"skt"]],"퀸이 기물을 잡으면"],[900,[["punchfx","q","e",["a","b","c"]]],"뒤쪽 ㅡ자 3칸 기물만 날아감"],[1700,[["stun","q",1]],"퀸 1턴 스턴"],[1200,[],""]]},
+"대리 촌장":{pcs:{k:["s","K",0,4],p:["s","P",3,3],e:["f","P",4,1,1]},steps:[[900,[["im","k","sK_dr.png"]],"3턴간 킹이 퀸처럼 이동"],[1500,[["mv","k",3,1],["cell",0,4,"last"],["cell",3,1,"last"],["tag","k","3"]],"한 번에 멀리 이동"],[1500,[],""]]},
 "불좀 꺼줄래?":{pcs:{p:["g","R",1,4],e:["f","P",3,2,1]},steps:[[700,[["ptl",1,2,"in"]],"입구 생성"],[1000,[["ptl",3,1,"out"]],"출구 생성"],[800,[["mv","p",1,2]],"입구 진입"],[400,[["tp","p",3,1]],"출구로 이동"],[1400,[],""]]},
-"마.탄.의.사.수":{pcs:{b:["g","B",0,4],e:["f","R",0,1,1],p:["g","P",2,3]},steps:[[800,[["mtb","b"]],"비숍 5턴 강화"],[1500,[["gunfx","b","e"]],"룩처럼 원거리 공격"],[1400,[],""]]},
+"마.탄.의.사.수":{pcs:{b:["g","B",0,4],e:["f","R",0,1,1],p:["g","P",0,3]},steps:[[900,[["mtb","b"]],"비숍 5턴 강화"],[1600,[["gunfx","b","e"]],"룩처럼 원거리 공격"],[1400,[],""]]},
 "라이카-노바 테이저 건-2000":{pcs:{n:["e","N",1,4],e:["f","Q",2,2,1],p:["f","P",3,1,1]},steps:[[800,[["zapfx","e"]],"상대 기물 감전"],[700,[["zap","e",1]],"1턴 기절, 이후 30% 저림"],[1600,[],""]]}
 };
 let demoT=[];
+(function(){const u=new Set(["sK_dr.png","gGun.png","trap.png","stun.png","gBullet.png","wK_evo.png","witch_cart.png","gSpic.png"]);setTimeout(()=>{try{Object.values(DEMO).forEach(d=>Object.values(d.pcs).forEach(v=>{if(v[0]!=="t")u.add(RACES[v[0]].img+v[1]+".png");}));u.forEach(f=>{const i=new Image();i.src=f;});}catch(e){}},1500);})();
 function demoStop(){demoT.forEach(clearTimeout);demoT=[];}
 const SYM5={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 function demoRun(name){
@@ -2881,8 +2917,8 @@ function demoRun(name){
     if($("#pgSk").hidden||!box.classList.contains("bd"))return;
     build();
     const w=id=>bd.querySelector(`.pw[data-id=${id}]`),cap=bd.querySelector(".cap"),qm=bd.querySelector(".qm");
-    let t=600;
-    d.steps.forEach(([wt,ops,tx])=>{t+=wt;demoT.push(setTimeout(()=>{
+    let t=0,fi=1;
+    d.steps.forEach(([wt,ops,tx])=>{t+=fi?Math.min(wt,300):wt;fi=0;demoT.push(setTimeout(()=>{
       ops.forEach(o=>{const k=o[0];
         if(k==="mv"){const e=w(o[1]);e.style.left=o[2]*20+"%";e.style.top=o[3]*20+"%";}
         else if(k==="op")w(o[1]).style.opacity=o[2];
@@ -2917,7 +2953,7 @@ function demoRun(name){
         else if(k==="shot"){const A=w(o[1]),B=w(o[2]),im=document.createElement("img");im.src="gBullet.png";im.className="pw";im.style.cssText="left:"+A.style.left+";top:"+A.style.top+";z-index:11;transition:left .5s linear,top .5s linear;object-fit:contain";bd.appendChild(im);requestAnimationFrame(()=>requestAnimationFrame(()=>{im.style.left=B.style.left;im.style.top=B.style.top;}));setTimeout(()=>im.remove(),600);}
         else if(k==="conv"){const e=w(o[1]),R=RACES[o[2]],pc=e.firstChild,t=pc.querySelector("img").getAttribute("src").slice(1);pc.querySelector("img").src=R.img+t;pc.style.boxShadow="0 0 0 3px "+R.cc+",0 2px 6px rgba(0,0,0,.6)";pc.classList.remove("b");pc.classList.add("w");e.dataset.rc=o[2];}
         else if(k==="spk"){const e=document.createElement("div");e.className="pw";e.style.left=o[1]*20+"%";e.style.top=o[2]*20+"%";e.dataset.id="spk";e.innerHTML='<div class="piece n"><img src="gSpic.png" alt=""></div>';bd.appendChild(e);e.animate([{transform:"translateY(-300%)",opacity:0},{transform:"translateY(0)",opacity:1}],{duration:500,fill:"both",easing:"ease-in"});}
-        else if(k==="lab"){const l=bd.querySelector(".lab");l.textContent=o[1];l.classList.add("on");}
+        else if(k==="lab"){const l=bd.querySelector(".lab");l.textContent=o[1];l.classList.add("on");cap.style.top="5.4cqw";}
         else if(k==="cartfx"){
           const W=bd.clientWidth,cs=W/5,ctr=id=>{const e=w(id);return[parseFloat(e.style.left)/100*W+cs/2,parseFloat(e.style.top)/100*W+cs/2];};
           const M=w(o[1]),[mx,my]=ctr(o[1]),[tx,ty]=ctr(o[2]);let fx=tx-mx,fy=ty-my;const fl=Math.hypot(fx,fy)||1;fx/=fl;fy/=fl;
@@ -2925,14 +2961,32 @@ function demoRun(name){
           const wx=mx-fx*cs*.9,wy=my-fy*cs*.9,TC=(x,y,r,sc)=>`translate(${x+fx*cs*.62-cw/2}px,${y+fy*cs*.62-ch/2}px) rotate(${r}deg) scale(${sc||1})`;
           M.style.transition="none";const T=(x,y)=>`translate(${x-mx}px,${y-my}px)`;
           M.animate([{transform:T(mx,my)},{transform:T(wx,wy)}],{duration:300,easing:"ease-out",fill:"forwards"});
-          cart.animate([{transform:TC(mx,my,ang,.6),opacity:0},{transform:TC(wx,wy,ang-12,1),opacity:1}],{duration:300,easing:"ease-out",fill:"forwards"}).onfinish=()=>{
+          cart.animate([{transform:TC(mx,my,ang,.6),opacity:0},{transform:TC(wx,wy,ang-12,1),opacity:1}],{duration:300,easing:"ease-out",fill:"forwards"}).onfinish=()=>{if(!cart.isConnected)return;
             M.animate([{transform:T(wx,wy)},{transform:T(tx,ty)}],{duration:150,easing:"cubic-bezier(.6,0,1,.6)",fill:"forwards"});
-            cart.animate([{transform:TC(wx,wy,ang-12,1)},{transform:TC(tx,ty,ang,1)}],{duration:150,easing:"cubic-bezier(.6,0,1,.6)",fill:"forwards"}).onfinish=()=>{
+            cart.animate([{transform:TC(wx,wy,ang-12,1)},{transform:TC(tx,ty,ang,1)}],{duration:150,easing:"cubic-bezier(.6,0,1,.6)",fill:"forwards"}).onfinish=()=>{if(!cart.isConnected)return;
               const fb=document.createElement("div");fb.style.cssText=`position:absolute;left:${tx-cs*1.7}px;top:${ty-cs*1.7}px;width:${cs*3.4}px;height:${cs*3.4}px;border-radius:50%;z-index:12;pointer-events:none;background:radial-gradient(circle,#fff,rgba(255,120,60,.85) 40%,rgba(255,0,0,0) 70%)`;bd.appendChild(fb);
               fb.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.3)",opacity:0}],{duration:420,easing:"ease-out"}).onfinish=()=>fb.remove();
               bd.animate([{transform:"translate(0,0)"},{transform:"translate(-3px,2px)"},{transform:"translate(3px,-2px)"},{transform:"translate(0,0)"}],{duration:380});
-              cart.animate([{opacity:1},{opacity:0}],{duration:300,fill:"forwards"});M.animate([{opacity:1},{opacity:0}],{duration:300,fill:"forwards"});
-              (o[3]||[]).forEach(id=>{const e=w(id),[ex,ey]=ctr(id);let dx=ex-tx,dy=ey-ty;const l=Math.hypot(dx,dy)||1;dx=dx/l||0;dy=dy/l||-1;e.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:`translate(${dx*cs*3}px,${dy*cs*3}px) rotate(540deg) scale(.4)`,opacity:0}],{duration:900,fill:"forwards",easing:"ease-out"});});
+              cart.animate([{transform:TC(tx,ty,ang,1)},{transform:TC(tx+fx*W*1.4,ty+fy*W*1.4,ang+40,.9)}],{duration:900,fill:"forwards",easing:"cubic-bezier(.1,.7,.3,1)"});
+              [o[1],o[2],...(o[3]||[])].forEach(id=>{if(id===o[2]&&o[3]&&o[3].includes(id)&&false)return;const e=w(id),[ex,ey]=ctr(id);if(id===o[1]||id===o[2]||true){let dx=ex-tx,dy=ey-ty;const l=Math.hypot(dx,dy);dx=l?dx/l:0;dy=l?dy/l:0;let vx=dx*.8+fx*.9+(Math.random()-.5)*.5,vy=dy*.8+fy*.9+(Math.random()-.5)*.5;const vl=Math.hypot(vx,vy)||1;vx/=vl;vy/=vl;const dist=W*(1.1+Math.random()*.5),rot=(Math.random()<.5?-1:1)*(360+Math.random()*720);e.style.transition="none";
+                e.animate([{transform:"translate(0,0) rotate(0) scale(1)",opacity:1},{transform:`translate(${vx*dist*.15}px,${vy*dist*.15}px) rotate(${rot*.15}deg) scale(1.25)`,opacity:1,offset:.12},{transform:`translate(${vx*dist}px,${vy*dist}px) rotate(${rot}deg) scale(.7)`,opacity:.9}],{duration:900+Math.random()*250,fill:"forwards",easing:"cubic-bezier(.1,.7,.3,1)"});}});
+            };};}
+        else if(k==="ty"){const e=w(o[1]),R=RACES[e.dataset.rc],pc=e.firstChild;pc.querySelector("img").src=R.img+o[2]+".png";const bg=pc.querySelector(".badge");if(bg&&typeof SYM5!=="undefined")bg.textContent=SYM5[o[2]];}
+        else if(k==="im"){w(o[1]).firstChild.querySelector("img").src=o[2];}
+        else if(k==="punchfx"){
+          const W=bd.clientWidth,cs=W/5,ctr=id=>{const e=w(id);return[parseFloat(e.style.left)/100*W+cs/2,parseFloat(e.style.top)/100*W+cs/2];};
+          const M=w(o[1]),[mx,my]=ctr(o[1]),[tx,ty2]=ctr(o[2]);let fx=tx-mx,fy=ty2-my;const fl=Math.hypot(fx,fy)||1;fx/=fl;fy/=fl;
+          const wx=mx-fx*cs*.9,wy=my-fy*cs*.9;M.style.transition="none";M.style.zIndex=11;
+          const T=(x,y,sc)=>`translate(${x-mx}px,${y-my}px) scale(${sc||1})`;
+          M.animate([{transform:T(mx,my)},{transform:T(wx,wy,1.12)}],{duration:340,easing:"ease-out",fill:"forwards"}).onfinish=()=>{if(!M.isConnected)return;
+            M.animate([{transform:T(wx,wy,1.12)},{transform:T(tx,ty2,1.2)}],{duration:130,easing:"cubic-bezier(.6,0,1,.6)",fill:"forwards"}).onfinish=()=>{if(!M.isConnected)return;
+              const tg=w(o[2]);if(tg)tg.style.opacity=0;
+              const fb=document.createElement("div");fb.style.cssText=`position:absolute;left:${tx-cs*1.5}px;top:${ty2-cs*1.5}px;width:${cs*3}px;height:${cs*3}px;border-radius:50%;z-index:12;pointer-events:none;background:radial-gradient(circle,#fff,rgba(255,170,0,.85) 40%,rgba(255,138,0,0) 70%)`;bd.appendChild(fb);
+              fb.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.2)",opacity:0}],{duration:380,easing:"ease-out"}).onfinish=()=>fb.remove();
+              bd.animate([{transform:"translate(0,0)"},{transform:"translate(-3px,2px)"},{transform:"translate(3px,-2px)"},{transform:"translate(0,0)"}],{duration:380});
+              M.animate([{transform:T(tx,ty2,1.2)},{transform:T(tx,ty2,1)}],{duration:160,easing:"ease-out",fill:"forwards"}).onfinish=()=>{M.style.left=parseFloat(M.style.left)+(tx-mx)/W*100+"%";M.style.top=parseFloat(M.style.top)+(ty2-my)/W*100+"%";M.getAnimations().forEach(a=>a.cancel());};
+              (o[3]||[]).forEach(id=>{const e=w(id),[ex,ey]=ctr(id);let dx=ex-tx,dy=ey-ty2;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;let vx=dx*.6+fx+(Math.random()-.5)*.5,vy=dy*.6+fy+(Math.random()-.5)*.5;const vl=Math.hypot(vx,vy)||1;vx/=vl;vy/=vl;const dist=W*(1+Math.random()*.4),rot=(Math.random()<.5?-1:1)*(360+Math.random()*540);
+                e.animate([{transform:"translate(0,0) rotate(0) scale(1)",opacity:1},{transform:`translate(${vx*dist*.15}px,${vy*dist*.15}px) rotate(${rot*.15}deg) scale(1.25)`,opacity:1,offset:.12},{transform:`translate(${vx*dist}px,${vy*dist}px) rotate(${rot}deg) scale(.7)`,opacity:0}],{duration:900,fill:"forwards",easing:"cubic-bezier(.1,.7,.3,1)"});});
             };};}
         else if(k==="gunfx"){
           const W=bd.clientWidth,cs=W/5,ctr=id=>{const e=w(id);return[parseFloat(e.style.left)/100*W+cs/2,parseFloat(e.style.top)/100*W+cs/2];};
@@ -2976,7 +3030,7 @@ function skRender(keep){
   $("#skCard").classList.remove("open");
   $("#skCard").innerHTML=`<div class="rib">${esc(e.t)}</div><div class="ic"><img src="${e.i}" alt=""></div>${cdp?`<div class="cd"><u>쿨</u>${esc(cdt)}</div>`:`<div class="cd"><u>${e.lab||"패시브"}</u>${e.lab==="패시브"?"자동 발동":"고르지 않아도 돼요"}</div>`}<div class="ds"><span class="sh">${esc(shT)}</span><div class="fu">${cdp?`<p><b>쿨 ${esc(cdt)}</b></p>`:""}${fu}</div></div><u class="more" id="skMore" role="button">▼ 자세히</u>`;
   $("#skPv").firstElementChild.src=e.i;demoRun(e.t);
-  {const v=$("#skPv video");v.hidden=true;v.onloadeddata=()=>{v.hidden=false;v.play().catch(()=>{});};v.onerror=()=>{v.hidden=true;};v.removeAttribute("src");v.src=e.i.replace(/\.\w+$/,".mp4");v.load();}
+  {const v=$("#skPv video");v.hidden=true;if(DEMO[e.t]){v.removeAttribute("src");}else{v.onloadeddata=()=>{v.hidden=false;v.play().catch(()=>{});};v.onerror=()=>{v.hidden=true;};v.removeAttribute("src");v.src=e.i.replace(/\.\w+$/,".mp4");v.load();}}
   $("#skMore").onclick=()=>{const c=$("#skCard");c.classList.toggle("open");$("#skMore").textContent=c.classList.contains("open")?"▲ 접기":"▼ 자세히";};
   document.querySelectorAll("#skChips b").forEach(b=>b.onclick=()=>{skTab=+b.dataset.k;skRender(true);});
 }
@@ -3066,6 +3120,31 @@ $("#gNext").onclick=()=>{const st=GUIDE[gI];if(st&&st.end){gEnd(true);}else gSte
 $("#gSkip").onclick=()=>gEnd(false);
 $("#tutBtn").onclick=()=>{if(mode==="net"||$("#menu").style.display==="none")return;gStart();};
 try{if(localStorage.getItem("fc_tut")!=="1")setTimeout(gStart,700);}catch(e){}
+
+
+/* 내 기록 (이 기기에만 저장): 전적 목록 */
+function recGet(){try{const a=JSON.parse(localStorage.getItem("fc_hist")||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+function recordMine(k){
+  if(mode!=="net"||!isRace()||NET.mineDone||(k!=="win"&&k!=="lose"&&k!=="draw"))return;
+  NET.mineDone=true;const r=rOf(me),o=rOf(opp(me));if(!r||!o)return;
+  const a=recGet();let on="";try{on=String(oppN()||"").slice(0,10);}catch(e){}
+  a.unshift({t:Date.now(),m:r,o:o,k:k,n:on,s:skOf(me)===2?2:1});
+  try{localStorage.setItem("fc_hist",JSON.stringify(a.slice(0,60)));}catch(e){}
+}
+function recRender(){
+  const a=recGet(),esc=t=>String(t).replace(/</g,"&lt;"),wide=matchMedia("(min-aspect-ratio:5/4) and (min-height:500px)").matches;
+  const row=x=>{const d=new Date(x.t),R=RD[x.m],O=RD[x.o];if(!R||!O)return "";
+    return `<div class="rr ${x.k}"><img src="${R.king}" alt=""><i>VS</i><img src="${O.king}" alt=""><span class="nm">${esc(x.n||O.name)}</span><b>${x.k==="win"?"승":x.k==="lose"?"패":"무"}</b><small>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}</small></div>`;};
+  const empty='<div class="re">아직 전적이 없어요</div>';
+  $("#recL").innerHTML=a.length?a.slice(0,wide?6:7).map(row).join(""):empty;
+  if(wide&&a.length){
+    const opp={},mine={};
+    a.forEach(x=>{if(!RD[x.m]||!RD[x.o])return;opp[x.o]=(opp[x.o]||0)+1;const q=mine[x.m]||(mine[x.m]={w:0,l:0,d:0,n:0});q.n++;if(x.k==="win")q.w++;else if(x.k==="lose")q.l++;else q.d++;});
+    const oa=Object.keys(opp).sort((p,q)=>opp[q]-opp[p]).slice(0,4),mx=opp[oa[0]]||1;
+    const ma=Object.keys(mine).sort((p,q)=>mine[q].n-mine[p].n).slice(0,4);
+    $("#recR").innerHTML='<div class="sh">자주 만난 종족</div>'+oa.map(r=>`<div class="sr"><img src="${RD[r].king}" alt=""><u><s style="width:${Math.round(opp[r]/mx*100)}%"></s></u><b>${opp[r]}</b></div>`).join("")+'<div class="sh">내 종족별 전적</div>'+ma.map(r=>{const q=mine[r];return `<div class="sr"><img src="${RD[r].king}" alt=""><span>${q.w}승 ${q.l}패${q.d?" "+q.d+"무":""}</span></div>`;}).join("");
+  }else $("#recR").innerHTML="";
+}
 
 let racePg=0;
 function raceRender(){
