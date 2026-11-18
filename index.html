@@ -2538,7 +2538,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.20";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.21";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -3152,7 +3152,7 @@ function raceRender(){
   const a=$("#races2");a.innerHTML="";
   for(let i=0;i<8;i++){const id=RORDER[i],b=document.createElement("button");
     if(id){const d=RD[id];b.className="rbtn";b.dataset.r=id;b.innerHTML=`<img class="rimg" src="${d.king}" alt=""><i>${d.name}</i><img class="mini" data-r="${id}" alt="">`;
-      b.onclick=()=>{skRace=id;skRender();showPg("pgSk");};
+      b.onclick=()=>{skRace=id;showPg("pgSk");skRender();};
       if((P2MODE?P2.r:myRace)===id)b.classList.add("on");}
     else{b.className="rbtn off";b.disabled=true;b.innerHTML="<i>준비중</i>";}
     a.appendChild(b);}
