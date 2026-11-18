@@ -389,6 +389,7 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 
 #skPv .mbd{position:absolute;inset:0;display:none;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr)}
 #skPv.bd .mbd{display:grid}#skPv.bd>img,#skPv.bd>video{display:none!important}
+#skPv .pw .badge{font-size:2.6cqw;width:38%;height:38%;right:-6%;bottom:-6%;box-shadow:0 .2cqw .5cqw rgba(0,0,0,.4)}
 #skPv .pw .pn{position:absolute;left:50%;bottom:-1%;transform:translateX(-50%);font-style:normal;font-size:1.7cqw;line-height:1;padding:.25cqw .8cqw;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;white-space:nowrap;pointer-events:none;z-index:3}
 #skPv .pw{position:absolute;width:20%;height:20%;display:flex;align-items:center;justify-content:center;transition:left .8s ease,top .8s ease,opacity .5s}
 #skPv .tg{position:absolute;right:-6%;top:-6%;width:46%;height:46%;border-radius:50%;background:#F5C443;color:#5A3E00;font-style:normal;display:flex;align-items:center;justify-content:center;font-size:2.6cqw;font-weight:700;z-index:9}
@@ -2540,7 +2541,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.27";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.28";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2915,7 +2916,7 @@ function demoRun(name){
     Object.entries(d.pcs).forEach(([id,v])=>{
       if(v[0]==="t"){h+=`<div class="pw" data-id="${id}" style="left:${v[1]*20}%;top:${v[2]*20}%;opacity:0"><div class="trapm"><img src="trap.png" alt=""><i>${v[3]}</i></div></div>`;return;}
       const [rc,t,x,y,en]=v,R=RACES[rc];
-      h+=`<div class="pw" data-id="${id}" data-rc="${rc}" style="left:${x*20}%;top:${y*20}%"><div class="piece ${en?"b":"w"} tm hb" style="box-shadow:0 0 0 3px ${R.cc},0 2px 6px rgba(0,0,0,.6)"><img src="${R.img}${t}.png" alt=""><span class="badge bdg" style="background:#fff;color:#111">${SYM5[t]}</span></div><em class="pn">${PNM[t]}</em></div>`;});
+      h+=`<div class="pw" data-id="${id}" data-rc="${rc}" style="left:${x*20}%;top:${y*20}%"><div class="piece ${en?"b":"w"} tm" style="box-shadow:0 0 0 3px ${R.cc},0 2px 6px rgba(0,0,0,.6)"><img src="${R.img}${t}.png" alt=""><span class="badge bdg" style="background:#fff;color:#111">${SYM5[t]}</span></div></div>`;});
     h+='<div class="qm" hidden>?</div><div class="cap"></div><div class="lab"></div>';
     bd.innerHTML=h;
   };
