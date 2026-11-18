@@ -389,6 +389,7 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 
 #skPv .mbd{position:absolute;inset:0;display:none;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr)}
 #skPv.bd .mbd{display:grid}#skPv.bd>img,#skPv.bd>video{display:none!important}
+#skPv .pw .pn{position:absolute;left:50%;bottom:-1%;transform:translateX(-50%);font-style:normal;font-size:1.7cqw;line-height:1;padding:.25cqw .8cqw;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;white-space:nowrap;pointer-events:none;z-index:3}
 #skPv .pw{position:absolute;width:20%;height:20%;display:flex;align-items:center;justify-content:center;transition:left .8s ease,top .8s ease,opacity .5s}
 #skPv .tg{position:absolute;right:-6%;top:-6%;width:46%;height:46%;border-radius:50%;background:#F5C443;color:#5A3E00;font-style:normal;display:flex;align-items:center;justify-content:center;font-size:2.6cqw;font-weight:700;z-index:9}
 #skPv .qm{position:absolute;width:20%;height:20%;display:flex;align-items:center;justify-content:center;font-size:5cqw;font-weight:700;color:#5A3E00;z-index:9;transition:left .3s,top .3s}
@@ -2539,7 +2540,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.25";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.27";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2904,6 +2905,7 @@ const DEMO={
 let demoT=[];
 (function(){const u=new Set(["sN_evo.png","sB_evo.png","sR_evo.png","sK_dr.png","gGun.png","trap.png","stun.png","gBullet.png","wK_evo.png","witch_cart.png","gSpic.png"]);setTimeout(()=>{try{Object.values(DEMO).forEach(d=>Object.values(d.pcs).forEach(v=>{if(v[0]!=="t")u.add(RACES[v[0]].img+v[1]+".png");}));u.forEach(f=>{const i=new Image();i.src=f;});}catch(e){}},0);})();
 function demoStop(){demoT.forEach(clearTimeout);demoT=[];}
+const PNM={K:"킹",Q:"퀸",R:"룩",B:"비숍",N:"나이트",P:"폰"};
 const SYM5={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 function demoRun(name){
   demoStop();const box=$("#skPv"),bd=box.querySelector(".mbd"),d=DEMO[name];
@@ -2913,7 +2915,7 @@ function demoRun(name){
     Object.entries(d.pcs).forEach(([id,v])=>{
       if(v[0]==="t"){h+=`<div class="pw" data-id="${id}" style="left:${v[1]*20}%;top:${v[2]*20}%;opacity:0"><div class="trapm"><img src="trap.png" alt=""><i>${v[3]}</i></div></div>`;return;}
       const [rc,t,x,y,en]=v,R=RACES[rc];
-      h+=`<div class="pw" data-id="${id}" data-rc="${rc}" style="left:${x*20}%;top:${y*20}%"><div class="piece ${en?"b":"w"} tm hb" style="box-shadow:0 0 0 3px ${R.cc},0 2px 6px rgba(0,0,0,.6)"><img src="${R.img}${t}.png" alt=""><span class="badge bdg" style="background:#fff;color:#111">${SYM5[t]}</span></div></div>`;});
+      h+=`<div class="pw" data-id="${id}" data-rc="${rc}" style="left:${x*20}%;top:${y*20}%"><div class="piece ${en?"b":"w"} tm hb" style="box-shadow:0 0 0 3px ${R.cc},0 2px 6px rgba(0,0,0,.6)"><img src="${R.img}${t}.png" alt=""><span class="badge bdg" style="background:#fff;color:#111">${SYM5[t]}</span></div><em class="pn">${PNM[t]}</em></div>`;});
     h+='<div class="qm" hidden>?</div><div class="cap"></div><div class="lab"></div>';
     bd.innerHTML=h;
   };
@@ -2947,7 +2949,7 @@ function demoRun(name){
         else if(k==="unshd"){const e=w(o[1]),d=e.querySelector(".shd");if(d){d.animate([{transform:"scale(1)",opacity:1},{transform:"scale(1.6)",opacity:0}],{duration:400,fill:"both"}).onfinish=()=>d.remove();}}
         else if(k==="aur"){const e=w(o[1]),d=document.createElement("div");d.className="aur "+o[2];e.appendChild(d);}
         else if(k==="mtb")w(o[1]).firstChild.classList.add("mtb");
-        else if(k==="evo"){const e=w(o[1]),pc=e.firstChild;pc.classList.add("evo");pc.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";{const im=pc.querySelector("img");const sc=im.getAttribute("src");if(/K\.png$/.test(sc))im.src="wK_evo.png";else if(e.dataset.rc==="s"&&!/_evo/.test(sc))im.src=sc.replace(".png","_evo.png");}}
+        else if(k==="evo"){const e=w(o[1]),pc=e.firstChild;pc.classList.add("evo");pc.style.boxShadow="0 0 0 3px #fff23a,0 0 9px 3px rgba(255,240,60,.95)";{const im=pc.querySelector("img");const sc=im.getAttribute("src");if(/K\.png$/.test(sc)){if(e.dataset.rc==="f")im.src="wK_evo.png";}else if(e.dataset.rc==="s"&&!/_evo/.test(sc))im.src=sc.replace(".png","_evo.png");}}
         else if(k==="evoimg"){const e=w(o[1]),pc=e.firstChild;pc.classList.add("evo");pc.querySelector("img").src=o[2];}
         else if(k==="rm"){const e=w(o[1]);e.animate([{opacity:1,transform:"scale(1)"},{opacity:0,transform:"scale(.4)"}],{duration:400,fill:"both"});}
         else if(k==="fly"){const e=w(o[1]);e.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:`translate(${o[2]*100}%,${o[3]*100}%) rotate(540deg) scale(.4)`,opacity:0}],{duration:900,fill:"both",easing:"ease-out"});}
