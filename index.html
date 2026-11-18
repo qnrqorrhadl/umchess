@@ -2538,7 +2538,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.19";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.20";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2888,7 +2888,7 @@ const DEMO={
 "에르피엔 전통 해결법":{pcs:{k:["f","K",2,4],r:["f","R",1,4],b:["f","B",3,4],n:["f","N",0,4],p1:["f","P",1,3],p2:["f","P",3,3]},steps:[[1200,[["lab","1단계"]],"쓸 때마다 한 단계씩 진화"],[1900,[["lab","2단계"],["shd","p1"],["shd","p2"]],"폰 방어막 2개"],[1900,[["lab","3단계"],["shd","n"],["shd","b"]],"비숍·나이트 방어막"],[1900,[["lab","4단계"],["shd","r"]],"룩 방어막"],[1900,[["lab","5단계"],["evo","k"]],"킹 강화"],[1800,[],""]]},
 "다구리":{pcs:{a:["f","N",1,3],b:["f","B",4,3],c:["f","R",2,4],e:["m","P",2,1,1]},steps:[[900,[["cell",2,1,"skt"]],"3기물이 노리는 기물"],[1100,[["mv","a",2,1]],"동시 공격"],[600,[["mv","b",2,1]],""],[600,[["mv","c",2,1],["boom",2,1],["rm","e"]],"처치"],[1100,[["mv","a",1,3],["mv","b",4,3],["mv","c",2,4]],"공격한 기물은 제자리로"],[1300,[],""]]},
 "고.서.카.트.다아아!":{pcs:{b:["m","B",0,4],e:["f","N",2,2,1],x:["f","P",1,2,1],y:["f","R",2,1,1],z:["m","P",3,3]},steps:[[1000,[["aur","b","red"]],"기물 1개를 고서로 변환"],[1800,[["cartfx","b","e",["x","y","z"]]],"4턴 안에 잡으면 폭발"],[1600,[],"주변 1칸 기물도 함께 제거 (킹 제외)"]]},
-"궁정 마녀들":{pcs:{b:["m","R",0,4],e1:["f","P",0,2,1],e2:["f","P",1,1,1],e3:["f","P",4,1,1]},steps:[[900,[["qm",2,3]],"룩·비숍·퀸 중 랜덤 1개"],[900,[["qm"],["lab","룩"],["mv","b",0,2],["cell",0,2,"last"]],"잡은 기물이 마녀 편"],[500,[["conv","e1","m"],["aur","e1","ice"]],""],[1300,[["lab","비숍"],["ty","b","B"],["mv","b",1,1],["cell",1,1,"last"]],"잡은 기물이 마녀 편"],[500,[["conv","e2","m"],["aur","e2","ice"]],""],[1300,[["lab","퀸"],["ty","b","Q"],["mv","b",4,1],["cell",4,1,"last"]],"잡은 기물이 마녀 편"],[500,[["conv","e3","m"],["aur","e3","ice"]],""],[1400,[],""]]},
+"궁정 마녀들":{pcs:{r:["m","R",0,4],n1:["f","N",0,2,1],n2:["f","P",0,1,1],n3:["f","P",1,1,1],n4:["f","P",1,2,1],bp:["m","B",4,4],e2:["f","P",2,2,1],c2:["m","P",3,3],qn:["m","Q",3,4]},steps:[[1000,[["qm",2,3],["op","c2",0]],"룩·비숍·퀸 중 랜덤 1개"],[900,[["qm"],["lab","룩"],["aur","r","red"]],"룩: 고서 상태, 잡으면 주변 폭발"],[1700,[["cartfx","r","n1",["n2","n3","n4"],1]],"잡아도 룩은 살아남음"],[1500,[["lab","비숍"],["aur","bp","ice"],["tag","bp","5"]],"비숍: 5턴 동안 잡은 기물이 마녀 편"],[900,[["mv","bp",2,2],["cell",4,4,"last"],["cell",2,2,"last"]],""],[700,[["rm","e2"],["op","c2",1],["aur","c2","ice"]],"잡은 요정 기물이 마녀 편"],[1500,[["lab","퀸"],["shd","qn"]],"퀸: 3턴 방어막 1회"],[1100,[["mv","qn",4,2],["cell",3,4,"last"],["cell",4,2,"last"]],"나이트 이동 추가"],[1600,[],""]]},
 "UFC 당근튀김":{pcs:{k:["m","K",2,4],n:["m","N",2,3],r:["f","R",2,0,1]},steps:[[1000,[["shd","n"]],"킹 제외 기물에 방어막"],[1300,[["mv","r",2,2]],"공격을 받으면"],[600,[["unshd","n"]],""],[900,[["mv","r",2,0]],"공격 막음"],[1500,[],""]]},
 "무식은 힘으로 커버한다!":{pcs:{a:["s","P",1,3],b:["s","P",3,3],e:["f","P",2,1,1]},steps:[[900,[["mv","a",1,2],["cell",1,3,"last"],["cell",1,2,"last"],["tag","a","①"]],"폰 1칸 이동"],[1400,[["mv","b",3,2],["cell",3,3,"last"],["cell",3,2,"last"],["tag","b","②"]],"다른 폰 1칸 이동"],[1500,[],"한 턴에 폰 2번 이동"]]},
 "1마력 펀치~!":{pcs:{q:["s","Q",2,4],e:["f","N",2,2,1],a:["f","P",1,1,1],b:["f","B",2,1,1],c:["f","R",3,1,1],d:["f","P",0,1,1],f:["f","P",4,1,1],g:["f","P",2,0,1]},steps:[[900,[["cell",2,2,"skt"]],"퀸이 기물을 잡으면"],[900,[["punchfx","q","e",["a","b","c"]]],"뒤쪽 ㅡ자 3칸 기물만 날아감"],[1700,[["stun","q",1]],"퀸 1턴 스턴"],[1200,[],""]]},
@@ -2898,7 +2898,7 @@ const DEMO={
 "라이카-노바 테이저 건-2000":{pcs:{n:["e","N",1,4],e:["f","Q",2,2,1],p:["f","P",3,1,1]},steps:[[800,[["zapfx","e"]],"상대 기물 감전"],[700,[["zap","e",1]],"1턴 기절, 이후 30% 저림"],[1600,[],""]]}
 };
 let demoT=[];
-(function(){const u=new Set(["sK_dr.png","gGun.png","trap.png","stun.png","gBullet.png","wK_evo.png","witch_cart.png","gSpic.png"]);setTimeout(()=>{try{Object.values(DEMO).forEach(d=>Object.values(d.pcs).forEach(v=>{if(v[0]!=="t")u.add(RACES[v[0]].img+v[1]+".png");}));u.forEach(f=>{const i=new Image();i.src=f;});}catch(e){}},1500);})();
+(function(){const u=new Set(["sK_dr.png","gGun.png","trap.png","stun.png","gBullet.png","wK_evo.png","witch_cart.png","gSpic.png"]);setTimeout(()=>{try{Object.values(DEMO).forEach(d=>Object.values(d.pcs).forEach(v=>{if(v[0]!=="t")u.add(RACES[v[0]].img+v[1]+".png");}));u.forEach(f=>{const i=new Image();i.src=f;});}catch(e){}},0);})();
 function demoStop(){demoT.forEach(clearTimeout);demoT=[];}
 const SYM5={P:"♟",N:"♞",B:"♝",R:"♜",Q:"♛",K:"♚"};
 function demoRun(name){
@@ -2918,7 +2918,7 @@ function demoRun(name){
     build();
     const w=id=>bd.querySelector(`.pw[data-id=${id}]`),cap=bd.querySelector(".cap"),qm=bd.querySelector(".qm");
     let t=0,fi=1;
-    d.steps.forEach(([wt,ops,tx])=>{t+=fi?Math.min(wt,300):wt;fi=0;demoT.push(setTimeout(()=>{
+    d.steps.forEach(([wt,ops,tx])=>{t+=fi?0:wt;fi=0;demoT.push(setTimeout(()=>{
       ops.forEach(o=>{const k=o[0];
         if(k==="mv"){const e=w(o[1]);e.style.left=o[2]*20+"%";e.style.top=o[3]*20+"%";}
         else if(k==="op")w(o[1]).style.opacity=o[2];
@@ -2967,8 +2967,9 @@ function demoRun(name){
               const fb=document.createElement("div");fb.style.cssText=`position:absolute;left:${tx-cs*1.7}px;top:${ty-cs*1.7}px;width:${cs*3.4}px;height:${cs*3.4}px;border-radius:50%;z-index:12;pointer-events:none;background:radial-gradient(circle,#fff,rgba(255,120,60,.85) 40%,rgba(255,0,0,0) 70%)`;bd.appendChild(fb);
               fb.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.3)",opacity:0}],{duration:420,easing:"ease-out"}).onfinish=()=>fb.remove();
               bd.animate([{transform:"translate(0,0)"},{transform:"translate(-3px,2px)"},{transform:"translate(3px,-2px)"},{transform:"translate(0,0)"}],{duration:380});
+              if(o[4]){M.style.left=tx/W*100-10+"%";M.style.top=ty/W*100-10+"%";M.getAnimations().forEach(a=>a.cancel());M.style.opacity=1;M.querySelectorAll(".aur").forEach(q=>q.remove());}
               cart.animate([{transform:TC(tx,ty,ang,1)},{transform:TC(tx+fx*W*1.4,ty+fy*W*1.4,ang+40,.9)}],{duration:900,fill:"forwards",easing:"cubic-bezier(.1,.7,.3,1)"});
-              [o[1],o[2],...(o[3]||[])].forEach(id=>{if(id===o[2]&&o[3]&&o[3].includes(id)&&false)return;const e=w(id),[ex,ey]=ctr(id);if(id===o[1]||id===o[2]||true){let dx=ex-tx,dy=ey-ty;const l=Math.hypot(dx,dy);dx=l?dx/l:0;dy=l?dy/l:0;let vx=dx*.8+fx*.9+(Math.random()-.5)*.5,vy=dy*.8+fy*.9+(Math.random()-.5)*.5;const vl=Math.hypot(vx,vy)||1;vx/=vl;vy/=vl;const dist=W*(1.1+Math.random()*.5),rot=(Math.random()<.5?-1:1)*(360+Math.random()*720);e.style.transition="none";
+              [...(o[4]?[]:[o[1]]),o[2],...(o[3]||[])].forEach(id=>{if(id===o[2]&&o[3]&&o[3].includes(id)&&false)return;const e=w(id),[ex,ey]=ctr(id);if(id===o[1]||id===o[2]||true){let dx=ex-tx,dy=ey-ty;const l=Math.hypot(dx,dy);dx=l?dx/l:0;dy=l?dy/l:0;let vx=dx*.8+fx*.9+(Math.random()-.5)*.5,vy=dy*.8+fy*.9+(Math.random()-.5)*.5;const vl=Math.hypot(vx,vy)||1;vx/=vl;vy/=vl;const dist=W*(1.1+Math.random()*.5),rot=(Math.random()<.5?-1:1)*(360+Math.random()*720);e.style.transition="none";
                 e.animate([{transform:"translate(0,0) rotate(0) scale(1)",opacity:1},{transform:`translate(${vx*dist*.15}px,${vy*dist*.15}px) rotate(${rot*.15}deg) scale(1.25)`,opacity:1,offset:.12},{transform:`translate(${vx*dist}px,${vy*dist}px) rotate(${rot}deg) scale(.7)`,opacity:.9}],{duration:900+Math.random()*250,fill:"forwards",easing:"cubic-bezier(.1,.7,.3,1)"});}});
             };};}
         else if(k==="ty"){const e=w(o[1]),R=RACES[e.dataset.rc],pc=e.firstChild;pc.querySelector("img").src=R.img+o[2]+".png";const bg=pc.querySelector(".badge");if(bg&&typeof SYM5!=="undefined")bg.textContent=SYM5[o[2]];}
