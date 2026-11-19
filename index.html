@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+<head><link rel="preload" as="image" href="ld_char.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <meta name="theme-color" content="#bfe3f7">
@@ -279,17 +279,17 @@ body.racem #info{display:none}
 #ldg{position:fixed;inset:0;z-index:99;background:linear-gradient(160deg,#d9f3ff 0%,#e6f9d8 55%,#c9f0a8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 #ldg[hidden]{display:none}
 #ldg .ldc{position:relative;width:min(70vw,300px);height:128px;margin-bottom:2px}
-#ldg .ldw{position:absolute;bottom:0;left:0;width:84px;animation:ldwalk 3.6s ease-in-out infinite alternate;transform-origin:50% 100%}
+#ldg .ldw{position:absolute;bottom:0;left:0;width:84px;animation:ldwalk 1.5s linear infinite alternate;transform-origin:50% 100%}
 @keyframes ldwalk{from{left:0}to{left:calc(100% - 84px)}}
-#ldg .ldi{position:relative;transform-origin:50% 100%;animation:ldbob .38s ease-out infinite}
-@keyframes ldbob{0%,100%{transform:translateY(0)}45%{transform:translateY(-8px)}}
+#ldg .ldi{position:relative;transform-origin:50% 100%;animation:ldbob .17s ease-out infinite}
+@keyframes ldbob{0%,100%{transform:translateY(0)}45%{transform:translateY(-6px)}}
 #ldg .ldi img{display:block;width:100%;height:auto}
 #ldg .ldbr{position:absolute;left:30%;top:56%;width:34%;transform:rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
-#ldg.fall .ldw{animation:ldfallR .95s cubic-bezier(.3,.6,.4,1) forwards!important}
+#ldg.fall .ldw{animation:ldfallR 1.1s linear forwards!important}
 #ldg.fall .ldi{animation:none!important}
-@keyframes ldfallR{0%{transform:translateY(0) rotate(0)}18%{transform:translate(2px,-8px) rotate(12deg)}55%{transform:translate(14px,-34px) rotate(84deg)}72%{transform:translate(18px,-46px) rotate(74deg)}100%{transform:translate(20px,-40px) rotate(88deg)}}
-@keyframes ldfallL{0%{transform:translateY(0) rotate(0)}18%{transform:translate(-2px,-8px) rotate(-12deg)}55%{transform:translate(-14px,-34px) rotate(-84deg)}72%{transform:translate(-18px,-46px) rotate(-74deg)}100%{transform:translate(-20px,-40px) rotate(-88deg)}}
-#ldg.fall.fl .ldw{animation:ldfallL .95s cubic-bezier(.3,.6,.4,1) forwards!important}
+@keyframes ldfallR{0%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:ease-out}12%{transform:translate(-2px,-10px) rotate(-5deg);animation-timing-function:cubic-bezier(.55,0,.9,.5)}58%{transform:translate(16px,-38px) rotate(88deg);animation-timing-function:ease-out}70%{transform:translate(20px,-48px) rotate(78deg);animation-timing-function:ease-in}82%{transform:translate(22px,-40px) rotate(88deg);animation-timing-function:ease-out}90%{transform:translate(22px,-43px) rotate(85deg);animation-timing-function:ease-in}100%{transform:translate(22px,-40px) rotate(88deg)}}
+@keyframes ldfallL{0%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:ease-out}12%{transform:translate(2px,-10px) rotate(5deg);animation-timing-function:cubic-bezier(.55,0,.9,.5)}58%{transform:translate(-16px,-38px) rotate(-88deg);animation-timing-function:ease-out}70%{transform:translate(-20px,-48px) rotate(-78deg);animation-timing-function:ease-in}82%{transform:translate(-22px,-40px) rotate(-88deg);animation-timing-function:ease-out}90%{transform:translate(-22px,-43px) rotate(-85deg);animation-timing-function:ease-in}100%{transform:translate(-22px,-40px) rotate(-88deg)}}
+#ldg.fall.fl .ldw{animation:ldfallL 1.1s linear forwards!important}
 #ldg.fall.fl .ldbr{animation:ldbflyL 1.5s ease-out forwards}
 @keyframes ldbflyL{0%{transform:rotate(-8deg)}28%{transform:translate(34px,-40px) rotate(-200deg)}50%{transform:translate(8px,-84px) rotate(-360deg)}62%{transform:translate(32px,-84px) rotate(-384deg)}74%{transform:translate(8px,-84px) rotate(-408deg)}83%{transform:translate(19px,-84px) rotate(-416deg)}92%{transform:translate(8px,-84px) rotate(-422deg)}100%{transform:translate(8px,-84px) rotate(-424deg)}}
 #ldg.fall .ldbr{animation:ldbfly 1.5s ease-out forwards}
@@ -747,7 +747,7 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 <div id="vs"></div>
 <div id="gd" hidden><i class="gb" id="gb1"></i><i class="gb" id="gb2"></i><i class="gb" id="gb3"></i><i class="gb" id="gb4"></i><i class="gb" id="gb5"></i><i class="gr" id="gr"></i><div class="gbub" id="gbub"><div id="gtx"></div><div class="gbt"><button id="gNext">다음</button><button id="gSkip">건너뛰기</button></div></div></div>
 <div id="tapov" hidden><img src="logo.png" alt=""><div class="tapt">화면을 눌러 시작하기</div></div>
-<div id="ldg" hidden><div class="ldc"><div class="ldw"><div class="ldi"><img src="ld_char.png" alt=""><svg class="ldbr" viewBox="0 0 40 26"><path d="M4 15C4 7 12 3 20 3s16 4 16 12c0 6-6 8-16 8S4 21 4 15z" fill="#E0A354" stroke="#7a4a1c" stroke-width="2"/><path d="M13 7l3 7M20 5l3 8M27 7l3 7" stroke="#B9772F" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div></div></div><div class="ldt">새 버전을 준비하는 중…</div><div class="ldb"><i id="ldBar"></i></div><div class="ldn" id="ldNum">0%</div></div>
+<div id="ldg" hidden><div class="ldc"><div class="ldw"><div class="ldi"><img src="ld_char.png" alt="" style="opacity:0;transition:opacity .2s" onload="this.style.opacity=1"><svg class="ldbr" viewBox="0 0 40 26"><path d="M4 15C4 7 12 3 20 3s16 4 16 12c0 6-6 8-16 8S4 21 4 15z" fill="#E0A354" stroke="#7a4a1c" stroke-width="2"/><path d="M13 7l3 7M20 5l3 8M27 7l3 7" stroke="#B9772F" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div></div></div><div class="ldt">새 버전을 준비하는 중…</div><div class="ldb"><i id="ldBar"></i></div><div class="ldn" id="ldNum">0%</div></div>
 <div id="tut" hidden><div class="tbox"><div class="tn" id="tN"></div><h2 id="tT"></h2><div class="tb" id="tB"></div><div class="tdots" id="tD"></div><div class="tbtns"><button id="tPrev">이전</button><button id="tNext">다음</button></div><button class="tskip" id="tSkip">건너뛰기</button></div></div>
 <div id="coin"><div class="rays"></div><div class="cn"><i class="sl" style="transform:translateZ(-4px)"></i><i class="sl" style="transform:translateZ(-2px)"></i><i class="sl" style="transform:translateZ(0)"></i><i class="sl" style="transform:translateZ(2px)"></i><i class="sl" style="transform:translateZ(4px)"></i><img class="cf" alt=""><img class="cb" alt=""></div></div>
 <div id="menu"><div class="box bk bt">
@@ -1359,7 +1359,7 @@ $("#bwBtn").onclick=()=>{bwOn=!bwOn;try{localStorage.setItem("fc_bw",bwOn?"1":"0
 const BGM={main:["기본 테마","bgm_main.mp3"],f:["요정 테마","bgm_f.mp3"],m:["마녀 테마","bgm_m.mp3"],g:["유령 테마","bgm_g.mp3"],s:["수인 테마","bgm_s.mp3"],e:["엘프 테마","bgm_e.mp3"]};
 let bgmOn=localStorage.getItem("fc_bgm")!=="0",bgmVol=(()=>{const v=localStorage.getItem("fc_bgmv");return v===null?.25:Math.min(1,Math.max(0,+v||0));})(),bgmUnl=false,bgmCur=null;
 /* ---------- 로딩창 (처음·업데이트 때만) ---------- */
-function ldFall(cb){const box=$("#ldg"),w=box&&box.querySelector(".ldw"),c=box&&box.querySelector(".ldc");if(!w||!c){cb();return;}const cr=c.getBoundingClientRect(),wr=w.getBoundingClientRect();let toL=false;try{const an=w.getAnimations()[0],t=an.currentTime%7200;toL=t>=3600;}catch(e){}w.style.left=(wr.left-cr.left)+"px";box.classList.toggle("fl",toL);box.classList.add("fall");setTimeout(cb,1750);}
+function ldFall(cb){const box=$("#ldg"),w=box&&box.querySelector(".ldw"),c=box&&box.querySelector(".ldc");if(!w||!c){cb();return;}const cr=c.getBoundingClientRect(),wr=w.getBoundingClientRect();let toL=false;try{const an=w.getAnimations()[0],t=an.currentTime%3000;toL=t>=1500;}catch(e){}w.style.left=(wr.left-cr.left)+"px";box.classList.toggle("fl",toL);box.classList.add("fall");setTimeout(cb,1750);}
 window.addEventListener("DOMContentLoaded",function(){
   try{bgmLoad("main");}catch(e){}
   let seen="";try{seen=localStorage.getItem("fc_ldv")||"";}catch(e){}
@@ -2692,7 +2692,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.7.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.7.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
