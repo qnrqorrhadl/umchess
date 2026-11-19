@@ -270,7 +270,7 @@ body.racem #info{display:none}
 #ldg{position:fixed;inset:0;z-index:99;background:linear-gradient(160deg,#d9f3ff 0%,#e6f9d8 55%,#c9f0a8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 #ldg[hidden]{display:none}
 #tapov{position:fixed;inset:0;z-index:98;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-#tapov[hidden]{display:none}#tapov img{width:min(66vw,300px);opacity:0;transform:translateY(90vh);transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .6s;filter:drop-shadow(0 4px 12px rgba(0,0,0,.35))}
+#tapov[hidden]{display:none}#tapov img{width:min(90vw,460px);opacity:0;transform:translateY(90vh);transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .6s;filter:drop-shadow(0 4px 12px rgba(0,0,0,.35))}
 #tapov.up img{opacity:1;transform:none}.tapt{font-weight:900;font-size:18px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.55);opacity:0;transition:opacity .5s .9s}
 #tapov.up .tapt{opacity:1;animation:ldblink 1.3s ease-in-out 1.4s infinite alternate}@keyframes ldblink{from{opacity:.45}to{opacity:1}}
 body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opacity .5s}
@@ -420,7 +420,7 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 /* ---- 설정 (작은 책) ---- */
 #setOv{position:fixed;inset:0;z-index:12;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center}
 #setOv[hidden]{display:none}
-#setBk{container-type:inline-size;position:relative;width:min(94vw,380px,42vh);aspect-ratio:736/960;margin-left:calc(min(94vw,380px,42vh)*.092);background:url(book_set.png) center/100% 100% no-repeat;animation:setUp .5s cubic-bezier(.22,.8,.3,1)}
+#setBk{container-type:inline-size;position:relative;width:min(94vw,400px,52vh);aspect-ratio:736/960;margin-left:calc(min(94vw,400px,52vh)*.092);background:url(book_set.png) center/100% 100% no-repeat;animation:setUp .5s cubic-bezier(.22,.8,.3,1)}
 #setOv.out #setBk{animation:setDn .26s ease-in forwards}
 @keyframes setUp{0%{transform:translateY(60vh) rotate(9deg);opacity:0}30%{opacity:1}100%{transform:none;opacity:1}}
 @keyframes setDn{to{transform:translateY(60vh) rotate(10deg);opacity:0}}
@@ -429,26 +429,26 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #setBk h1,#setBk #nick{display:none}
 #setBk h1{font-size:4.6cqw;margin:0 0 1.5cqw;color:#3a2a08;font-weight:400}
 #setBk #nick{background:#EDE9D8;border:0;border-radius:1.8cqw;padding:1.5cqw;font-size:3cqw;color:#5a4a1e;width:100%;box-sizing:border-box;text-align:center}
-#setBk .pg button:not(.sback){flex:none;width:100%;background:#4FAE3A;color:#fff;font-size:2.6cqw;padding:1.5cqw 0;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.2);box-shadow:none}
+#setBk .pg button:not(.sback){flex:none;width:100%;background:#4FAE3A;color:#fff;font-size:3.4cqw;padding:1.7cqw 0;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.2);box-shadow:none}
 #setBk .pg button.off{background:#c9cfca}
-#setBk .bgmv{font-size:2.4cqw;color:#6b5a2a;gap:1.4cqw}
-#setBk .bgmd{font-size:2.4cqw;color:#6b5a2a;text-align:left}
+#setBk .bgmv{font-size:3cqw;color:#6b5a2a;gap:1.4cqw}
+#setBk .bgmd{font-size:3cqw;color:#6b5a2a;text-align:left}
 #setBk .bgmd summary{padding:1cqw 0}
-#setBk .bgmd select{font-size:2.6cqw}
-#setBk .sback{flex:none;margin:1cqw auto 0;width:26cqw;background:#9aa9a0;color:#fff;border:0;border-radius:2cqw;border-bottom:.35cqw solid rgba(0,0,0,.2);padding:.8cqw 0;font-size:2.4cqw}
+#setBk .bgmd select{font-size:3cqw}
+#setBk .sback{flex:none;margin:1cqw auto 0;width:26cqw;background:#9aa9a0;color:#fff;border:0;border-radius:2cqw;border-bottom:.35cqw solid rgba(0,0,0,.2);padding:1cqw 0;font-size:3cqw}
 /* ---- 줘팸터 책 화면 ---- */
-#menu .box.bk #pgNet:not([hidden]){justify-content:flex-start;gap:2cqw;padding:18cqw 19.5cqw 18cqw}
+#menu .box.bk #pgNet:not([hidden]){justify-content:flex-start;gap:2cqw;padding:25cqw 19cqw 15cqw}
 #menu .box.bk #pgNet h1{font-size:4.6cqw}
-#menu .box.bk #nLeft{display:flex;flex-direction:column;gap:6cqw;margin-top:8cqw}
+#menu .box.bk #nLeft{display:flex;flex-direction:column;gap:6cqw;margin-top:4cqw}
 #menu .box.bk #pgNet:not(.mk) #nLeft{display:none}
 #menu .box.bk #pgNet.mk .nlh,#menu .box.bk #pgNet.mk #nList,#menu .box.bk #pgNet.mk #rmPager,#menu .box.bk #pgNet.mk #nOpen,#menu .box.bk #pgNet.mk .joinrow{display:none!important}
 #menu .box.bk #pgNet .colors{gap:.9cqw}
-#menu .box.bk #pgNet .colors span{width:11cqw;font-size:2.8cqw;color:#6b5a2a}
-#menu .box.bk #pgNet .colors button{flex:1;padding:1.8cqw 0;font-size:3cqw;background:#EDE9D8;color:#6b5a2a;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.15);box-shadow:none}
+#menu .box.bk #pgNet .colors span{width:14cqw;font-size:3.6cqw;color:#6b5a2a}
+#menu .box.bk #pgNet .colors button{flex:1;padding:3.2cqw 0;font-size:3.8cqw;background:#EDE9D8;color:#6b5a2a;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.15);box-shadow:none}
 #menu .box.bk #pgNet .colors button.on{background:#4FAE3A;color:#fff}
-#menu .box.bk #nMake,#menu .box.bk #nOpen{flex:none;height:auto;background:#F5C443;color:#5A3E00;font-size:3.3cqw;padding:1.8cqw 0;border:0;border-radius:2cqw;border-bottom:.4cqw solid rgba(0,0,0,.2);box-shadow:none}
+#menu .box.bk #nMake,#menu .box.bk #nOpen{flex:none;height:auto;background:#F5C443;color:#5A3E00;font-size:4.2cqw;padding:2.8cqw 0;border:0;border-radius:2.4cqw;border-bottom:.4cqw solid rgba(0,0,0,.2);box-shadow:none}
 #menu .box.bk #nMake{margin-top:2cqw}
-#menu .box.bk #nPw{background:#EDE9D8;color:#5a4a1e;border-radius:1.8cqw;padding:1.4cqw;font-size:3cqw}
+#menu .box.bk #nPw{background:#EDE9D8;color:#5a4a1e;border-radius:1.8cqw;padding:2.4cqw;font-size:3.8cqw}
 #menu .box.bk .nlh{color:#5a4a1e;font-size:3cqw;margin-top:9cqw}
 #menu .box.bk .nlh b{font-weight:400}
 #menu .box.bk .nlh button{width:auto;padding:.6cqw 2cqw;font-size:2.3cqw;background:#EDE9D8;color:#6b5a2a;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.15);box-shadow:none}
@@ -1933,7 +1933,7 @@ function elfTrap(){
   const want=Math.min(3,sp.length);let nE=Math.min(Math.random()<.5?2:3,eh.length,want),nM=want-nE;
   if(nM>mh.length){nM=mh.length;nE=Math.min(eh.length,want-nM);}
   const pk=eh.slice(0,nE).concat(mh.slice(0,nM));if(!pk.length)return;
-  const n=clone(S),K=n.sk;pk.forEach(([r,c])=>{K.tg[r][c]=a==="b"?16:6;});K.P[a].cd1=10;n.nolg=true;n.elfx={k:"trap",o:a,cells:pk.map(x=>x.slice())};
+  const n=clone(S),K=n.sk;pk.forEach(([r,c])=>{K.tg[r][c]=a==="b"?16:6;});K.P[a].cd1=10;n.lgT="G_";n.elfx={k:"trap",o:a,cells:pk.map(x=>x.slice())};
   commitSkill(n,"공기까스 진짜 별로네","그냥 튀김옷 뭉치잖아아!!!","덫을 뿌렸어요",Math.random()<.15?"skill_e1b.jpg":"skill_e1.jpg","c3");
 }
 function taserOK(s,r,c){const k=s.sk;return k.fz[r][c]===0&&k.el[r][c]===0&&!(k.gh[r][c]>0);}
@@ -1941,7 +1941,7 @@ function taserTargets(s,a){const o=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){c
 function elfTaser(r,c){
   const a=S.turn,p=S.b[r][c];
   if(p&&col(p)===opp(a)&&taserOK(S,r,c)){
-    const n=clone(S),K=n.sk;K.fz[r][c]=1;K.el[r][c]=10;K.P[a].cdG=8;n.fxl=[[r,c]];n.zapfx=[{r,c}];n.nolg=true;
+    const n=clone(S),K=n.sk;K.fz[r][c]=1;K.el[r][c]=10;K.P[a].cdG=8;n.fxl=[[r,c]];n.zapfx=[{r,c}];n.lgT="Z_"+sqNm(r,c);
     commitSkill(n,"라이카-노바 테이저 건-2000","프로스트 노바의 기술로 만들어진 정령 충전식 방식!","상대 기물이 감전됐어요","skill_et.jpg","c3");
   }else{crT=false;sel=null;legalCache=[];render();}
 }
@@ -1971,7 +1971,7 @@ function elfTb(r,c){
 function tbExec(fr,fc,tr,tc){
   const a=S.turn,e=opp(a),n=clone(S),K=n.sk;
   const egg=Math.random()<.15;
-  moveRaw(n,fr,fc,tr,tc);K.el[tr][tc]=Math.max(K.el[tr][tc],3);K.bkl=(K.bkl||[]).concat([{r:tr,c:tc,or:fr,oc:fc}]);K.P[a].cd2=12;stepTrap(n,tr,tc,e,1);n.fxl=[[tr,tc]];n.nolg=true;
+  moveRaw(n,fr,fc,tr,tc);K.el[tr][tc]=Math.max(K.el[tr][tc],3);K.bkl=(K.bkl||[]).concat([{r:tr,c:tc,or:fr,oc:fc}]);K.P[a].cd2=12;stepTrap(n,tr,tc,e,1);n.fxl=[[tr,tc]];n.lgT="T_"+sqNm(fr,fc)+">"+sqNm(tr,tc);
   const ln=egg?"슝좍 슝좍좍좍 더 월드!!":"시간을 멈춰서라도..! 널 멈추겠어!";
   commitSkill(n,"타임 브레이크",ln,"상대 기물을 옮겼어요",egg?"skill_e2b.jpg":"skill_e2.jpg","c2");
 }
@@ -2628,7 +2628,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.34";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.40";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
