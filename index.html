@@ -532,6 +532,17 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #skCard .rib{align-self:stretch;background:#3E8E2A;color:#fff;border-radius:1.6cqw;font-size:4.4cqw;padding:.8cqw 1cqw;border:.5cqw solid #2F7F22}
 #skCard .ic{width:34cqw;height:34cqw;border-radius:3cqw;border:.9cqw solid #4FAE3A;overflow:hidden;flex:none}
 #skCard .ic img{width:100%;height:100%;object-fit:cover}
+#skPv.inic{display:block;position:relative;width:100%;height:100%}
+#skPv.inic>img,#skPv.inic>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#skPv.inic video[hidden]{display:none!important}
+#skPv.inic.pic .mbd{display:none!important}#skPv.inic.pic.bd>img{display:block!important}
+#skCard .ic{position:relative}
+#skCard .icw{position:relative;display:flex;justify-content:center;align-self:stretch}
+#skCard .pvsw{position:absolute;left:calc(50% + 24cqw);top:calc(50% - 6cqw);transform:none!important;z-index:20;border:0;background:none!important;box-shadow:none!important;color:#3E8E2A;font-size:8cqw;line-height:1;font-weight:900;width:9cqw;height:12cqw;padding:0;font-family:inherit;display:flex;align-items:center;justify-content:center}
+#skCard.open .icw{display:none}
+#skCard .pvsw.lf{left:calc(50% - 33cqw)}
+#skCard .ic:has(#skPv.inic){width:46cqw;height:46cqw}
+#skPv.inic .pw .badge{font-size:3.4cqw}#skPv.inic .pw .pn{font-size:2.3cqw}#skPv.inic .tg{font-size:3.4cqw}#skPv.inic .qm{font-size:6.5cqw}#skPv.inic .lab{font-size:3cqw}#skPv.inic .cap{font-size:3.2cqw}#skPv.inic .pw.bm{font-size:8cqw}
 #skCard .cd{font-size:3.6cqw;color:#2F5B1E}
 #skCard .cd u{background:#4FAE3A;color:#fff;border-radius:999px;padding:.2cqw 2.6cqw;text-decoration:none;margin-right:1.6cqw}
 #skCard .ds{font-size:3.4cqw;line-height:1.5;color:#5a4a1e}
@@ -2695,7 +2706,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.9.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.9.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -3181,7 +3192,7 @@ function demoRun(name){
   };
   cyc();
 }
-let skTab=0;
+let skTab=0,skDemo=false;
 function skRender(keep){
   const d=RD[skRace],esc=t=>t.replace(/</g,"&lt;"),cur=curSel(skRace);
   if(!keep)skTab=cur-1;
@@ -3194,8 +3205,11 @@ function skRender(keep){
   const cdv=cdp?cdp.replace(/^쿨 ?/,""):"",cdt=/^[\d\/ ]+$/.test(cdv)?cdv+"턴":cdv;
   const shT=sh?sh.split(" · ").filter(p=>!/^쿨 ?\d/.test(p)).join(" · "):e.d;
   const fu=parts.filter(p=>p!==cdp).map(p=>`<p>${esc(p)}</p>`).join("");
+  const PV=$("#skPv"),WIDE=matchMedia("(min-aspect-ratio:5/4) and (min-height:500px)").matches;if(PV.parentNode!==$("#pgSk"))$("#pgSk").appendChild(PV);PV.classList.remove("inic");
   $("#skCard").classList.remove("open");
-  $("#skCard").innerHTML=`<div class="rib">${esc(e.t)}</div><div class="ic"><img src="${e.i}" alt=""></div>${cdp?`<div class="cd"><u>쿨</u>${esc(cdt)}</div>`:`<div class="cd"><u>${e.lab||"패시브"}</u>${e.lab==="패시브"?"자동 발동":"고르지 않아도 돼요"}</div>`}<div class="ds"><span class="sh">${esc(shT)}</span><div class="fu">${cdp?`<p><b>쿨 ${esc(cdt)}</b></p>`:""}${fu}</div></div><u class="more" id="skMore" role="button">▼ 자세히</u>`;
+  $("#skCard").innerHTML=`<div class="rib">${esc(e.t)}</div><div class="icw"><div class="ic"><img src="${e.i}" alt=""></div></div>${cdp?`<div class="cd"><u>쿨</u>${esc(cdt)}</div>`:`<div class="cd"><u>${e.lab||"패시브"}</u>${e.lab==="패시브"?"자동 발동":"고르지 않아도 돼요"}</div>`}<div class="ds"><span class="sh">${esc(shT)}</span><div class="fu">${cdp?`<p><b>쿨 ${esc(cdt)}</b></p>`:""}${fu}</div></div><u class="more" id="skMore" role="button">▼ 자세히</u>`;
+  if(!WIDE){const ic=$("#skCard .ic");if(ic){ic.textContent="";ic.appendChild(PV);PV.classList.add("inic");PV.classList.toggle("pic",!skDemo);
+    if(DEMO[e.t]){const bt=document.createElement("button");bt.className="pvsw";bt.type="button";const upd=()=>{bt.classList.toggle("lf",skDemo);bt.innerHTML='<svg viewBox="0 0 24 24" style="width:100%;height:100%;'+(skDemo?"transform:scaleX(-1)":"")+'"><polygon points="7.5,5 18,12 7.5,19" fill="#3E8E2A" stroke="#3E8E2A" stroke-width="4" stroke-linejoin="round"/></svg>';PV.classList.toggle("pic",!skDemo);};upd();bt.onclick=ev=>{ev.stopPropagation();skDemo=!skDemo;upd();};ic.parentNode.appendChild(bt);}}}
   $("#skPv").firstElementChild.src=e.i;demoRun(e.t);
   {const v=$("#skPv video");v.hidden=true;if(DEMO[e.t]){v.removeAttribute("src");}else{v.onloadeddata=()=>{v.hidden=false;v.play().catch(()=>{});};v.onerror=()=>{v.hidden=true;};v.removeAttribute("src");v.src=e.i.replace(/\.\w+$/,".mp4");v.load();}}
   $("#skMore").onclick=()=>{const c=$("#skCard");c.classList.toggle("open");$("#skMore").textContent=c.classList.contains("open")?"▲ 접기":"▼ 자세히";};
