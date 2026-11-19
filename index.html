@@ -417,6 +417,55 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 .rl .rr.lose b{background:#d96a5a}.rl .rr.draw b{background:#9aa9a0}
 .rl .rr small{font-size:2.6cqw;color:#8a7f5c}
 #menu .box.bk #pgRec .rl{max-height:76cqw}
+/* ---- 설정 (작은 책) ---- */
+#setOv{position:fixed;inset:0;z-index:12;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center}
+#setOv[hidden]{display:none}
+#setBk{container-type:inline-size;position:relative;width:min(80vw,380px,42vh);aspect-ratio:736/960;margin-left:calc(min(80vw,380px,42vh)*.092);background:url(book_set.png) center/100% 100% no-repeat;animation:setUp .38s cubic-bezier(.2,.9,.3,1)}
+#setOv.out #setBk{animation:setDn .26s ease-in forwards}
+@keyframes setUp{0%{transform:translateY(60vh) rotate(12deg);opacity:0}55%{transform:translateY(8vh) rotate(-6deg);opacity:1}100%{transform:none;opacity:1}}
+@keyframes setDn{to{transform:translateY(60vh) rotate(10deg);opacity:0}}
+#setBk::before{content:"설정";position:absolute;left:88.5cqw;top:35.5cqw;width:10cqw;height:20cqw;line-height:10cqw;writing-mode:vertical-rl;text-align:center;font-size:3.6cqw;color:#fff;text-shadow:0 .3cqw .6cqw rgba(0,0,0,.35);pointer-events:none}
+#setBk .pg{position:absolute;inset:0;padding:16cqw 28.2cqw 16cqw 17.5cqw;gap:2.6cqw;text-align:center;overflow:auto;display:flex;flex-direction:column;justify-content:center}
+#setBk h1,#setBk #nick{display:none}
+#setBk h1{font-size:4.6cqw;margin:0 0 1.5cqw;color:#3a2a08;font-weight:400}
+#setBk #nick{background:#EDE9D8;border:0;border-radius:1.8cqw;padding:1.5cqw;font-size:3cqw;color:#5a4a1e;width:100%;box-sizing:border-box;text-align:center}
+#setBk .pg button:not(.sback){flex:none;width:100%;background:#4FAE3A;color:#fff;font-size:2.6cqw;padding:1.5cqw 0;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.2);box-shadow:none}
+#setBk .pg button.off{background:#c9cfca}
+#setBk .bgmv{font-size:2.4cqw;color:#6b5a2a;gap:1.4cqw}
+#setBk .bgmd{font-size:2.4cqw;color:#6b5a2a;text-align:left}
+#setBk .bgmd summary{padding:1cqw 0}
+#setBk .bgmd select{font-size:2.6cqw}
+#setBk .sback{flex:none;margin:1cqw auto 0;width:26cqw;background:#9aa9a0;color:#fff;border:0;border-radius:2cqw;border-bottom:.35cqw solid rgba(0,0,0,.2);padding:.8cqw 0;font-size:2.4cqw}
+/* ---- 줘팸터 책 화면 ---- */
+#menu .box.bk #pgNet:not([hidden]){justify-content:flex-start;gap:2cqw;padding:18cqw 19.5cqw 18cqw}
+#menu .box.bk #pgNet h1{font-size:4.6cqw}
+#menu .box.bk #nLeft{display:flex;flex-direction:column;gap:6cqw;margin-top:8cqw}
+#menu .box.bk #pgNet:not(.mk) #nLeft{display:none}
+#menu .box.bk #pgNet.mk .nlh,#menu .box.bk #pgNet.mk #nList,#menu .box.bk #pgNet.mk #rmPager,#menu .box.bk #pgNet.mk #nOpen,#menu .box.bk #pgNet.mk .joinrow{display:none!important}
+#menu .box.bk #pgNet .colors{gap:.9cqw}
+#menu .box.bk #pgNet .colors span{width:11cqw;font-size:2.8cqw;color:#6b5a2a}
+#menu .box.bk #pgNet .colors button{flex:1;padding:1.8cqw 0;font-size:3cqw;background:#EDE9D8;color:#6b5a2a;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.15);box-shadow:none}
+#menu .box.bk #pgNet .colors button.on{background:#4FAE3A;color:#fff}
+#menu .box.bk #nMake,#menu .box.bk #nOpen{flex:none;height:auto;background:#F5C443;color:#5A3E00;font-size:3.3cqw;padding:1.8cqw 0;border:0;border-radius:2cqw;border-bottom:.4cqw solid rgba(0,0,0,.2);box-shadow:none}
+#menu .box.bk #nMake{margin-top:2cqw}
+#menu .box.bk #nPw{background:#EDE9D8;color:#5a4a1e;border-radius:1.8cqw;padding:1.4cqw;font-size:3cqw}
+#menu .box.bk .nlh{color:#5a4a1e;font-size:3cqw;margin-top:9cqw}
+#menu .box.bk .nlh b{font-weight:400}
+#menu .box.bk .nlh button{width:auto;padding:.6cqw 2cqw;font-size:2.3cqw;background:#EDE9D8;color:#6b5a2a;border:0;border-radius:1.8cqw;border-bottom:.3cqw solid rgba(0,0,0,.15);box-shadow:none}
+#menu .box.bk #nList{gap:1.8cqw;max-height:none;overflow:visible}
+#menu .box.bk #nList .rm{background:#EDE9D8;border-radius:1.2cqw;padding:1cqw 1.3cqw;color:#5a4a1e;font-size:2.7cqw;font-weight:400;gap:1cqw}
+#menu .box.bk #nList .rm .rmk{width:5cqw;height:5cqw;border-width:.3cqw}
+#menu .box.bk #nList .rm i{background:#c9892b;font-size:2cqw;border-radius:1.6cqw;padding:.2cqw 1cqw}
+#menu .box.bk #nList .rm button{width:auto;background:#4FAE3A;color:#fff;border:0;border-radius:999px;padding:.3cqw 1.8cqw;font-size:2.5cqw;box-shadow:none}
+#menu .box.bk #nList .none{font-size:2.6cqw;color:#8a7f5c;padding:3cqw 0}
+#menu .box.bk #rmPager:not([hidden]){display:flex;justify-content:center;align-items:center;gap:2.4cqw;margin:0;color:#8a7f5c;font-size:2.5cqw}
+#menu .box.bk #rmPager button{width:auto;background:none;color:#8a7f5c;border:0;box-shadow:none;font-size:2.8cqw;padding:0 1cqw}
+#menu .box.bk #pgNet .joinrow{gap:.8cqw}
+#menu .box.bk #pgNet .joinrow input{background:#EDE9D8;border-radius:1.8cqw;font-size:3cqw;padding:1.2cqw;color:#5a4a1e}
+#menu .box.bk #pgNet .joinrow button{width:auto;flex:none;padding:1.2cqw 2.6cqw;font-size:2.8cqw;background:#4FAE3A;color:#fff;border:0;border-radius:1.8cqw;box-shadow:none}
+#menu .box.bk #nStat{min-height:0;font-size:2.6cqw;color:#5a4a1e;font-weight:400}
+#menu .box.bk #nStat b{font-size:6cqw;color:#4FAE3A}
+#menu .box.bk #pgNet .back{font-size:2.8cqw;padding:.9cqw 0;width:32cqw;align-self:center;margin-top:auto}
 /* ---- 종족전 책 화면 ---- */
 #pgRace .rhint,#pgSk .pvl,#skPv{display:none}
 #menu .box.bk #pgRace .rhint{display:block}
@@ -533,6 +582,36 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 #menu .box.bk .rl .rr small{font-size:1.2cqw!important;line-height:1.2;white-space:nowrap;margin:0;text-align:right;width:auto}#menu .box.bk .rl .nm{font-size:1.7cqw!important}.rl .re{font-size:2cqw;padding:4cqw 0}
 #menu .box.bk #pgRec #recNote{left:8.7cqw;width:38cqw;top:51cqw;font-size:1.4cqw}
 #menu .box.bk #pgRec .back{left:59.8cqw;top:53.4cqw;width:11cqw;font-size:1.9cqw;padding:.8cqw 0 .6cqw;border-radius:2cqw}
+#menu .box.bk.bt>#pgNet:not([hidden]){padding:0;display:block;position:relative;height:100%}
+#menu .box.bk.bt>#pgNet>*{position:absolute;margin:0}
+#menu .box.bk #pgNet #nLeft{display:flex!important}
+#menu .box.bk #pgNet #nOpen{display:none!important}
+#menu .box.bk #pgNet .nlh,#menu .box.bk #pgNet #nList,#menu .box.bk #pgNet .joinrow:not([style*="none"]){display:flex}
+#menu .box.bk #pgNet #nList{display:flex}
+#menu .box.bk #pgNet h1{font-size:3cqw}
+#menu .box.bk #nLeft{left:8.7cqw;width:38cqw;top:17cqw;gap:4.4cqw}
+#menu .box.bk #nLeft.pv{gap:1.5cqw}
+#menu .box.bk #pgNet .colors{gap:.9cqw}
+#menu .box.bk #pgNet .colors span{width:6cqw;font-size:1.5cqw}
+#menu .box.bk #pgNet .colors button{padding:.9cqw 0;font-size:1.7cqw;border-radius:2cqw}
+#menu .box.bk #nMake{font-size:2.1cqw;padding:1.1cqw 0;border-radius:2.3cqw;margin-top:.4cqw}
+#menu .box.bk #nPw{font-size:1.7cqw;padding:.8cqw;border-radius:1.4cqw}
+#menu .box.bk .nlh{left:58.6cqw;width:31cqw;top:9.8cqw;font-size:2cqw}
+#menu .box.bk .nlh button{padding:.5cqw 1.6cqw;font-size:1.5cqw}
+#menu .box.bk #nList{left:58.6cqw;width:31cqw;top:19.4cqw;gap:1.1cqw}
+#menu .box.bk #nList .rm{border-radius:1.4cqw;padding:.8cqw 1.2cqw;font-size:1.55cqw;gap:.8cqw}
+#menu .box.bk #nList .rm .rmk{width:3.2cqw;height:3.2cqw;border-width:.25cqw}
+#menu .box.bk #nList .rm i{font-size:1.2cqw;padding:.2cqw .8cqw}
+#menu .box.bk #nList .rm button{padding:.2cqw 1.4cqw;font-size:1.7cqw}
+#menu .box.bk #nList .none{font-size:1.6cqw;padding:2cqw 0}
+#menu .box.bk #rmPager:not([hidden]){left:58.6cqw;width:31cqw;top:50.2cqw;font-size:1.7cqw;gap:2cqw}
+#menu .box.bk #rmPager button{font-size:1.7cqw}
+#menu .box.bk #pgNet .joinrow{left:58.6cqw;width:31cqw;top:46.8cqw}
+#menu .box.bk #pgNet .joinrow input{font-size:1.7cqw;padding:.6cqw;border-radius:1.4cqw}
+#menu .box.bk #pgNet .joinrow button{font-size:1.6cqw;padding:.6cqw 1.6cqw;border-radius:1.4cqw}
+#menu .box.bk #nStat{left:8.7cqw;width:38cqw;top:47cqw;font-size:1.4cqw}
+#menu .box.bk #nStat b{font-size:3cqw;letter-spacing:.6cqw}
+#menu .box.bk #pgNet .back{left:8.7cqw;top:53.4cqw;width:14cqw;font-size:1.4cqw;padding:.45cqw 0;border-radius:2cqw;border-bottom-width:.45cqw}
 }
 
 
@@ -626,17 +705,6 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
     <input id="nick2" class="nk" maxlength="10" placeholder="이름을 입력하세요" autocomplete="off">
     <div class="tip" id="tip"><b>오늘의 팁</b><span id="tipTx"></span></div>
   </div>
-  <div class="pg" id="pgSet" hidden>
-    <h1>설정</h1>
-    <input id="nick" maxlength="10" placeholder="닉네임 (비우면 교주)" autocomplete="off">
-    <button id="snd">효과음 켬</button>
-    <button id="bgmBtn">배경음악 켬</button>
-    <div class="bgmv"><span>음악 볼륨</span><input type="range" id="bgmVol" min="0" max="100" step="5"></div>
-    <details class="bgmd"><summary>종족별 배경음악 선택</summary><div id="bgmSel"></div></details>
-    <button id="bwBtn">흑백 모드 끔</button>
-    <button id="tutBtn">도움말 (사용법 가이드)</button>
-    <button class="back" data-to="pgMain">← 뒤로</button>
-  </div>
   <div class="pg" id="pgRace" hidden>
     <h1 id="raceT">종족전</h1>
     <div class="races2" id="races2"></div>
@@ -649,15 +717,18 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
   <div class="pg" id="pgNet" hidden>
-    <h1>줘팸터 들어가기</h1>
+    <h1>줘팸터</h1>
+    <div id="nLeft">
     <div class="colors" id="nKind"><span>방식</span><button data-k="race">종족전</button><button data-k="classic">클래식</button></div>
     <div class="colors" id="nTime"><span>시간</span><button data-t="0">없음</button><button data-t="180">3분</button><button data-t="300">5분</button><button data-t="600">10분</button></div>
     <div class="colors" id="nVis"><span>방 종류</span><button data-v="0">공개방</button><button data-v="1">비밀번호방</button></div>
     <input id="nPw" class="npw" maxlength="8" placeholder="비밀번호 (4~8자)" style="display:none" autocomplete="off">
     <button id="nMake">방 만들기</button>
+    </div>
     <div class="nlh"><b>열린 방</b><button id="nRef">새로고침</button></div>
     <div id="nList"></div>
     <div class="pager" id="rmPager" hidden><button id="rmPrev">◀</button><b id="rmNum">1 / 1</b><button id="rmNext">▶</button></div>
+    <button id="nOpen">방 만들기</button>
     <input id="nCode" type="hidden">
     <div class="joinrow" id="nPwRow" style="display:none"><input id="nPwIn" maxlength="8" placeholder="비밀번호" autocomplete="off"><button id="nJoin">들어가기</button></div>
     <div id="nStat"></div>
@@ -687,7 +758,21 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
     <div class="half"><button id="mLab">연습하기</button><button id="m2p">한 폰으로 둘이서</button></div>
     <button class="back" data-to="pgMain">← 뒤로</button>
   </div>
+</div>
+<div id="setOv" hidden><div id="setBk">
+  <div class="pg" id="pgSet">
+    <h1>설정</h1>
+    <input id="nick" maxlength="10" placeholder="닉네임 (비우면 교주)" autocomplete="off">
+    <button id="snd">효과음 켬</button>
+    <button id="bgmBtn">배경음악 켬</button>
+    <div class="bgmv"><span>음악 볼륨</span><input type="range" id="bgmVol" min="0" max="100" step="5"></div>
+    <details class="bgmd"><summary>종족별 배경음악 선택</summary><div id="bgmSel"></div></details>
+    <button id="bwBtn">흑백 모드 끔</button>
+    <button id="tutBtn">도움말 (사용법 가이드)</button>
+    <button class="sback" id="setBack">← 닫기</button>
+  </div>
 </div></div>
+</div>
 <div id="sidlg" hidden><div class="sibox"><h3 id="sit"></h3><div class="sihint" id="sih"></div><div id="sil"></div><button id="sic">닫기</button></div></div>
 <div id="dlg" hidden><div class="dbox"><p id="dmsg"></p><div class="drow"><button id="dno"></button><button id="dyes"></button></div></div></div><div id="toast"></div><div id="cutin"></div>
 <div id="promo"><div class="box"><div>폰 승급! 무엇으로 바꿀까요?</div><div class="row" id="promoRow"></div></div></div>
@@ -1202,7 +1287,9 @@ function voice(f){if(!sndOn)return;
   }catch(e){}}
 try{if("mediaSession" in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState="none";}}catch(e){}
 function sndBtn(){$("#snd").textContent=sndOn?"효과음 켬":"효과음 끔";}
-$("#mSet").onclick=()=>showPg("pgSet");
+$("#mSet").onclick=()=>{$("#setOv").hidden=false;};
+const closeSet=()=>{const o=$("#setOv");o.classList.add("out");setTimeout(()=>{o.hidden=true;o.classList.remove("out");},260);};
+$("#setBack").onclick=closeSet;$("#setOv").onclick=e=>{if(e.target.id==="setOv")closeSet();};
 function bwBtn(){$("#bwBtn").textContent=bwOn?"흑백 모드 켬":"흑백 모드 끔";$("#bwBtn").classList.toggle("on",bwOn);}
 bwBtn();
 $("#bwBtn").onclick=()=>{bwOn=!bwOn;try{localStorage.setItem("fc_bw",bwOn?"1":"0");}catch(e){}bwBtn();try{render();}catch(e){}};
@@ -2511,7 +2598,7 @@ $("#undo").onclick=()=>{
 };
 $("#new").onclick=()=>{if(mode==="net"){netResign();return;}if(busy&&(mode==="ai"||isRace()))return;reset();};
 $("#hint").onclick=hint;
-function showPg(id){setTimeout(bgmSync,0);const bx=document.querySelector("#menu .box");if(bx){bx.classList.toggle("bk",id==="pgMain"||id==="pgRace"||id==="pgSk"||id==="pgRec");bx.classList.toggle("bt",true);$("#tbMain").classList.toggle("on",id==="pgMain");$("#tbRace").classList.toggle("on",id!=="pgMain");}document.querySelectorAll("#menu .pg").forEach(e=>e.hidden=e.id!==id);}
+function showPg(id){setTimeout(bgmSync,0);const bx=document.querySelector("#menu .box");if(bx){bx.classList.toggle("bk",id==="pgMain"||id==="pgRace"||id==="pgSk"||id==="pgRec"||id==="pgNet");bx.classList.toggle("bt",true);$("#tbMain").classList.toggle("on",id==="pgMain");$("#tbRace").classList.toggle("on",id!=="pgMain");}document.querySelectorAll("#menu .box>.pg").forEach(e=>e.hidden=e.id!==id);}
 function goHome(){setTimeout(bgmSync,60);if(mode==="net"||NET.waiting)netClose();if(busy&&(mode==="ai"||isRace()))return;hintToken++;busy=false;showPg("pgMain");$("#menu").style.display="flex";}
 $("#home").onclick=()=>{if(mode==="net"&&!NET.dead&&!over){ask("대결을 끝내고 나갈까요?","나가기","계속하기",ok=>{if(ok)goHome();});return;}goHome();};
 function shToggle(r,c){
@@ -2541,7 +2628,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.28";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.32";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -2746,14 +2833,16 @@ function setNetTime(t){NET.tc=t;document.querySelectorAll("#nTime button").forEa
 document.querySelectorAll("#nTime button").forEach(b=>b.onclick=()=>setNetTime(+b.dataset.t));
 function setNetKind(k){NET.kind=k;document.querySelectorAll("#nKind button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));}
 document.querySelectorAll("#nKind button").forEach(b=>b.onclick=()=>setNetKind(b.dataset.k));
-function openNet(from,k){netStat("");$("#nPwIn").value="";$("#nPwRow").style.display="none";loadRooms();if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
+const isWideNow=()=>matchMedia("(min-aspect-ratio:5/4) and (min-height:500px)").matches;
+function netView(mk){const g=$("#pgNet");mk=!!mk&&!isWideNow();g.classList.toggle("mk",mk);g.querySelector("h1").textContent=mk?"방 만들기":"줘팸터";g.querySelector(".back").textContent=mk?"← 취소":"← 뒤로";}
+function openNet(from,k){netView(false);netStat("");$("#nPwIn").value="";$("#nPwRow").style.display="none";loadRooms();if(k)setNetKind(k);$("#pgNet .back").dataset.to=from;showPg("pgNet");}
 setNetKind("race");setNetTime(0);
 $("#mNet").onclick=()=>openNet("pgMain");
 $("#tbMain").onclick=()=>{P2MODE=false;raceUI();showPg("pgMain");};$("#tbRace").onclick=()=>$("#mRace").click();$("#tbStat").onclick=()=>{P2MODE=false;recRender();showPg("pgRec");};
 $("#rNet").onclick=()=>openNet("pgRace","race");
 $("#cNet").onclick=()=>openNet("pgClassic","classic");
 let nVis=0;
-function setVis(v){nVis=v;document.querySelectorAll("#nVis button").forEach(b=>b.classList.toggle("on",+b.dataset.v===v));$("#nPw").style.display=v?"":"none";}
+function setVis(v){nVis=v;document.querySelectorAll("#nVis button").forEach(b=>b.classList.toggle("on",+b.dataset.v===v));$("#nPw").style.display=v?"":"none";$("#nLeft").classList.toggle("pv",!!v);}
 document.querySelectorAll("#nVis button").forEach(b=>b.onclick=()=>setVis(+b.dataset.v));setVis(0);
 $("#nMake").onclick=async()=>{
   const pw=nVis?$("#nPw").value.trim():"";
@@ -2788,11 +2877,11 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 let SKEW=0,RSEEN={};
 function srvNow(){return Date.now()+SKEW;}
 function setSkew(r){try{const d=r.headers.get("date");if(d){const t=new Date(d).getTime();if(t>0)SKEW=t-Date.now();}}catch(e){}}
-let ROOMS=[],roomPg=0;const RM_PER=5;
+let ROOMS=[],roomPg=0;const rmPer=()=>5;
 function renderRooms(){
   const L=$("#nList"),rooms=ROOMS,pg=$("#rmPager");
   if(!rooms.length){L.innerHTML='<div class="none">열린 방이 없어요. 직접 만들어 보세요</div>';pg.hidden=true;roomPg=0;return;}
-  const tot=Math.ceil(rooms.length/RM_PER);if(roomPg>=tot)roomPg=tot-1;if(roomPg<0)roomPg=0;
+  const RM_PER=rmPer(),tot=Math.ceil(rooms.length/RM_PER);if(roomPg>=tot)roomPg=tot-1;if(roomPg<0)roomPg=0;
   pg.hidden=tot<2;$("#rmNum").textContent=(roomPg+1)+" / "+tot;
   L.innerHTML="";
   rooms.slice(roomPg*RM_PER,roomPg*RM_PER+RM_PER).forEach(([k,v])=>{const d2=document.createElement("div");d2.className="rm";
@@ -2852,6 +2941,8 @@ $("#nick").oninput=()=>{try{localStorage.setItem("fc_nick",$("#nick").value.trim
 $("#nick2").oninput=()=>{try{localStorage.setItem("fc_nick",$("#nick2").value.trim().slice(0,10));}catch(e){}$("#nick").value=$("#nick2").value;};
 $("#mClassic").onclick=()=>showPg("pgClassic");
 document.querySelectorAll("#menu .back").forEach(b=>b.onclick=()=>showPg(b.dataset.to));
+$("#nOpen").onclick=()=>netView(true);
+$("#pgNet .back").onclick=function(){if($("#pgNet").classList.contains("mk")){netView(false);netStat("");loadRooms();return;}showPg(this.dataset.to);};
 
 const FDESC={1:"기물 1개에 방어막 1회 (막으면 공격한 기물 1턴 스턴) · 쿨 10턴",2:"쓸 때마다 5단계까지 진화 (쿨 8턴). 1단계 아무 일도 없음, 2단계 폰 방어막 2개, 3단계 비숍·나이트 방어막 1개씩, 4단계 룩 방어막, 5단계 킹 강화 + 다구리 조건 완화"};
 const WDESC2={1:"퀸·룩·킹을 뺀 기물 1개를 고서 상태로 만든다. 4턴 안에 잡으면 주변 1칸이 폭발한다 (킹 제외, 내 기물 포함). 4턴이 지나면 풀린다. 폰은 한 칸 더 전진 · 쿨 10턴",2:"룩·비숍·퀸 중 하나가 랜덤으로 발동 · 쿨 10턴\n룩: 고서 상태가 된다. 잡아도 룩은 살아남는다\n비숍: 5턴 동안 잡은 요정 기물이 마녀 편이 된다 (퀸 제외, 최대 3개)\n퀸: 3턴 동안 방어막 1회 + 나이트 이동 추가\n룩·비숍이 없으면 폰에 방어막 1회"};
