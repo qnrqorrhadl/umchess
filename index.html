@@ -27,14 +27,14 @@ body[data-bd] #board{border:12px solid transparent;border-image:var(--bf) 122 14
 #res{position:fixed;inset:0;z-index:34;display:none;align-items:center;justify-content:center;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #res.on{display:flex}
 #res .rays{display:none}
-#res .rc{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(92vw,420px);padding:18px;background:rgba(255,255,255,.96);border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.22);animation:resup .55s cubic-bezier(.2,1,.3,1)}
+#res .rc{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(92vw,420px);padding:4px 8px 2px;box-sizing:border-box;background:none;border:30px solid transparent;border-image:url(card_frame.png) 122 140 fill/30px 34px stretch;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4));animation:resup .55s cubic-bezier(.2,1,.3,1)}
 @keyframes resup{from{transform:translateY(100vh)}to{transform:none}}
 #res img{max-width:100%;max-height:30vh;object-fit:contain}
 #resTxt{font-size:56px;font-weight:900;letter-spacing:4px;line-height:1.1}
-#res.win #resTxt{color:#2f8a46}#res.lose #resTxt{color:#5b6f95}#res.draw #resTxt{color:#7a8a7f}
-#resWhy{color:#2b5a35;font-weight:800;font-size:16px;text-align:center}
+#res.win #resTxt{color:#d38b2f}#res.lose #resTxt{color:#6b7fa8}#res.draw #resTxt{color:#8a7a62}
+#resWhy{color:#5b4023;font-weight:800;font-size:16px;text-align:center}
 #res .resb{display:flex;gap:10px;width:100%}
-#res .resb button{flex:1}
+#res .resb button{flex:1;padding:11px 0;border:0;border-radius:12px;font-size:16px;font-weight:800;color:#fff;background:#4FAE3A;border-bottom:3px solid rgba(0,0,0,.2)}
 #res .resb button:disabled{background:#c9cfca;color:#fff}
 #vs{position:fixed;inset:0;z-index:36;background:rgba(10,5,30,.82);display:none;align-items:center;justify-content:center;gap:14px;color:#fff}
 #vs.on{display:flex}
@@ -2307,6 +2307,72 @@ function witchAI(side,P){
   if(sk===2&&P.wc2===0&&(S.lg||[]).length>6&&Math.random()<.5){useWitch2();return true;}
   return false;
 }
+function elfAI(side,P){
+  if(!canWitch())return false;
+  const sk=TEAM[side].s,en=opp(side),V=p=>(VAL[typ(p)]||0)/100,L=(S.lg||[]).length;
+  if(sk===1&&P.cd1===0&&L>2&&trapSpots(S,side).length>=3&&Math.random()<.85){elfTrap();return true;}
+  if(P.cdG===0){ // 테이저: 가장 비싼 상대 기물 (킹 제외)
+    let best=null,bv=2.9;
+    for(const[r,c]of taserTargets(S,side)){const p=S.b[r][c];if(typ(p)==="K")continue;const v=V(p)+(attackersOf(S,r,c,side).length?.5:0);if(v>bv){bv=v;best=[r,c];}}
+    if(best&&Math.random()<.6){elfTaser(best[0],best[1]);return true;}
+  }
+  if(sk===2&&P.cd2===0){ // 타임 브레이크: 비싼 기물을 내 기물이 노리는 칸으로
+    let best=null,bv=2.9;
+    for(const[r,c]of tbPieces(S,side)){const p=S.b[r][c],vp=V(p);if(vp<3)continue;
+      for(const d of tbDests(S,r,c,side)){const at=attackersOf(S,d.tr,d.tc,side),df=attackersOf(S,d.tr,d.tc,en).filter(q=>!(q[0]===r&&q[1]===c)).length;
+        if(!at.length)continue;const minA=Math.min(...at.map(([ar,ac])=>V(S.b[ar][ac])||9));
+        const v=vp*(df?.5:1)+(vp>minA?1.5:0);if(v>bv){bv=v;best={f:[r,c],t:d};}}}
+    if(best&&Math.random()<.7){tbExec(best.f[0],best.f[1],best.t.tr,best.t.tc);return true;}
+  }
+  if(sk===1&&P.cd1===0&&L>2&&trapSpots(S,side).length>=3&&Math.random()<.85){elfTrap();return true;}
+  return false;
+}
+function ghostAI(side,P){
+  if(!canWitch()||P.tp>0)return false;
+  const sk=TEAM[side].s,en=opp(side),L=(S.lg||[]).length;
+  if(sk===1&&P.cd1===0&&teleAny(S,side)){
+    const sq=portalSqs(S,side).filter(([r,c])=>!attackersOf(S,r,c,en).length);
+    if(sq.length){
+      if(P.pe>=0){ // 출구: 상대 킹 가까이
+        const[kr,kc]=findKing(S.b,en);let best=null,bd=99;
+        for(const[r,c]of sq){const d=Math.max(Math.abs(r-kr),Math.abs(c-kc));if(d>=2&&d<bd){bd=d;best=[r,c];}}
+        if(best){ghTeleTarget(best[0],best[1]);return true;}
+      }else if(!(P.pl||[]).length&&L>6&&Math.random()<.3){ // 입구: 내 룩·퀸 줄 위의 안전한 칸
+        let best=null;const lines=[];
+        for(const[r,c]of gOwn(S,side,true)){if("RQ".includes(typ(S.b[r][c])))lines.push([r,c]);}
+        const on=sq.filter(([r,c])=>lines.some(([lr,lc])=>lr===r||lc===c));
+        best=(on.length?on:sq)[Math.floor(Math.random()*(on.length||sq.length))];
+        if(best){ghTeleTarget(best[0],best[1]);return true;}
+      }
+    }
+  }
+  if(sk===2&&P.cd2===0&&L>6&&Math.random()<.4){
+    const bs=gBishops(S,side);if(bs.length){const b=bs[Math.floor(Math.random()*bs.length)];ghBishopTarget(b.q[0],b.q[1]);return true;}
+  }
+  if(P.cdG===0&&L>8&&Math.random()<.3){ghCommon();return true;}
+  return false;
+}
+function suAI(side,P){
+  if(!canSu())return false;
+  const sk=TEAM[side].s,V=p=>(VAL[typ(p)]||0)/100;
+  if(sk===2&&P.cd2===0){ // 1마력 펀치: 날아가는 기물 가치 합이 크고 내 기물 피해가 적을 때
+    let best=null,bv=0;
+    for(const o of punchOptions(S,side)){
+      let v=V(S.b[o.t[0]][o.t[1]])-1;
+      for(const[r,c]of o.j){const p=S.b[r][c];if(!p||S.sk.sh[r][c]>0)continue;v+=col(p)===side?-V(p):V(p);}
+      if(v>bv){bv=v;best=o;}}
+    if(best&&bv>=3){sel=best.q.slice();crT=4;punchTarget(best.t[0],best.t[1]);return true;}
+  }
+  if(P.cdG===0&&(S.lg||[]).length>16){ // 대리 촌장: 기물이 줄어든 중후반에 킹을 퀸처럼
+    let n=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(p&&p!=="n"&&typ(p)!=="K"&&typ(p)!=="P")n++;}
+    if(n<=7&&Math.random()<.4){useKingSu();return true;}
+  }
+  if(sk===1&&P.cd1===0&&(S.lg||[]).length>4&&Math.random()<.35){ // 폰 두 번: 폰이 움직일 수 있을 때
+    let n=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=S.b[r][c];if(p&&col(p)===side&&typ(p)==="P"&&legal(S,r,c).length)n++;}
+    if(n>=2){useSu1();return true;}
+  }
+  return false;
+}
 function raiMove(){
   if(over||S.turn===me){busy=false;return;}
   const side=S.turn,P=S.sk.P[side];busy=false;
@@ -2324,6 +2390,9 @@ function raiMove(){
     }
     if(sk===2&&P.cd2===0&&P.st<5&&(S.lg||[]).length>6){useSkill2();return;}
   }else if(!inCheck(S,side)&&TEAM[side].r==="m"&&witchAI(side,P))return;
+  else if(!inCheck(S,side)&&TEAM[side].r==="s"&&suAI(side,P))return;
+  else if(!inCheck(S,side)&&TEAM[side].r==="e"&&elfAI(side,P))return;
+  else if(!inCheck(S,side)&&TEAM[side].r==="g"&&ghostAI(side,P))return;
   }catch(e){}
   const ms=allMoves(S);if(!ms.length)return;
   ms.sort(()=>Math.random()-.5);let best=null,bs=-1e9;
@@ -2707,7 +2776,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="2.0.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="2.0.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
