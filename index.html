@@ -279,21 +279,21 @@ body.racem #info{display:none}
 #ldg{position:fixed;inset:0;z-index:99;background:linear-gradient(160deg,#d9f3ff 0%,#e6f9d8 55%,#c9f0a8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 #ldg[hidden]{display:none}
 #ldg .ldc{position:relative;width:min(70vw,300px);height:128px;margin-bottom:2px}
-#ldg .ldw{position:absolute;bottom:0;left:0;width:84px;animation:ldwalk 1.5s linear infinite alternate;transform-origin:50% 100%}
+#ldg .ldw{position:absolute;bottom:0;left:0;width:84px;transform-origin:50% 100%}
 @keyframes ldwalk{from{left:0}to{left:calc(100% - 84px)}}
-#ldg .ldi{position:relative;transform-origin:50% 100%;animation:ldbob .17s ease-out infinite}
+#ldg .ldi{position:relative;transform-origin:50% 100%;}
 @keyframes ldbob{0%,100%{transform:translateY(0)}45%{transform:translateY(-6px)}}
 #ldg .ldi img{display:block;width:100%;height:auto}
 #ldg .ldbr{position:absolute;left:30%;top:56%;width:34%;transform:rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
-#ldg.fall .ldw{animation:ldfallR 1.1s linear forwards!important}
+#ldg.fall .ldw{animation:ldfallR 1.5s linear forwards!important}
 #ldg.fall .ldi{animation:none!important}
-@keyframes ldfallR{0%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:ease-out}12%{transform:translate(-2px,-10px) rotate(-5deg);animation-timing-function:cubic-bezier(.55,0,.9,.5)}58%{transform:translate(16px,-38px) rotate(88deg);animation-timing-function:ease-out}70%{transform:translate(20px,-48px) rotate(78deg);animation-timing-function:ease-in}82%{transform:translate(22px,-40px) rotate(88deg);animation-timing-function:ease-out}90%{transform:translate(22px,-43px) rotate(85deg);animation-timing-function:ease-in}100%{transform:translate(22px,-40px) rotate(88deg)}}
-@keyframes ldfallL{0%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:ease-out}12%{transform:translate(2px,-10px) rotate(5deg);animation-timing-function:cubic-bezier(.55,0,.9,.5)}58%{transform:translate(-16px,-38px) rotate(-88deg);animation-timing-function:ease-out}70%{transform:translate(-20px,-48px) rotate(-78deg);animation-timing-function:ease-in}82%{transform:translate(-22px,-40px) rotate(-88deg);animation-timing-function:ease-out}90%{transform:translate(-22px,-43px) rotate(-85deg);animation-timing-function:ease-in}100%{transform:translate(-22px,-40px) rotate(-88deg)}}
-#ldg.fall.fl .ldw{animation:ldfallL 1.1s linear forwards!important}
-#ldg.fall.fl .ldbr{animation:ldbflyL 1.5s ease-out forwards}
-@keyframes ldbflyL{0%{transform:rotate(-8deg)}28%{transform:translate(34px,-40px) rotate(-200deg)}50%{transform:translate(8px,-84px) rotate(-360deg)}62%{transform:translate(32px,-84px) rotate(-384deg)}74%{transform:translate(8px,-84px) rotate(-408deg)}83%{transform:translate(19px,-84px) rotate(-416deg)}92%{transform:translate(8px,-84px) rotate(-422deg)}100%{transform:translate(8px,-84px) rotate(-424deg)}}
-#ldg.fall .ldbr{animation:ldbfly 1.5s ease-out forwards}
-@keyframes ldbfly{0%{transform:rotate(-8deg)}28%{transform:translate(-34px,-40px) rotate(200deg)}50%{transform:translate(-8px,-84px) rotate(360deg)}62%{transform:translate(-32px,-84px) rotate(384deg)}74%{transform:translate(-8px,-84px) rotate(408deg)}83%{transform:translate(-19px,-84px) rotate(416deg)}92%{transform:translate(-8px,-84px) rotate(422deg)}100%{transform:translate(-8px,-84px) rotate(424deg)}}
+@keyframes ldfallR{0%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:cubic-bezier(.5,0,.9,.5)}36%{transform:translate(14px,-34px) rotate(88deg);animation-timing-function:ease-out}45%{transform:translate(18px,-44px) rotate(76deg);animation-timing-function:ease-in}53%{transform:translate(20px,-38px) rotate(88deg);animation-timing-function:ease-out}58%{transform:translate(22px,-40px) rotate(86deg);animation-timing-function:ease-out}100%{transform:translate(62px,-38px) rotate(88deg)}}
+@keyframes ldfallL{0%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:cubic-bezier(.5,0,.9,.5)}36%{transform:translate(-14px,-34px) rotate(-88deg);animation-timing-function:ease-out}45%{transform:translate(-18px,-44px) rotate(-76deg);animation-timing-function:ease-in}53%{transform:translate(-20px,-38px) rotate(-88deg);animation-timing-function:ease-out}58%{transform:translate(-22px,-40px) rotate(-86deg);animation-timing-function:ease-out}100%{transform:translate(-62px,-38px) rotate(-88deg)}}
+#ldg.fall.fl .ldw{animation:ldfallL 1.5s linear forwards!important}
+#ldg.fall.fl .ldbr{animation:ldbflyL 1.7s ease-out forwards}
+@keyframes ldbflyL{0%{transform:rotate(-8deg)}25%{transform:translate(80px,-70px) rotate(-200deg)}48%{transform:translate(8px,-150px) rotate(-360deg)}60%{transform:translate(40px,-155px) rotate(-384deg)}72%{transform:translate(8px,-155px) rotate(-408deg)}82%{transform:translate(22px,-157px) rotate(-416deg)}92%{transform:translate(8px,-157px) rotate(-422deg)}100%{transform:translate(8px,-157px) rotate(-424deg)}}
+#ldg.fall .ldbr{animation:ldbfly 1.7s ease-out forwards}
+@keyframes ldbfly{0%{transform:rotate(-8deg)}25%{transform:translate(-80px,-70px) rotate(200deg)}48%{transform:translate(-8px,-150px) rotate(360deg)}60%{transform:translate(-40px,-155px) rotate(384deg)}72%{transform:translate(-8px,-155px) rotate(408deg)}82%{transform:translate(-22px,-157px) rotate(416deg)}92%{transform:translate(-8px,-157px) rotate(422deg)}100%{transform:translate(-8px,-157px) rotate(424deg)}}
 #tapov{position:fixed;inset:0;z-index:98;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #tapov[hidden]{display:none}#tapov img{width:min(90vw,460px);opacity:0;transform:translateY(90vh);transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .6s;filter:drop-shadow(0 4px 12px rgba(0,0,0,.35))}
 #tapov.up img{opacity:1;transform:none}.tapt{font-weight:900;font-size:18px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.55);opacity:0;transition:opacity .5s .9s}
@@ -1359,7 +1359,10 @@ $("#bwBtn").onclick=()=>{bwOn=!bwOn;try{localStorage.setItem("fc_bw",bwOn?"1":"0
 const BGM={main:["기본 테마","bgm_main.mp3"],f:["요정 테마","bgm_f.mp3"],m:["마녀 테마","bgm_m.mp3"],g:["유령 테마","bgm_g.mp3"],s:["수인 테마","bgm_s.mp3"],e:["엘프 테마","bgm_e.mp3"]};
 let bgmOn=localStorage.getItem("fc_bgm")!=="0",bgmVol=(()=>{const v=localStorage.getItem("fc_bgmv");return v===null?.25:Math.min(1,Math.max(0,+v||0));})(),bgmUnl=false,bgmCur=null;
 /* ---------- 로딩창 (처음·업데이트 때만) ---------- */
-function ldFall(cb){const box=$("#ldg"),w=box&&box.querySelector(".ldw"),c=box&&box.querySelector(".ldc");if(!w||!c){cb();return;}const cr=c.getBoundingClientRect(),wr=w.getBoundingClientRect();let toL=false;try{const an=w.getAnimations()[0],t=an.currentTime%3000;toL=t>=1500;}catch(e){}w.style.left=(wr.left-cr.left)+"px";box.classList.toggle("fl",toL);box.classList.add("fall");setTimeout(cb,1750);}
+let LDX=0,LDV=0,LDT=0,LDN=0,LDD=1,LDP=0,LDL=0;
+function ldLoop(t){requestAnimationFrame(ldLoop);const box=document.getElementById("ldg");if(!box||box.hidden||box.classList.contains("fall")){LDL=0;return;}const w=box.querySelector(".ldw"),c=box.querySelector(".ldc"),i=box.querySelector(".ldi");if(!w||!c||!i)return;const dt=LDL?Math.min(.05,(t-LDL)/1000):.016;LDL=t;const W=c.clientWidth-w.offsetWidth;if(t>LDN){LDN=t+80+Math.random()*260;const r=Math.random();LDT=r<.12?0:(Math.random()<.5?-1:1)*(280+Math.random()*420);if(r>.8)LDT=-LDD*(300+Math.random()*400);}LDV+=(LDT-LDV)*Math.min(1,dt*16);LDX+=LDV*dt;if(LDX<0){LDX=0;LDV=Math.abs(LDV);LDT=Math.abs(LDT);}if(LDX>W){LDX=W;LDV=-Math.abs(LDV);LDT=-Math.abs(LDT);}if(Math.abs(LDV)>30)LDD=LDV>0?1:-1;LDP+=dt*(Math.abs(LDV)>30?46:16)*(.8+Math.random()*.5);const y=-Math.abs(Math.sin(LDP))*(4+Math.random()*6);w.style.left=LDX+"px";i.style.transform="translateY("+y+"px) rotate("+(LDV/70+Math.sin(LDP*.5)*4)+"deg)";}
+requestAnimationFrame(ldLoop);
+function ldFall(cb){const box=$("#ldg"),w=box&&box.querySelector(".ldw"),c=box&&box.querySelector(".ldc"),i=box&&box.querySelector(".ldi");if(!w||!c){cb();return;}const toL=LDD<0,W=c.clientWidth-w.offsetWidth;LDX=toL?Math.max(LDX,70):Math.min(LDX,W-70);w.style.left=LDX+"px";if(i)i.style.transform="";box.classList.toggle("fl",toL);box.classList.add("fall");setTimeout(cb,2150);}
 window.addEventListener("DOMContentLoaded",function(){
   try{bgmLoad("main");}catch(e){}
   let seen="";try{seen=localStorage.getItem("fc_ldv")||"";}catch(e){}
@@ -1369,7 +1372,7 @@ window.addEventListener("DOMContentLoaded",function(){
   const t0=Date.now();const end=()=>{if(fin)return;const w=1800-(Date.now()-t0);if(w>0){setTimeout(end,w);return;}fin=true;try{localStorage.setItem("fc_ldv",VER);}catch(e){}const hideLd0=()=>{box.style.transition="opacity .45s";box.style.opacity="0";setTimeout(()=>{box.hidden=true;},480);};const hideLd=()=>ldFall(hideLd0);
     const go=()=>{bgmUnl=true;bgmSync();};
     if(bgmOn&&!bgmUnl){const tp=$("#tapov");document.body.classList.add("tapwait");tp.hidden=false;tp.classList.remove("up");hideLd();
-      setTimeout(()=>tp.classList.add("up"),1900);
+      setTimeout(()=>tp.classList.add("up"),2200);
       tp.onclick=()=>{go();tp.style.transition="opacity .35s";tp.style.opacity="0";document.body.classList.remove("tapwait");setTimeout(()=>{tp.hidden=true;},380);};}
     else{go();hideLd();}};
   const step=()=>{done++;const p=Math.round(done/L.length*100);bar.style.width=p+"%";num.textContent=p+"%";if(done>=L.length)setTimeout(end,250);};
@@ -2692,7 +2695,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.7.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.7.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
