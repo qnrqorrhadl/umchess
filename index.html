@@ -2695,7 +2695,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.8.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.9.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -3293,7 +3293,7 @@ function gEnd(done){
 }
 $("#gNext").onclick=()=>{const st=GUIDE[gI];if(st&&st.end){gEnd(true);}else gStep(gI+1);};
 $("#gSkip").onclick=()=>gEnd(false);
-$("#tutBtn").onclick=()=>{if(mode==="net"||$("#menu").style.display==="none")return;gStart();};
+$("#tutBtn").onclick=()=>{if(mode==="net"||$("#menu").style.display==="none")return;$("#setOv").hidden=true;gStart();};
 try{if(localStorage.getItem("fc_tut")!=="1")setTimeout(gStart,700);}catch(e){}
 
 
