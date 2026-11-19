@@ -281,8 +281,8 @@ body.racem #info{display:none}
 #ldg .ldc{position:relative;width:min(70vw,300px);height:128px;margin-bottom:2px}
 #ldg .ldw{position:absolute;bottom:0;left:0;width:84px;animation:ldwalk 3.6s ease-in-out infinite alternate;transform-origin:50% 100%}
 @keyframes ldwalk{from{left:0}to{left:calc(100% - 84px)}}
-#ldg .ldi{position:relative;transform-origin:50% 100%;animation:ldbob .32s ease-in-out infinite alternate}
-@keyframes ldbob{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-7px) rotate(3deg)}}
+#ldg .ldi{position:relative;transform-origin:50% 100%;animation:ldbob .38s ease-out infinite}
+@keyframes ldbob{0%,100%{transform:translateY(0)}45%{transform:translateY(-8px)}}
 #ldg .ldi img{display:block;width:100%;height:auto}
 #ldg .ldbr{position:absolute;left:30%;top:56%;width:34%;transform:rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
 #ldg.fall .ldw{animation:ldfallR .95s cubic-bezier(.3,.6,.4,1) forwards!important}
@@ -2692,7 +2692,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.7.4";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.7.5";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
