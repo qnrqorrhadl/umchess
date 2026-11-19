@@ -312,19 +312,19 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 @keyframes trapp{0%{transform:scale(.4);opacity:0}30%{transform:scale(1.4);opacity:1}100%{transform:scale(1);opacity:0}}
 #tut{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}
 #tut[hidden]{display:none}
-#tut .tbox{position:relative;background:#fff;border-radius:18px;padding:18px 18px 14px;width:min(340px,90vw);max-height:86vh;overflow:auto;color:#164a25}
-#tut .tn{font-size:12px;font-weight:800;color:#5b7f62;text-align:center}
+#tut .tbox{position:relative;background:none;border:30px solid transparent;border-image:url(card_frame.png) 122 140 fill/30px 34px stretch;padding:4px 8px 2px;width:min(350px,92vw);max-height:90vh;box-sizing:border-box;overflow:auto;color:#5b4023;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4));animation:cardUp .32s cubic-bezier(.2,.9,.3,1)}
+#tut .tn{font-size:12px;font-weight:800;color:#9a7a52;text-align:center}
 #tut h2{margin:4px 0 10px;font-size:20px;font-weight:900;text-align:center}
 #tut .tb{display:flex;flex-direction:column;gap:8px;font-size:15px;font-weight:600;line-height:1.45}
-#tut .tb p{margin:0}#tut .tb b{font-weight:900;color:#2f7a3d}
-#tut .tb .it{background:#e4f3e1;border-radius:12px;padding:8px 10px}
+#tut .tb p{margin:0}#tut .tb b{font-weight:900;color:#b5651d}
+#tut .tb .it{background:rgba(224,163,84,.2);border-radius:12px;padding:8px 10px}
 #tut .tb .it em{font-style:normal;font-weight:900;display:block;margin-bottom:2px}
 #tut .tdots{display:flex;gap:6px;justify-content:center;margin:12px 0 8px}
-#tut .tdots i{width:8px;height:8px;border-radius:50%;background:#cfe5cc}#tut .tdots i.on{background:#4fa860}
+#tut .tdots i{width:8px;height:8px;border-radius:50%;background:#e3cfa9}#tut .tdots i.on{background:#d38b2f}
 #tut .tbtns{display:flex;gap:10px}
-#tut .tbtns button{flex:1;border:0;border-radius:12px;padding:11px;font-size:16px;font-weight:900;background:#5fb36b;color:#fff}
+#tut .tbtns button{flex:1;border:0;border-radius:12px;padding:11px;font-size:16px;font-weight:900;background:#4FAE3A;border-bottom:3px solid rgba(0,0,0,.2);color:#fff}
 #tut .tbtns button:disabled{opacity:.35}
-#tut .tskip{display:block;margin:8px auto 0;border:0;background:none;color:#7b9b82;font-size:13px;font-weight:700}
+#tut .tskip{display:block;margin:8px auto 0;border:0;background:none!important;box-shadow:none!important;color:#a08560;font-size:13px;font-weight:700}
 #dlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
 #dlg[hidden]{display:none}
 #dlg .dbox,#promo .box{background:none;border:30px solid transparent;border-image:url(card_frame.png) 122 140 fill/30px 34px stretch;padding:4px 8px 2px;width:min(330px,88vw);box-sizing:border-box;text-align:center;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4));animation:cardUp .32s cubic-bezier(.2,.9,.3,1)}
@@ -2695,7 +2695,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.8.7";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.8.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -3234,7 +3234,15 @@ const GUIDE=[
  {t:"#oppSk",x:"상대 스킬 보기 버튼이에요.\n상대가 스킬을 쓰면 그 설명을 읽을 수 있어요"},
  {t:"#sic",x:"닫기를 눌러요"},
  {t:"#skBtn",x:"스킬 카드를 누르면 사용 모드가 되고, 대상 칸을 누르면 발동해요.\n카드 위 숫자는 남은 쿨타임(턴)이에요.\n연습에서는 쿨타임 없이 마음껏 써 보세요",next:1},
- {t:null,x:"메인 화면의 설정에서 닉네임, 효과음, 흑백 모드를 바꿀 수 있고,\n이 가이드도 다시 볼 수 있어요.\n\n다음은 온라인 대전 하는 법이에요",next:1,end:1}
+ {t:null,x:"메인 화면의 설정에서 효과음, 흑백 모드 등을 바꿀 수 있고,\n이 가이드도 다시 볼 수 있어요.\n\n이제 메뉴로 나가서 온라인 대전을 해 볼게요",next:1},
+ {t:"#home",x:"메뉴를 눌러 메인 화면으로 나가요",wait:9000},
+ {t:"#mNet",x:"줘팸터를 눌러요.\n온라인 대전 방이 모여 있는 곳이에요",wait:6000},
+ {t:"#nList",x:"열린 방 목록이에요.\n방의 입장을 누르면 바로 대전이 시작돼요.\n방이 5개를 넘으면 ◀ ▶로 넘겨요",next:1},
+ {t:"#nOpen",x:"방 만들기를 눌러서 내 방을 만들어요"},
+ {t:"#nKind",x:"방식을 골라요.\n종족전은 스킬 대결, 클래식은 일반 체스예요",next:1},
+ {t:"#nTime",x:"시간제도 고를 수 있어요.\n시계는 내 차례에만 줄고 스킬 연출 중엔 멈춰요.\n3분 방은 10초, 5분·10분 방은 1분이 남으면 빨갛게 바뀌고, 0이 되면 패배해요",next:1},
+ {t:"#nVis",x:"친구만 부르고 싶으면 비밀번호방을 골라요",next:1},
+ {t:null,x:"방을 만들면 상대를 기다리는 동안 연습할 수 있어요.\n\n상대 연결이 끊기면 안내가 뜨고, 1분 안에 돌아오지 않으면 내 승리예요.\n이긴 판은 종족·스킬별 승률에 기록돼요 (온라인 대전만)\n\n체험에서는 방이 만들어지지 않아요",next:1,end:1}
 ];
 let gI=-1,gOn=false,gTimer=0,gLast="",gNextAt=0,gFound=0;
 const gq=sel=>{const a=[...document.querySelectorAll(sel)];return a.find(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2&&getComputedStyle(e).visibility!=="hidden";});};
@@ -3281,7 +3289,7 @@ function gStart(){
 function gEnd(done){
   gOn=false;cancelAnimationFrame(gTimer);document.removeEventListener("click",gClick,true);$("#gd").hidden=true;
   try{localStorage.setItem("fc_tut","1");}catch(e){}
-  if(done)tutOpen();
+  if(done){try{showPg('pgMain');}catch(e){}}
 }
 $("#gNext").onclick=()=>{const st=GUIDE[gI];if(st&&st.end){gEnd(true);}else gStep(gI+1);};
 $("#gSkip").onclick=()=>gEnd(false);
