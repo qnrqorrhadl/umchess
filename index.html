@@ -420,9 +420,9 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 /* ---- 설정 (작은 책) ---- */
 #setOv{position:fixed;inset:0;z-index:12;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center}
 #setOv[hidden]{display:none}
-#setBk{container-type:inline-size;position:relative;width:min(80vw,380px,42vh);aspect-ratio:736/960;margin-left:calc(min(80vw,380px,42vh)*.092);background:url(book_set.png) center/100% 100% no-repeat;animation:setUp .38s cubic-bezier(.2,.9,.3,1)}
+#setBk{container-type:inline-size;position:relative;width:min(94vw,380px,42vh);aspect-ratio:736/960;margin-left:calc(min(94vw,380px,42vh)*.092);background:url(book_set.png) center/100% 100% no-repeat;animation:setUp .5s cubic-bezier(.22,.8,.3,1)}
 #setOv.out #setBk{animation:setDn .26s ease-in forwards}
-@keyframes setUp{0%{transform:translateY(60vh) rotate(12deg);opacity:0}55%{transform:translateY(8vh) rotate(-6deg);opacity:1}100%{transform:none;opacity:1}}
+@keyframes setUp{0%{transform:translateY(60vh) rotate(9deg);opacity:0}30%{opacity:1}100%{transform:none;opacity:1}}
 @keyframes setDn{to{transform:translateY(60vh) rotate(10deg);opacity:0}}
 #setBk::before{content:"설정";position:absolute;left:88.5cqw;top:35.5cqw;width:10cqw;height:20cqw;line-height:10cqw;writing-mode:vertical-rl;text-align:center;font-size:3.6cqw;color:#fff;text-shadow:0 .3cqw .6cqw rgba(0,0,0,.35);pointer-events:none}
 #setBk .pg{position:absolute;inset:0;padding:16cqw 28.2cqw 16cqw 17.5cqw;gap:2.6cqw;text-align:center;overflow:auto;display:flex;flex-direction:column;justify-content:center}
@@ -2628,7 +2628,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="1.6.32";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="1.6.34";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
