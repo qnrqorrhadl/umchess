@@ -2878,7 +2878,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="2.2.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="2.2.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -3401,7 +3401,7 @@ function skRender(keep){
   document.querySelector("#pgSk .pvl").textContent=pn+"의 스킬을 쓰면 이렇게 보여요";
   const all=[...d.sk.map(x=>({lab:"",t:x[0],d:x[1],i:x[2]})),...d.ex.map(x=>({lab:x[0],t:x[1],d:x[3],i:x[2]}))];
   $("#skChips").innerHTML=all.map((x,k)=>`<b class="${k===skTab?"on":""}" data-k="${k}">${k<2?"스킬 "+(k+1)+(cur===k+1?" ✓":""):x.lab}</b>`).join("");
-  const e=all[skTab],parts=e.d.split(/ · |\n/).filter(Boolean),cdp=parts.find(p=>/^쿨 ?\d/.test(p)),sh=SHORT[e.t];
+  const e=all[skTab],parts=e.d.split(/ · |\n/).filter(Boolean),cds=[...e.d.matchAll(/쿨 ?(\d+)/g)].map(m=>m[1]).filter((v,i,a)=>a.indexOf(v)===i),cdp=parts.find(p=>/^쿨 ?\d/.test(p))||(cds.length&&e.lab!=="패시브"?"쿨 "+cds.join("/"):""),sh=SHORT[e.t];
   const cdv=cdp?cdp.replace(/^쿨 ?/,""):"",cdt=/^[\d\/ ]+$/.test(cdv)?cdv+"턴":cdv;
   const shT=sh?sh.split(" · ").filter(p=>!/^쿨 ?\d/.test(p)).join(" · "):e.d;
   const fu=parts.filter(p=>p!==cdp).map(p=>`<p>${esc(p)}</p>`).join("");
