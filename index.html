@@ -1397,7 +1397,7 @@ window.addEventListener("DOMContentLoaded",function(){
   setTimeout(end,180000);
 });
 /* 배경음악: 웹 오디오(끊김 없는 반복) */
-const BGML={main:0.3,f:0.3,m:16.68,g:15.12,s:6.88,e:26.64};
+const BGML={main:0,f:0,m:0,g:0,s:0,e:0};
 const bgmAt=(n,t)=>{const e=n.off+(t-n.t0);return e<n.dur?e:n.ls+((e-n.ls)%(n.dur-n.ls));};
 let bgmCtx=null,bgmMaster=null;const bgmBuf={},bgmP={},bgmNodes={},bgmPos={};let bgmCurK=null;
 function bgmC(){if(!bgmCtx){const C=window.AudioContext||window.webkitAudioContext;bgmCtx=new C();bgmMaster=bgmCtx.createGain();bgmMaster.gain.value=bgmVol;bgmMaster.connect(bgmCtx.destination);}return bgmCtx;}
@@ -2778,7 +2778,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="2.1.0";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="2.1.2";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
