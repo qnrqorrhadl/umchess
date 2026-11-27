@@ -914,10 +914,7 @@ function inCheck(s,c){const[r,k]=findKing(s.b,c);if(s.sk&&s.sk.sh[r][k]>0)return
         let rr=i+up;while(inb(rr,j)){if(s.b[rr][j]){if(rr===r&&j===k)return true;break;}rr+=up;}}}}
   return attacked(b,r,k,opp(c),QK(s,opp(c)),QN(s,opp(c)));}
 
-function pseudo(s,r,c){const o=pseudo0(s,r,c);
-  if(s.sk&&s.sk.dk&&(s.sk.dk[r][c]&15)&&typ(s.b[r][c])==="P"){const pr=col(s.b[r][c])==="w"?0:7;return o.filter(m=>m.tr!==pr);}
-  return o;}
-function pseudo0(s,r,c){
+function pseudo(s,r,c){
   const b=s.b,p=b[r][c],me=col(p),t=typ(p),out=[];
   if(s.sk&&s.sk.fz[r][c]>0)return out;
   const add=(rr,cc,x={})=>out.push({fr:r,fc:c,tr:rr,tc:cc,...x});
@@ -1043,7 +1040,7 @@ function apply0(s,m,promo,nb,hold){
     if(m.cs==="Q"){sh[m.tr][3]=sh[m.tr][0];sh[m.tr][0]=0;st[m.tr][3]=st[m.tr][0];st[m.tr][0]=0;}}
   if(m.cs==="K"){n.b[m.tr][7]=null;n.b[m.tr][5]=me+"R";}
   if(m.cs==="Q"){n.b[m.tr][0]=null;n.b[m.tr][3]=me+"R";}
-  if(typ(p)==="P"&&(m.tr===0||m.tr===7))n.b[m.tr][m.tc]=me+(promo||"Q");
+  if(typ(p)==="P"&&(m.tr===0||m.tr===7)&&!(s.sk&&s.sk.dk&&(s.sk.dk[m.fr][m.fc]&15)))n.b[m.tr][m.tc]=me+(promo||"Q");
   if(typ(p)==="K"){n.cast[me+"K"]=0;n.cast[me+"Q"]=0;}
   for(const[sq,key]of[[[7,0],"wQ"],[[7,7],"wK"],[[0,0],"bQ"],[[0,7],"bK"]])
     if((m.fr===sq[0]&&m.fc===sq[1])||(m.tr===sq[0]&&m.tc===sq[1]))n.cast[key]=0;
@@ -1225,7 +1222,7 @@ function click(r,c){
   const m=legalCache.find(m=>m.tr===r&&m.tc===c);
   if(sel&&m){
     const p=S.b[sel[0]][sel[1]];
-    if(typ(p)==="P"&&(r===0||r===7)){askPromo(col(p),k=>doMove(m,k));}
+    if(typ(p)==="P"&&(r===0||r===7)&&!(S.sk&&S.sk.dk&&(S.sk.dk[sel[0]][sel[1]]&15))){askPromo(col(p),k=>doMove(m,k));}
     else doMove(m);
     return;
   }
@@ -1239,7 +1236,7 @@ function mvText(before,m,promo,fin){
   if(m.cs==="K")x="O-O";else if(m.cs==="Q")x="O-O-O";
   else{const cap=before.b[m.tr][m.tc]||m.ep;
     x=(t==="P"?(cap?"abcdefgh"[m.fc]:""):t)+(cap?"x":"")+(fin.bl?"!":"")+sqNm(m.tr,m.tc);
-    if(t==="P"&&(m.tr===0||m.tr===7)&&!fin.bl)x+="="+(promo||"Q");
+    if(t==="P"&&(m.tr===0||m.tr===7)&&!fin.bl&&!(before.sk&&before.sk.dk&&(before.sk.dk[m.fr][m.fc]&15)))x+="="+(promo||"Q");
     if(m.rng)x+="@";
     if(fin.cvt)x+="~";
     if(fin.bx){for(const l of fin.bx.list)if(l[2]===1&&!(l[0]===m.tr&&l[1]===m.tc))x+=","+sqNm(l[0],l[1]);if(fin.bx.list.some(l=>l[2]===1&&l[0]===m.tr&&l[1]===m.tc))x+="*";}}
@@ -2929,7 +2926,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="2.2.8";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="2.2.9";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
@@ -3285,7 +3282,7 @@ RD.e={name:"엘프",king:"eK.png",sk:[["공기까스 진짜 별로네",ELDESC[1]
  ex:[["공용","라이카-노바 테이저 건-2000","skill_et.jpg","상대 기물 1개를 감전시킨다 · 1턴 기절한 뒤 3턴 동안 움직일 때마다 30% 확률로 저려서 움직이지 못한다 · 내 턴 소모 · 쿨 8턴"],
  ["패시브","배신의 종족","skill_ep.jpg","무승부를 신청할 수도, 받을 수도 없다 · 어떤 방식으로든 무승부가 되면 엘프가 승리한다 (엘프끼리는 무승부)"]]};
 const DDESC={1:"이미 움직인 내 폰 1개가 처음 움직일 때처럼 2칸 앞으로 이동한다 · 앞 두 칸이 비어 있어야 하고 승급 줄에는 갈 수 없다 · 앙파상을 당할 수 있다 · 내 턴 소모 · 쿨 10턴",
- 2:"내 폰 1개를 지정한다 · 5턴 안에 그 폰이 나이트·비숍·룩·퀸을 잡으면 그 기물의 행마법을 영구히 얻고(처음 잡은 기물 하나뿐 · 승급은 못 함), 1턴 동안 방어막이 생긴 뒤 효과가 끝난다 · 내 턴 소모 · 쿨 10턴"};
+ 2:"내 폰 1개를 지정한다 · 5턴 안에 그 폰이 나이트·비숍·룩·퀸을 잡으면 그 기물의 행마법을 영구히 얻고(처음 잡은 기물 하나뿐 · 마지막 줄에 가도 승급하지 않음), 1턴 동안 방어막이 생긴 뒤 효과가 끝난다 · 내 턴 소모 · 쿨 10턴"};
 RD.d={name:"용족",king:"dK.png",sk:[["우리에게 맡겨라!",DDESC[1],"skill_d1.jpg"],["이 고무줄 총은...",DDESC[2],"skill_d2.jpg"]],
  ex:[["공용","용족의 알","skill_dc.jpg","원하는 빈칸에 알 1개를 소환한다 · 알은 내 수를 2번 둔 뒤 폰으로 부화한다 · 상대가 잡으면 알은 사라진다 · 내 폰이 2개 미만이면 바로 폰이 태어난다 · 즉발 · 쿨 8턴"]]};
 const RORDER=["f","m","s","g","e","d"];
