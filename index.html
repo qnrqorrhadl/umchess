@@ -3538,6 +3538,9 @@ function skTx(title,full,pre){const sh=SHORT[title];const e=t=>t.replace(/</g,"&
 
 /* 미니 체스판 시연: 게임과 같은 기물·효과 모양 사용 */
 const DEMO={
+"고위 정령":{pcs:{k:["p","K",2,4],w:["p","P",0,3],a:["f","P",1,2,1],b:["f","N",2,2,1],c:["f","P",3,2,1],r:["f","R",4,0,1]},steps:[[1000,[["lab","물"],["tr","wv",1,2,3,1,"wave"]],"물: 가로 1×3 파도"],[1000,[["mv","a",1,1],["mv","b",2,1],["mv","c",3,1]],"상대 기물을 한 칸 뒤로"],[900,[["trx","wv"],["lab","불"],["tr","f1",0,1,1,1,"fire"],["tr","f2",4,2,1,1,"fire"],["tr","f3",2,3,1,1,"fire"]],"불: 랜덤 3곳에 4턴"],[1100,[["mv","r",4,2],["stun","r",1]],"밟은 기물 1턴 기절"],[900,[["trx","f1"],["trx","f2"],["trx","f3"],["lab","땅"],["tr","rk",1,3,1,1,"rock"]],"땅: 부술 수 있는 벽"],[1300,[],"폰 2번 · 나머지 1번 공격하면 부서짐"],[800,[["trx","rk"],["lab","바람"],["tr","wd",0,3,3,1,"wind"]],"바람: 1×3 바람길"],[1200,[["mv","w",2,3]],"올라간 기물은 바람을 타고 이동"],[1400,[],"쓸 때마다 물→불→땅→바람"]]},
+"행복해지도록":{pcs:{k:["p","K",2,4],w:["p","P",0,3],a:["f","P",1,1,1],b:["f","N",2,1,1],c:["f","P",3,1,1]},steps:[[900,[["lab","증폭!"],["tr","wd",0,3,3,1,"wind"]],"공용 속성을 즉시 강화"],[1000,[["mv","w",2,3]],"바람: 타고 이동"],[1100,[["mv","w",2,2],["cell",2,3,"last"],["cell",2,2,"last"]],"한 번 더 이동 가능"],[900,[["trx","wd"],["lab","물 증폭"],["tr","wv",1,1,3,1,"wave"]],"물: 밀리고 가운데 확정 기절"],[1000,[["mv","a",1,0],["mv","b",2,0],["mv","c",3,0],["stun","b",1]],"가운데 기물 1턴 기절"],[1500,[["trx","wv"],["lab","땅 체력+1 · 불 +1"]],"땅: 체력 +1 · 불: 3곳 → 4곳"]]},
+"500년 대계획":{pcs:{k:["p","K",2,4]},steps:[[900,[["lab","속성 고르기"],["tr","i0",0,2,1,1,"img:t_water.png"],["tr","i1",1,2,1,1,"img:t_fire.png"],["tr","i2",2,2,1,1,"img:t_earth.png"],["tr","i3",3,2,1,1,"img:t_wind.png"]],"다음 속성을 직접 선택"],[1100,[["cell",2,2,"skt"]],"땅을 고르면"],[1500,[["lab","땅 → 바람 → 물 → 불"]],"고른 속성부터 순서가 이어짐"],[1500,[],""]]},
 "타임 브레이크":{pcs:{n:["f","N",1,3,1],k:["e","K",2,4],m:["e","N",3,3]},steps:[[900,[["cell",1,3,"skt"]],"상대 기물 선택"],[1100,[["mv","n",2,1],["cell",1,3,"last"],["cell",2,1,"last"]],"행마법대로 이동"],[900,[["stun","n",3]],"3턴 저림, 복귀 불가"]]},
 "공기까스 진짜 별로네":{pcs:{k:["e","K",2,4],p:["e","P",1,4],a:["t",3,2,5],b:["t",1,1,5],c:["t",2,0,5],r:["f","R",3,4,1]},steps:[[900,[["op","a",1],["op","b",1],["op","c",1]],"빈칸 3곳에 덫 설치"],[1500,[["op","a",.2],["op","b",.2],["op","c",.2]],"상대에게 안 보임"],[1200,[["mv","r",3,2]],"지나가면 그 칸에서 멈춤"],[1000,[["stun","r",1]],"밟으면 1턴 기절"]]},
 "차원의 틈":{pcs:{k:["g","K",0,4],n:["g","N",1,3],b:["g","B",3,3],r:["g","R",2,4]},steps:[[1400,[["qm",2,2]],"효과 5개 중 랜덤 1개"],[1500,[["qm"],["swap","n","b"]],"자리 바꾸기"],[2800,[["zapfx","r"]],"감전"],[1300,[["zap","r",1],["gst","k",3]],"고스트 (공격받지 않음)"],[1500,[["spk",2,1]],"스핔이 낙하"],[1900,[["mtb","n"]],"메인 스킬 강화, 쿨 감소"],[1800,[],""]]},
@@ -3671,6 +3674,15 @@ function demoRun(name){
               w(o[2]).animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:`translate(${ux*cs*.12}px,${uy*cs*.12}px) scale(1.08)`,opacity:1,offset:.25},{transform:"translate(0,0) scale(.2)",opacity:0}],{duration:300,easing:"ease-in",fill:"forwards"});
               gun.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:"forwards"}).onfinish=()=>gun.remove();};
           },260));}
+        else if(k==="tr"){const d=document.createElement("div");d.className="pw trr";d.dataset.tid=o[1];const kd=o[6];
+          d.style.cssText=`left:${o[2]*20}%;top:${o[3]*20}%;width:${o[4]*20}%;height:${o[5]*20}%;z-index:2;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:7cqw;box-sizing:border-box;`;
+          if(kd==="wave"){d.style.background="rgba(70,170,255,.45)";d.style.border="2px solid #4aa8ff";d.textContent="🌊";}
+          else if(kd==="wind"){d.style.background="rgba(120,230,140,.4)";d.style.border="2px solid #5fd36e";d.textContent="››››";d.style.letterSpacing="-1px";d.style.color="#1d7a2b";d.style.fontWeight="900";}
+          else if(kd==="fire"){d.style.background="rgba(255,120,40,.35)";d.textContent="🔥";}
+          else if(kd==="rock"){d.style.background="url(tRock.png) center/90% no-repeat";}
+          else if(kd.startsWith("img:")){d.style.background="url("+kd.slice(4)+") center/92% no-repeat";d.style.borderRadius="12%";}
+          bd.insertBefore(d,bd.querySelector(".pw"));d.animate([{opacity:0,transform:"scale(.6)"},{opacity:1,transform:"scale(1)"}],{duration:300,fill:"both"});}
+        else if(k==="trx"){bd.querySelectorAll('.trr[data-tid="'+o[1]+'"]').forEach(q=>q.animate([{opacity:1},{opacity:0}],{duration:250,fill:"both"}).onfinish=()=>q.remove());}
         else if(k==="qm"){if(o.length>1){qm.style.left=o[1]*20+"%";qm.style.top=o[2]*20+"%";qm.hidden=false;}else qm.hidden=true;}
       });
       cap.textContent=tx;cap.classList.add("on");
