@@ -746,6 +746,18 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
 .wvfx{position:absolute;z-index:30;pointer-events:none;border-radius:10px;background:linear-gradient(90deg,rgba(80,170,255,0),rgba(80,170,255,.75),rgba(150,225,255,.9),rgba(80,170,255,.75),rgba(80,170,255,0));transform-origin:left center}
 .sppick{width:66px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:#3a2a08;font-weight:700}
 .sppick img{width:60px;height:60px;border-radius:50%;border:2px solid #7bbf4a;object-fit:cover;background:#fff}
+
+.tray .ldr{display:flex;align-items:center;gap:6px;margin-right:4px;flex:none}
+.tray .ldr img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:3px solid #9be36a;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+.tray .ldr b{font-size:14px;color:#2b3a2e}
+.piece.bp{display:flex;align-items:center;justify-content:center;container-type:size}
+.piece.bp,.piece.bp.w,.piece.bp.b{background:none!important;box-shadow:none!important}
+.piece.bp .gl{font-size:92cqw;line-height:1;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",serif;font-weight:400}
+.piece.bp.w .gl{color:#fff;-webkit-text-stroke:1.8px #222;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.piece.bp.b .gl{color:#111;-webkit-text-stroke:1.2px #f2f2f2;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.piece.bp .badge{display:none}
+.piece.bp .bpi{width:100%;height:100%;border-radius:0;object-fit:contain}
+.piece.bp,.piece.bp.tP,.piece.bp.tN,.piece.bp.tB,.piece.bp.tR,.piece.bp.tQ{width:104%!important;height:104%!important;overflow:visible}
 </style>
 
 <script>document.documentElement.style.setProperty("--bg","url(bg"+(1+Math.floor(Math.random()*3))+".jpg)")</script>
@@ -855,8 +867,10 @@ body.tapwait #menu .box{opacity:0;pointer-events:none}#menu .box{transition:opac
     <button id="bgmBtn">배경음악 켬</button>
     <div class="bgmv"><span>음악 볼륨</span><input type="range" id="bgmVol" min="0" max="100" step="5"></div>
     <details class="bgmd"><summary>종족별 배경음악 선택</summary><div id="bgmSel"></div></details>
+    <details class="bgmd"><summary>리더 캐릭터 선택</summary><div id="ldSel"></div></details>
     <button id="zmBtn">화면 크기: 자동</button>
     <button id="bwBtn">흑백 모드 끔</button>
+    <button id="bpBtn">기물 모양: 캐릭터</button>
     <button id="bdBtn">판 모양: 기본</button>
     <button id="tutBtn">도움말 (사용법 가이드)</button>
     <button class="sback" id="setBack">← 닫기</button>
@@ -1124,12 +1138,14 @@ function dead(s){let n=0,bs=[],kn=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){con
   return n<=1||(kn===0&&bs.every(x=>x===bs[0]));}
 function anyLegal(s){for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(legal(s,r,c).length)return true;return false;}
 
+let BASICP=(()=>{try{return localStorage.getItem("fc_basic")==="1";}catch(e){return false;}})();
 function pieceEl(p,small,imgCol,evo){
   if(col(p)==="n"){const d=document.createElement("div");d.className="piece n";d.innerHTML=typ(p)==="E"?'<img src="dEgg.png" alt="">':typ(p)==="W"?'<img src="tRock.png" alt="">':'<img src="gSpic.png" alt="">';return d;}
   const d=document.createElement("div"),rc=isRace();
-  d.className="piece "+col(p)+(rc?(mirror()?" tmW"+(col(p)==="w"?"1":"2"):" tm"):"");
+  d.className="piece t"+typ(p)+" "+col(p)+(rc?(mirror()?" tmW"+(col(p)==="w"?"1":"2"):" tm"):"");
   if(rc&&!mirror())d.style.boxShadow="0 0 0 3px "+RACES[rOf(imgCol||col(p))].cc+",0 2px 6px rgba(0,0,0,.6)";
   const ic=imgCol||col(p),pre=rc?RACES[rOf(ic)].img:ic;
+  if(BASICP&&typ(p)!=="K"&&SYM[typ(p)]){d.classList.add("bp");d.style.boxShadow="none";d.innerHTML=`<img class="bpi" src="bp${col(p)==="b"?"b":"w"}_${typ(p)}.png" alt="">`;return d;}
   d.innerHTML=`<img src="${pre}${typ(p)}${evo==="dr"?"_dr":evo?"_evo":""}.png" alt=""><span class="badge">${(rc&&mirror()&&col(p)==="w"?HSYM:SYM)[typ(p)]}</span>`;
   const im=d.firstChild;im.onerror=()=>{im.onerror=null;if(evo){im.onerror=()=>{im.onerror=null;d.classList.add("old");im.src=NAME[typ(p)]+".png";};im.src=pre+typ(p)+".png";return;}d.classList.add("old");im.src=NAME[typ(p)]+".png";};
   return d;
@@ -1186,7 +1202,7 @@ function render(){
       if(S.sk&&S.sk.gh[r][c]>0)pe.classList.add("gst");
       if(S.sk&&S.sk.mt[r][c]>0){pe.classList.add("mtb");}
       let bgEl=null;const bonkHere=bonk&&(bonk.list.some(a=>a[0]===r&&a[1]===c)||(bonk.tr===r&&bonk.tc===c));
-      if(!bonkHere&&col(S.b[r][c])!=="n"){pe.classList.add("hb");const bg=document.createElement("span"),pc=S.b[r][c],mi=isRace()&&mirror(),wh=isRace()||col(pc)==="w";bg.className="badge bdg";bg.textContent=(mi&&col(pc)==="w"?HSYM:SYM)[typ(pc)];bg.style.background=wh?"#fff":"#111";bg.style.color=wh?"#111":"#fff";bgEl=bg;}
+      if(!bonkHere&&col(S.b[r][c])!=="n"&&!(BASICP&&typ(S.b[r][c])!=="K"&&SYM[typ(S.b[r][c])])){pe.classList.add("hb");const bg=document.createElement("span"),pc=S.b[r][c],mi=isRace()&&mirror(),wh=isRace()||col(pc)==="w";bg.className="badge bdg";bg.textContent=(mi&&col(pc)==="w"?HSYM:SYM)[typ(pc)];bg.style.background=wh?"#fff":"#111";bg.style.color=wh?"#111":"#fff";bgEl=bg;}
       q.appendChild(pe);
       if(S.sk&&col(S.b[r][c])!=="n"){const D=durOf(r,c);if(D){const db=document.createElement("span");db.className="dur";db.textContent=D[0];db.style.setProperty("--dc",D[1]);q.appendChild(db);}}
       let lk=0;
@@ -1418,6 +1434,12 @@ function bwBtn(){$("#bwBtn").textContent=bwOn?"흑백 모드 켬":"흑백 모드
 bwBtn();
 $("#bwBtn").onclick=()=>{bwOn=!bwOn;try{localStorage.setItem("fc_bw",bwOn?"1":"0");}catch(e){}bwBtn();try{render();}catch(e){}};
 
+
+document.addEventListener("DOMContentLoaded",()=>{const sel=document.getElementById("ldSel");if(!sel)return;
+  RORDER.forEach(r=>{const row=document.createElement("div");row.className="bgr";const l=document.createElement("span");l.textContent=RACES[r]?RACES[r].name:r;
+    const se=document.createElement("select");Object.keys(LDRN).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=LDRN[k];se.appendChild(o);});
+    se.value=ldrGet(r);se.onchange=()=>{try{localStorage.setItem("fc_ld_"+r,se.value);}catch(e){}if(typeof renderTrays==="function"&&typeof S!=="undefined"&&S&&S.tray)try{renderTrays();}catch(e){}};row.appendChild(l);row.appendChild(se);sel.appendChild(row);});});
+document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("bpBtn");if(!b)return;const u=()=>b.textContent=BASICP?"기물 모양: 기본 (킹 제외)":"기물 모양: 캐릭터";u();b.onclick=()=>{BASICP=!BASICP;try{localStorage.setItem("fc_basic",BASICP?"1":"0");}catch(e){}u();try{render();}catch(e){}try{if(S&&S.tray)renderTrays();}catch(e){}};});
 /* 화면 크기 (컴퓨터 자동 125%) */
 const ZM=["auto","100","125","150"],ZML={auto:"자동",100:"100%",125:"125%",150:"150%"};
 function zmMode(){try{const v=localStorage.getItem("fc_zoom");return ZM.includes(v)?v:"auto";}catch(e){return "auto";}}
@@ -2978,6 +3000,8 @@ async function gradeMove(before,m,after,ended,tok,prev){
 
 /* ---------- 잡힌 기물 칸 + 자유 이동 (연습실) ---------- */
 const PV={P:1,N:3,B:3,R:5,Q:9,K:0};
+const LDRN={K:"킹",Q:"퀸",R:"룩",N:"나이트",B:"비숍",P:"폰"};
+function ldrGet(r){try{const v=localStorage.getItem("fc_ld_"+r);return LDRN[v]?v:"K";}catch(e){return "K";}}
 function renderTrays(){
   const sum=a=>a.reduce((s,p)=>s+PV[typ(p)],0);
   const wl=sum(S.tray.b)-sum(S.tray.w); // 백이 잡은 점수 - 흑이 잡은 점수
@@ -2990,6 +3014,8 @@ function renderTrays(){
       d.appendChild(pieceEl(p));el.appendChild(d);
     }
     if(mode==="net"&&NET.tc>0&&NET.clk){const k=document.createElement("span"),cs=id==="#trayT"?(flip()?"w":"b"):(flip()?"b":"w");k.className="clk";k.dataset.s=cs;el.appendChild(k);}
+    if(isRace()){const ow=c==="w"?"b":"w",rk=rOf(ow),R=RACES[rk];if(R){const lt=ow===me?ldrGet(rk):"K",ld=document.createElement("div");ld.className="ldr";
+      const im=document.createElement("img");im.src=R.img+lt+".png";im.alt="";im.style.borderColor=R.cc;ld.appendChild(im);const t=document.createElement("b");t.textContent=R.name;ld.appendChild(t);el.prepend(ld);}}
     const lead=c==="w"?-wl:wl;
     if(lead>0){const s=document.createElement("span");s.className="sc";s.textContent="+"+lead;el.appendChild(s);}
   }
@@ -3176,7 +3202,7 @@ let i=Math.floor(Math.random()*T.length);
 function show(){const e=document.getElementById("tipTx");if(e)e.textContent=T[i];}
 document.addEventListener("DOMContentLoaded",()=>{show();const t=document.getElementById("tip");if(t)t.onclick=()=>{i=(i+1)%T.length;show();};});
 })();
-const VER="2.3.1";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
+const VER="2.3.7";document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("ver");if(v)v.textContent="v"+VER;});
 let FB_URL="https://trickal-chess-default-rtdb.asia-southeast1.firebasedatabase.app";
 const NET={tc:0,clk:null,res:"",rm:false,rmOpp:false,rmT:0,gi:null,waiting:false,pw:"",code:"",hb:0,bad:false,vis:0,oppN:"",classic:false,kind:"race",guest:"",conn:null,host:false,me:"w",first:"w",dead:false,q:[],own:null,fs:null};
 function netStat(t,code){const e=$("#nStat");e.textContent=t||"";if(code){const b=document.createElement("b");b.textContent=code;e.prepend(b);}}
